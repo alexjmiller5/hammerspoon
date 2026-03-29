@@ -1,0 +1,130 @@
+local log = hs.logger.new("App Based Hotkeys", "debug")
+
+local constants = require("constants")
+local profileConstants = require("profile.constants")
+local helperFunctions = require("helperFunctions")
+
+local M = {}
+
+local actions = {
+  pwaDevTools = function() hs.eventtap.keyStroke({ "cmd", "alt" }, "i") end,
+  claudeToggleSidebar = function()
+    hs.eventtap.keyStroke({ "cmd" }, ".")
+  end,
+  -- geminiToggleSidebar = function()
+  --   local jsCode = [[ document.querySelector('button[data-test-id="side-nav-menu-button"]').click(); ]]
+  --   helperFunctions.executeJsOnFocusedChrome(jsCode)
+  -- end,
+  xcodeToggleSidebar = function()
+    if not helperFunctions.tryMenuItem({ "View", "Navigators", "Show Navigator" }) then
+      helperFunctions.tryMenuItem({ "View", "Navigators", "Hide Navigator" })
+    end
+  end,
+  zoomToggleMute = function() hs.eventtap.keyStroke({ "cmd", "shift" }, "a") end,
+  spotifyToggleSidebars = function()
+    hs.eventtap.keyStroke({ "alt", "shift" }, "l")
+    hs.eventtap.keyStroke({ "alt", "shift" }, "r")
+  end,
+  chromeDuplicateTab = function()
+    helperFunctions.tryMenuItem({ "Tab", "Duplicate Tab" })
+    helperFunctions.tryMenuItem({ "Tab", "Select Previous Tab" })
+  end,
+  chromeDuplicateAndGoBack = function()
+    helperFunctions.tryMenuItem({ "Tab", "Duplicate Tab" })
+    helperFunctions.tryMenuItem({ "History", "Back" })
+  end,
+  -- chromeBookmarkTab = function()
+  --   helperFunctions.tryMenuItem({ "Bookmarks", "Bookmark This Tab..." })
+  -- end,
+  chromeToggleDevTools = function()
+    helperFunctions.tryMenuItem({ "View", "Developer", "Developer Tools" })
+  end,
+
+
+
+  previewToggleSidebar = function()
+    if PreviewSidebarVisible then
+      helperFunctions.tryMenuItem({ "View", "Hide Sidebar" })
+      PreviewSidebarVisible = false
+    else
+      helperFunctions.tryMenuItem({ "View", "Thumbnails" })
+      PreviewSidebarVisible = true
+    end
+    -- Alternative native approach which is slower
+    -- local app = hs.application.frontmostApplication()
+    -- local thumbItem = app:findMenuItem({ "View", "Thumbnails" })
+
+    -- -- Log the specific table to see if it uses 'ticked' or 'toggled'
+    -- if thumbItem then
+    --   log.d("Thumbnails Menu Item found: " .. hs.inspect(thumbItem))
+    -- else
+    --   log.d("Thumbnails Menu Item NOT found")
+    -- end
+
+    -- -- 'ticked' is the standard property in Hammerspoon for a checked item
+    -- if thumbItem and thumbItem.ticked then
+    --   log.d("Sidebar is visible (Thumbnails is ticked). Hiding it...")
+    --   helperFunctions.tryMenuItem({ "View", "Hide Sidebar" })
+    -- else
+    --   log.d("Sidebar is hidden. Showing it...")
+    --   helperFunctions.tryMenuItem({ "View", "Thumbnails" })
+    -- end
+  end,
+
+  -- Hammerspoon Native
+  hammerspoonReload = function()
+    hs.reload()
+  end,
+
+  -- Generic
+  quit = function()
+    hs.eventtap.keyStroke({ "cmd" }, "q")
+    -- hs.application.frontmostApplication():kill()
+  end,
+}
+
+M.definitions = {
+  -- Claude
+  { mods = { "cmd" }, key = "\\", action = actions.claudeToggleSidebar,
+    only = { constants.appBundleIds.claude } },
+
+  -- Xcode
+  { mods = { "cmd" }, key = "\\", action = actions.xcodeToggleSidebar,
+    only = { constants.appBundleIds.xcode } },
+
+  -- Gemini PWA
+  -- { mods = { "cmd" }, key = "b", action = actions.geminiToggleSidebar,
+  --   only = { profileConstants.appBundleIds.gemini } },
+  { mods = { "cmd", "shift" }, key = "d", action = actions.pwaDevTools,
+    only = { profileConstants.appBundleIds.gemini } },
+
+  -- Zoom
+  { mods = { "cmd" }, key = "u", action = actions.zoomToggleMute,
+    only = { constants.appBundleIds.zoom } },
+
+  -- Spotify
+  { mods = { "cmd" }, key = "\\", action = actions.spotifyToggleSidebars,
+    only = { constants.appBundleIds.spotify } },
+
+  -- Chrome
+  { mods = { "cmd" },                 key = "d", action = actions.chromeDuplicateTab,
+    only = { constants.appBundleIds.chrome } },
+  { mods = { "cmd", "alt", "shift" }, key = "[", action = actions.chromeDuplicateAndGoBack,
+    only = { constants.appBundleIds.chrome } },
+  { mods = { "cmd", "shift" },        key = "d", action = actions.chromeToggleDevTools,
+    only = { constants.appBundleIds.chrome } },
+
+  -- Hammerspoon
+  { mods = { "cmd" }, key = "r", action = actions.hammerspoonReload,
+    only = { constants.appBundleIds.hammerspoon } },
+
+  -- Notes
+  { mods = { "cmd" }, key = "w", action = actions.quit,
+    only = { constants.appBundleIds.notes } },
+
+  -- Preview
+  { mods = { "cmd" }, key = "\\", action = actions.previewToggleSidebar,
+    only = { constants.appBundleIds.preview } },
+}
+
+return M
