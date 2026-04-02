@@ -43,7 +43,7 @@ local actions          = {
     local ok, url = hs.osascript.applescript(script)
     if ok and url then
       local task = hs.task.new("/usr/bin/shortcuts", nil,
-        { "run", profileConstants.shortcutIds.receptor_thought_balloon })
+        { "run", profileConstants.shortcutIds.receptor_outbox })
       task:setInput(url)
       task:start()
       hs.alert.show("Sent to Receptor")
@@ -68,7 +68,7 @@ local actions          = {
       helperFunctions.tryMenuItem({ "Conversation", "Mark as Unread" })
     end
   end,
-    toggleMessagesSidebar = function()
+  toggleMessagesSidebar = function()
     -- Reload the script: swiftc -O -framework AppKit -framework ApplicationServices ~/.hammerspoon/profile/scripts/toggle_messages_sidebar.swift -o ~/.hammerspoon/profile/scripts/toggle_messages_sidebar
     hs.task.new(profileConstants.paths.toggleMessagesSidebar, nil):start()
   end,
@@ -134,68 +134,132 @@ local actions          = {
   end,
 }
 
-M.definitions = {
+M.definitions          = {
   -- Google Maps PWA
   -- { mods = { "cmd" },          key = "w", action = actions.pwaCloseWindow,
   --   only = { profileConstants.appBundleIds.googleMaps } },
-  { mods = { "cmd", "shift" }, key = "d", action = actions.pwaDevTools,
-    only = { profileConstants.appBundleIds.googleMaps } },
+  {
+    mods = { "cmd", "shift" },
+    key = "d",
+    action = actions.pwaDevTools,
+    only = { profileConstants.appBundleIds.googleMaps }
+  },
 
   -- Notion
-  { mods = { "cmd", "shift" }, key = "i", action = actions.copyNotionId,
-    only = { profileConstants.appBundleIds.notion } },
-  { mods = { "cmd" },          key = "n", action = actions.notionNewShifted,
-    only = { profileConstants.appBundleIds.notion } },
+  {
+    mods = { "cmd", "shift" },
+    key = "i",
+    action = actions.copyNotionId,
+    only = { profileConstants.appBundleIds.notion }
+  },
+  {
+    mods = { "cmd" },
+    key = "n",
+    action = actions.notionNewShifted,
+    only = { profileConstants.appBundleIds.notion }
+  },
   -- { mods = { "cmd", "shift" }, key = "k", action = actions.notionCmdK,
   --   only = { profileConstants.appBundleIds.notion } },
-  { mods = { "cmd" },          key = "k", action = actions.notionSearch,
-    only = { profileConstants.appBundleIds.notion } },
+  {
+    mods = { "cmd" },
+    key = "k",
+    action = actions.notionSearch,
+    only = { profileConstants.appBundleIds.notion }
+  },
 
-    -- Chrome
-  { mods = { "cmd", "shift" }, key = "b", action = actions.sendUrlToReceptor,
-    only = { constants.appBundleIds.chrome } },
+  -- Chrome
+  {
+    mods = { "cmd", "shift" },
+    key = "b",
+    action = actions.sendUrlToReceptor,
+    only = { constants.appBundleIds.chrome }
+  },
   -- { mods = constants.hyperKeyMods, key = "b", action = actions.sendUrlToReceptor,
   --   only = { constants.appBundleIds.chrome } },
-  { mods = constants.hyperKeyMods, key = "b", action = actions.focusChrome,
-    except = { constants.appBundleIds.chrome } },
+  {
+    mods = constants.hyperKeyMods,
+    key = "b",
+    action = actions.focusChrome,
+    except = { constants.appBundleIds.chrome }
+  },
 
   -- T3 Chat
-  { mods = { "cmd" }, key = "\\", action = actions.t3ToggleSidebar,
-    only = { profileConstants.appBundleIds.t3Chat } },
+  {
+    mods = { "cmd" },
+    key = "\\",
+    action = actions.t3ToggleSidebar,
+    only = { profileConstants.appBundleIds.t3Chat }
+  },
 
   -- Mail
   -- { mods = {}, key = "escape", action = actions.mailClearSearch,
   --   only = { profileConstants.appBundleIds.mail } },
 
   -- Messages
-  { mods = { "cmd" }, key = "u", action = actions.markReadUnread,
-    only = { profileConstants.appBundleIds.messages } },
-  { mods = { "cmd" }, key = "\\", action = actions.toggleMessagesSidebar,
-    only = { profileConstants.appBundleIds.messages } },
+  {
+    mods = { "cmd" },
+    key = "u",
+    action = actions.markReadUnread,
+    only = { profileConstants.appBundleIds.messages }
+  },
+  {
+    mods = { "cmd" },
+    key = "\\",
+    action = actions.toggleMessagesSidebar,
+    only = { profileConstants.appBundleIds.messages }
+  },
 
   -- WhatsApp
-  { mods = { "cmd" }, key = "u", action = actions.markReadUnread,
-    only = { profileConstants.appBundleIds.whatsapp } },
+  {
+    mods = { "cmd" },
+    key = "u",
+    action = actions.markReadUnread,
+    only = { profileConstants.appBundleIds.whatsapp }
+  },
 
   -- Texts
-  { mods = {}, key = "up",   action = actions.textsPrevChat,
-    only = { profileConstants.appBundleIds.texts } },
-  { mods = {}, key = "down", action = actions.textsNextChat,
-    only = { profileConstants.appBundleIds.texts } },
+  {
+    mods = {},
+    key = "up",
+    action = actions.textsPrevChat,
+    only = { profileConstants.appBundleIds.texts }
+  },
+  {
+    mods = {},
+    key = "down",
+    action = actions.textsNextChat,
+    only = { profileConstants.appBundleIds.texts }
+  },
 
   -- 1Password
-  { mods = { "cmd" }, key = "k",  action = actions.hitCommandF,
-    only = { profileConstants.appBundleIds.onePassword } },
-  { mods = { "cmd" }, key = "\\", action = actions.onePasswordToggleSidebar,
-    only = { profileConstants.appBundleIds.onePassword } },
+  {
+    mods = { "cmd" },
+    key = "k",
+    action = actions.hitCommandF,
+    only = { profileConstants.appBundleIds.onePassword }
+  },
+  {
+    mods = { "cmd" },
+    key = "\\",
+    action = actions.onePasswordToggleSidebar,
+    only = { profileConstants.appBundleIds.onePassword }
+  },
 
   -- LibreOffice
-  { mods = { "cmd" }, key = "w", action = actions.quitFromLastWindow,
-    only = { profileConstants.appBundleIds.libreoffice } },
+  {
+    mods = { "cmd" },
+    key = "w",
+    action = actions.quitFromLastWindow,
+    only = { profileConstants.appBundleIds.libreoffice }
+  },
 
   -- Photos
-  { mods = { "cmd" }, key = "\\", action = actions.togglePhotosSidebar,
-    only = { profileConstants.appBundleIds.photos } },
+  {
+    mods = { "cmd" },
+    key = "\\",
+    action = actions.togglePhotosSidebar,
+    only = { profileConstants.appBundleIds.photos }
+  },
 }
 
 return M

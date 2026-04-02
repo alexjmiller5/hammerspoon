@@ -36,7 +36,7 @@ M.paths = {
 }
 
 M.shortcutIds = {
-  receptor_thought_balloon = "F260718B-F555-4052-8432-F6098375AB56",
+  receptor_outbox = "F260718B-F555-4052-8432-F6098375AB56",
 }
 
 return M
