@@ -170,7 +170,7 @@ M.definitions          = {
   -- Chrome
   {
     mods = { "cmd", "shift" },
-    key = "b",
+    key = "s",
     action = actions.sendUrlToReceptor,
     only = { constants.appBundleIds.chrome }
   },
