@@ -39,6 +39,15 @@ local actions = {
   chromeToggleDevTools = function()
     helperFunctions.tryMenuItem({ "View", "Developer", "Developer Tools" })
   end,
+  chromeToggleSidebar = function()
+    local ax = require("hs.axuielement")
+    local chrome = hs.application.get(constants.appBundleIds.chrome)
+    if not chrome then return end
+    local win = chrome:focusedWindow()
+    if not win then return end
+    local button = helperFunctions.findChromeSidebarButton(ax.windowElement(win), 0)
+    if button then button:performAction("AXPress") end
+  end,
 
 
 
@@ -107,6 +116,8 @@ M.definitions = {
     only = { constants.appBundleIds.spotify } },
 
   -- Chrome
+  { mods = { "cmd" },                 key = "\\", action = actions.chromeToggleSidebar,
+    only = { constants.appBundleIds.chrome } },
   { mods = { "cmd" },                 key = "d", action = actions.chromeDuplicateTab,
     only = { constants.appBundleIds.chrome } },
   { mods = { "cmd", "alt", "shift" }, key = "[", action = actions.chromeDuplicateAndGoBack,

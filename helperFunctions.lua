@@ -113,6 +113,24 @@ function M.registerAppBasedHotkeys(targetRegistry, sourceDefinitions)
     end
 end
 
+function M.findChromeSidebarButton(element, depth)
+  if depth > 10 then return nil end
+  local targetTitles = { ["expand tabs"] = true, ["collapse tabs"] = true }
+  local role = element:attributeValue("AXRole")
+  if role == "AXButton" then
+    local title = (element:attributeValue("AXTitle") or ""):lower()
+    local desc = (element:attributeValue("AXDescription") or ""):lower()
+    if targetTitles[title] or targetTitles[desc] then
+      return element
+    end
+  end
+  for _, child in ipairs(element:attributeValue("AXChildren") or {}) do
+    local found = M.findChromeSidebarButton(child, depth + 1)
+    if found then return found end
+  end
+  return nil
+end
+
 function M.executeJsOnFocusedChrome(jsCode)
 
     -- Use hs.task to run osascript
