@@ -34,7 +34,7 @@ local actions          = {
       hs.alert.show("Could not find 'Copy Link' menu item")
     end
   end,
-  notionNewShifted = function() hs.eventtap.keyStroke({ "cmd", "shift" }, "n") end,
+  notionNewShifted = function() helperFunctions.tryMenuItem({ "File", "New Window" }) end,
   notionCmdK = function() hs.eventtap.keyStroke({ "cmd" }, "k") end,
   notionSearch = function() hs.eventtap.keyStroke({ "cmd" }, "f") end,
 
@@ -160,12 +160,12 @@ M.definitions          = {
   },
   -- { mods = { "cmd", "shift" }, key = "k", action = actions.notionCmdK,
   --   only = { profileConstants.appBundleIds.notion } },
-  {
-    mods = { "cmd" },
-    key = "k",
-    action = actions.notionSearch,
-    only = { profileConstants.appBundleIds.notion }
-  },
+  -- {
+  --   mods = { "cmd" },
+  --   key = "k",
+  --   action = actions.notionSearch,
+  --   only = { profileConstants.appBundleIds.notion }
+  -- },
 
   -- Chrome
   {

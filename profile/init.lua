@@ -25,6 +25,6 @@ if ProfilePowerWatcher then
 end
 
 log.i("Starting yabai service...")
-hs.task.new("/bin/bash", "yabai --start-service"):start()
+hs.task.new("/bin/bash", nil, { "yabai --start-service" }):start()
 
 log.i(profileConstants.profileName .. " profile Loaded")

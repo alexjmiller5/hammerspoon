@@ -39,6 +39,10 @@ local actions = {
   toggleCurtains = function()
     os.execute("curl -X POST http://home-assistant:8123/api/webhook/-O-SiE-KQqWSyyT8qolHlwsb1")
   end,
+  toggleACUnit = function()
+    os.execute("/usr/bin/shortcuts run 'Toggle AC Unit'")
+  end,
+
 
   -- Raycast Extensions
   openClipboardHistory = function()
@@ -95,15 +99,16 @@ M.definitions = {
   { mods = { "alt" },                 key = "1",  action = actions.launchOnePassword },
   { mods = { "alt" },                 key = "a",  action = actions.launchNotes },
   { mods = { "alt" },                 key = "b",  action = actions.launchChromeNewWindow },
-  { mods = { "alt" },        key = "h",  action = actions.launchHomeAssistant },
+  { mods = { "alt" },                 key = "h",  action = actions.launchHomeAssistant },
   { mods = { "alt", "shift" },        key = "g",  action = actions.launchGoogleMaps },
-    { mods = { "alt", "shift" },        key = "m",  action = actions.launchMessages },
-    { mods = { "alt", "shift" },        key = "t",  action = actions.launchTelegram },
+  { mods = { "alt", "shift" },        key = "m",  action = actions.launchMessages },
+  { mods = { "alt", "shift" },        key = "t",  action = actions.launchTelegram },
   { mods = { "cmd", "alt", "shift" }, key = "h",  action = actions.openHomeAssistantConfig },
 
   -- Home Assistant Actions
   { mods = constants.hyperKeyMods,    key = "l",  action = actions.toggleLights },
   { mods = constants.hyperKeyMods,    key = "c",  action = actions.toggleCurtains },
+  { mods = constants.hyperKeyMods,    key = "a",  action = actions.toggleACUnit },
 
   -- Raycast Extensions
   { mods = { "cmd", "shift" },        key = "h",  action = actions.openClipboardHistory },
