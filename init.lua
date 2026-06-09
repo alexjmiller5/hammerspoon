@@ -44,4 +44,7 @@ MainAppWatcher:start()
 
 PreviewSidebarVisible = false
 
+-- WorkspaceSnapshot Spoon — hotkeys defined in globalHotkeys.lua
+hs.loadSpoon("WorkspaceSnapshot"):start()
+
 hs.alert.show("Hammerspoon Config Loaded")
