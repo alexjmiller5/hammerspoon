@@ -1,5 +1,1 @@
 .DS_Store
-
-# Spoons are installed externally (symlinks for dev, double-click install
-# for distributed). Don't track them in the config repo.
-Spoons/
