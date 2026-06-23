@@ -415,17 +415,17 @@ M.definitions = {
 
   -- Workspace Snapshot Spoon
   {
-    mods = constants.hyperKeyMods,
+    mods = { "cmd", "shift", "alt" },
     key = "s",
     action = actions.workspaceSnapshot
   },
   {
-    mods = constants.hyperKeyMods,
+    mods = { "cmd", "shift", "alt" },
     key = "x",
     action = actions.workspaceSnapshotClose
   },
   {
-    mods = constants.hyperKeyMods,
+    mods = { "cmd", "shift", "alt" },
     key = "r",
     action = actions.workspaceRestore
   }

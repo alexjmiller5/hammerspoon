@@ -47,4 +47,12 @@ PreviewSidebarVisible = false
 -- WorkspaceSnapshot Spoon — hotkeys defined in globalHotkeys.lua
 hs.loadSpoon("WorkspaceSnapshot"):start()
 
+-- Hyperkey: disabled — using Karabiner-Elements to remap Caps Lock instead.
+-- The hidutil-based fallback module is kept on disk at ./hyperkey.lua in case
+-- Karabiner needs to be bypassed again. To re-enable:
+--   1. Run: hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x70000006E}]}'
+--   2. Uncomment the two lines below.
+-- HyperKey = require("hyperkey")
+-- HyperKey.start()
+
 hs.alert.show("Hammerspoon Config Loaded")
