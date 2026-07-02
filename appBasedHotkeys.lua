@@ -91,49 +91,64 @@ local actions = {
   end,
 }
 
+-- App bundle-ID lists for `only`/`except`, defined once and shared so a repeated
+-- app (e.g. Chrome, used 4×) isn't spelled out on every definition. These lists
+-- are only read (never mutated), so sharing one table across definitions is safe.
+local apps = {
+  claude      = { constants.appBundleIds.claude },
+  xcode       = { constants.appBundleIds.xcode },
+  gemini      = { profileConstants.appBundleIds.gemini },
+  zoom        = { constants.appBundleIds.zoom },
+  spotify     = { constants.appBundleIds.spotify },
+  chrome      = { constants.appBundleIds.chrome },
+  hammerspoon = { constants.appBundleIds.hammerspoon },
+  notes       = { constants.appBundleIds.notes },
+  preview     = { constants.appBundleIds.preview },
+}
+
 M.definitions = {
   -- Claude
   { mods = { "cmd" }, key = "\\", action = actions.claudeToggleSidebar,
-    only = { constants.appBundleIds.claude } },
+    only = apps.claude },
 
   -- Xcode
   { mods = { "cmd" }, key = "\\", action = actions.xcodeToggleSidebar,
-    only = { constants.appBundleIds.xcode } },
+    only = apps.xcode },
 
   -- Gemini (native Gemini Desktop app). Sidebar toggle (Cmd+\) + auto-extended-
   -- thinking are handled by bundled WKUserScripts inside the app, not here.
   { mods = { "cmd", "shift" }, key = "d", action = actions.pwaDevTools,
-    only = { profileConstants.appBundleIds.gemini } },
+    only = apps.gemini },
 
   -- Zoom
   { mods = { "cmd" }, key = "u", action = actions.zoomToggleMute,
-    only = { constants.appBundleIds.zoom } },
+    only = apps.zoom },
 
   -- Spotify
   { mods = { "cmd" }, key = "\\", action = actions.spotifyToggleSidebars,
-    only = { constants.appBundleIds.spotify } },
+    only = apps.spotify },
 
   -- Chrome
   { mods = { "cmd" },                 key = "\\", action = actions.chromeToggleSidebar,
-    only = { constants.appBundleIds.chrome } },
+    only = apps.chrome },
   { mods = { "cmd" },                 key = "d", action = actions.chromeDuplicateTab,
-    only = { constants.appBundleIds.chrome } },
+    only = apps.chrome },
   { mods = { "cmd", "alt", "shift" }, key = "[", action = actions.chromeDuplicateAndGoBack,
-    only = { constants.appBundleIds.chrome } },
+    only = apps.chrome },
   { mods = { "cmd", "shift" },        key = "d", action = actions.chromeToggleDevTools,
-    only = { constants.appBundleIds.chrome } },
+    only = apps.chrome },
 
   -- Hammerspoon
   { mods = { "cmd" }, key = "r", action = actions.hammerspoonReload,
-    only = { constants.appBundleIds.hammerspoon } },
+    only = apps.hammerspoon },
 
   -- Notes
   { mods = { "cmd" }, key = "w", action = actions.quit,
-    only = { constants.appBundleIds.notes } },
+    only = apps.notes },
 
   -- Preview
   { mods = { "cmd" }, key = "\\", action = actions.previewToggleSidebar,
-    only = { constants.appBundleIds.preview } },
+    only = apps.preview },
 }
 
 return M

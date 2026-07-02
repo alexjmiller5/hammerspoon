@@ -134,15 +134,31 @@ local actions          = {
   end,
 }
 
+-- App bundle-ID lists for `only`/`except`, defined once and shared so a repeated
+-- app (Notion, Messages, Texts, 1Password each appear multiple times) isn't
+-- spelled out on every definition. These lists are only read, never mutated.
+local apps = {
+  googleMaps  = { profileConstants.appBundleIds.googleMaps },
+  notion      = { profileConstants.appBundleIds.notion },
+  chrome      = { constants.appBundleIds.chrome },
+  t3Chat      = { profileConstants.appBundleIds.t3Chat },
+  messages    = { profileConstants.appBundleIds.messages },
+  whatsapp    = { profileConstants.appBundleIds.whatsapp },
+  texts       = { profileConstants.appBundleIds.texts },
+  onePassword = { profileConstants.appBundleIds.onePassword },
+  libreoffice = { profileConstants.appBundleIds.libreoffice },
+  photos      = { profileConstants.appBundleIds.photos },
+}
+
 M.definitions          = {
   -- Google Maps PWA
   -- { mods = { "cmd" },          key = "w", action = actions.pwaCloseWindow,
-  --   only = { profileConstants.appBundleIds.googleMaps } },
+  --   only = apps.googleMaps },
   {
     mods = { "cmd", "shift" },
     key = "d",
     action = actions.pwaDevTools,
-    only = { profileConstants.appBundleIds.googleMaps }
+    only = apps.googleMaps
   },
 
   -- Notion
@@ -150,21 +166,21 @@ M.definitions          = {
     mods = { "cmd", "shift" },
     key = "i",
     action = actions.copyNotionId,
-    only = { profileConstants.appBundleIds.notion }
+    only = apps.notion
   },
   {
     mods = { "cmd" },
     key = "n",
     action = actions.notionNewShifted,
-    only = { profileConstants.appBundleIds.notion }
+    only = apps.notion
   },
   -- { mods = { "cmd", "shift" }, key = "k", action = actions.notionCmdK,
-  --   only = { profileConstants.appBundleIds.notion } },
+  --   only = apps.notion },
   -- {
   --   mods = { "cmd" },
   --   key = "k",
   --   action = actions.notionSearch,
-  --   only = { profileConstants.appBundleIds.notion }
+  --   only = apps.notion
   -- },
 
   -- Chrome
@@ -172,15 +188,15 @@ M.definitions          = {
     mods = { "cmd", "shift" },
     key = "s",
     action = actions.sendUrlToReceptor,
-    only = { constants.appBundleIds.chrome }
+    only = apps.chrome
   },
   -- { mods = constants.hyperKeyMods, key = "b", action = actions.sendUrlToReceptor,
-  --   only = { constants.appBundleIds.chrome } },
+  --   only = apps.chrome },
   {
     mods = constants.hyperKeyMods,
     key = "b",
     action = actions.focusChrome,
-    except = { constants.appBundleIds.chrome }
+    except = apps.chrome
   },
 
   -- T3 Chat
@@ -188,7 +204,7 @@ M.definitions          = {
     mods = { "cmd" },
     key = "\\",
     action = actions.t3ToggleSidebar,
-    only = { profileConstants.appBundleIds.t3Chat }
+    only = apps.t3Chat
   },
 
   -- Mail
@@ -200,13 +216,13 @@ M.definitions          = {
     mods = { "cmd" },
     key = "u",
     action = actions.markReadUnread,
-    only = { profileConstants.appBundleIds.messages }
+    only = apps.messages
   },
   {
     mods = { "cmd" },
     key = "\\",
     action = actions.toggleMessagesSidebar,
-    only = { profileConstants.appBundleIds.messages }
+    only = apps.messages
   },
 
   -- WhatsApp
@@ -214,7 +230,7 @@ M.definitions          = {
     mods = { "cmd" },
     key = "u",
     action = actions.markReadUnread,
-    only = { profileConstants.appBundleIds.whatsapp }
+    only = apps.whatsapp
   },
 
   -- Texts
@@ -222,13 +238,13 @@ M.definitions          = {
     mods = {},
     key = "up",
     action = actions.textsPrevChat,
-    only = { profileConstants.appBundleIds.texts }
+    only = apps.texts
   },
   {
     mods = {},
     key = "down",
     action = actions.textsNextChat,
-    only = { profileConstants.appBundleIds.texts }
+    only = apps.texts
   },
 
   -- 1Password
@@ -236,13 +252,13 @@ M.definitions          = {
     mods = { "cmd" },
     key = "k",
     action = actions.hitCommandF,
-    only = { profileConstants.appBundleIds.onePassword }
+    only = apps.onePassword
   },
   {
     mods = { "cmd" },
     key = "\\",
     action = actions.onePasswordToggleSidebar,
-    only = { profileConstants.appBundleIds.onePassword }
+    only = apps.onePassword
   },
 
   -- LibreOffice
@@ -250,7 +266,7 @@ M.definitions          = {
     mods = { "cmd" },
     key = "w",
     action = actions.quitFromLastWindow,
-    only = { profileConstants.appBundleIds.libreoffice }
+    only = apps.libreoffice
   },
 
   -- Photos
@@ -258,7 +274,7 @@ M.definitions          = {
     mods = { "cmd" },
     key = "\\",
     action = actions.togglePhotosSidebar,
-    only = { profileConstants.appBundleIds.photos }
+    only = apps.photos
   },
 }
 
