@@ -39,16 +39,17 @@ local actions          = {
   notionSearch = function() hs.eventtap.keyStroke({ "cmd" }, "f") end,
 
   sendUrlToReceptor = function()
-    local script = 'tell application "Google Chrome" to get URL of active tab of window 1'
-    local ok, url = hs.osascript.applescript(script)
-    if ok and url then
+    -- Active tab URL via chrome-cli (replaces the "get URL of active tab" osascript)
+    local url = hs.execute("/opt/homebrew/bin/chrome-cli info | awk '/^Url: /{print substr($0,6)}'")
+        :gsub("%s+$", "")
+    if url ~= "" then
       local task = hs.task.new("/usr/bin/shortcuts", nil,
         { "run", profileConstants.shortcutIds.receptor_outbox })
       task:setInput(url)
       task:start()
       hs.alert.show("Sent to Receptor")
     else
-      log.i("sendUrlToReceptor: Failed to create hs.task object.")
+      log.i("sendUrlToReceptor: could not read active tab URL from chrome-cli")
     end
   end,
 
