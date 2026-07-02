@@ -26,7 +26,6 @@ M.paths = {
   searchClipWindow    = home .. "/.hammerspoon/scripts/search_from_clipboard_in_new_window.sh",
   searchClipIncognito = home .. "/.hammerspoon/scripts/search_incognito_from_clipboard.sh",
   chromeJsInjector    = home .. "/.hammerspoon/scripts/chrome_js_injector.applescript",
-  killFrontmostApp    = home .. "/.hammerspoon/scripts/kill_frontmost_app.sh",
   hsConfig            = home .. "/.hammerspoon"
 }
 

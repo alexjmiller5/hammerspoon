@@ -47,22 +47,22 @@ local actions = {
   -- Raycast Extensions
   openClipboardHistory = function()
     os.execute(
-      "/usr/bin/open 'raycast://extensions/raycast/clipboard-history/clipboard-history'")
+      "/usr/bin/open 'raycast-x://extensions/raycast/clipboard-history/clipboard-history'")
   end,
   pasteLatestOtpCode = function()
     os.execute(
-      "/usr/bin/open 'raycast://extensions/thomaslombart/messages/paste-latest-otp-code'")
+      "/usr/bin/open 'raycast-x://extensions/thomaslombart/messages/paste-latest-otp-code'")
   end,
   searchEmojisAndSymbols = function()
     os.execute(
-      "/usr/bin/open 'raycast://extensions/raycast/emoji-symbols/search-emoji-symbols'")
+      "/usr/bin/open 'raycast-x://extensions/raycast/emoji-symbols/search-emoji-symbols'")
   end,
-  searchFiles = function() os.execute("/usr/bin/open 'raycast://extensions/raycast/file-search/search-files'") end,
+  searchFiles = function() os.execute("/usr/bin/open 'raycast-x://extensions/raycast/file-search/search-files'") end,
   manageBluetoothConnections = function()
     os.execute(
-      "/usr/bin/open 'raycast://extensions/VladCuciureanu/toothpick/manage-bluetooth-connections'")
+      "/usr/bin/open 'raycast-x://extensions/VladCuciureanu/toothpick/manage-bluetooth-connections'")
   end,
-  listRepos = function() hs.execute("/usr/bin/open 'raycast://extensions/moored/git-repos/list'") end,
+  listRepos = function() hs.execute("/usr/bin/open 'raycast-x://extensions/moored/git-repos/list'") end,
 
   -- Shortcuts
   shazamToSpotify = function() os.execute("/usr/bin/shortcuts run 'Shazam → Spotify'") end,

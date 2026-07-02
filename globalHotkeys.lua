@@ -21,7 +21,16 @@ local actions = {
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.claude)
   end,
   launchGemini = function()
-    hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.gemini)
+    -- The Gemini Desktop app runs windowless-resident (launched at login via
+    -- its LaunchAgent), so launchOrFocus alone would activate an app with no
+    -- window to show. Focus it if it already has a window; otherwise ask it to
+    -- create one via its URL scheme (instant, since the process is warm).
+    local app = hs.application.get(profileConstants.appBundleIds.gemini)
+    if app and #app:allWindows() > 0 then
+      app:activate()
+    else
+      hs.urlevent.openURL("geminiapp://open")
+    end
   end,
   launchZoom = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.zoom)
@@ -93,7 +102,11 @@ local actions = {
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.chrome)
   end,
   forceQuitApp = function()
-    hs.task.new("/bin/sh", nil, { constants.paths.killFrontmostApp }):start()
+    -- Native force-quit: SIGKILL (signal 9) the frontmost app directly via
+    -- Hammerspoon — no shell/osascript needed. kill9() == `kill -9` (immediate,
+    -- no cleanup), targeting exactly the app receiving input events.
+    local app = hs.application.frontmostApplication()
+    if app then app:kill9() end
   end,
 
   -- Window Management

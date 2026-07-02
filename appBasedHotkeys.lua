@@ -11,10 +11,9 @@ local actions = {
   claudeToggleSidebar = function()
     hs.eventtap.keyStroke({ "cmd" }, ".")
   end,
-  -- geminiToggleSidebar = function()
-  --   local jsCode = [[ document.querySelector('button[data-test-id="side-nav-menu-button"]').click(); ]]
-  --   helperFunctions.executeJsOnFocusedChrome(jsCode)
-  -- end,
+  -- Gemini sidebar toggle (Cmd+\) is now handled natively inside the Gemini
+  -- Desktop app via a bundled WKUserScript (see active-projects/gemini-desktop
+  -- UserScripts/), so no Hammerspoon hotkey is needed here.
   xcodeToggleSidebar = function()
     if not helperFunctions.tryMenuItem({ "View", "Navigators", "Show Navigator" }) then
       helperFunctions.tryMenuItem({ "View", "Navigators", "Hide Navigator" })
@@ -101,9 +100,8 @@ M.definitions = {
   { mods = { "cmd" }, key = "\\", action = actions.xcodeToggleSidebar,
     only = { constants.appBundleIds.xcode } },
 
-  -- Gemini PWA
-  -- { mods = { "cmd" }, key = "b", action = actions.geminiToggleSidebar,
-  --   only = { profileConstants.appBundleIds.gemini } },
+  -- Gemini (native Gemini Desktop app). Sidebar toggle (Cmd+\) + auto-extended-
+  -- thinking are handled by bundled WKUserScripts inside the app, not here.
   { mods = { "cmd", "shift" }, key = "d", action = actions.pwaDevTools,
     only = { profileConstants.appBundleIds.gemini } },
 
