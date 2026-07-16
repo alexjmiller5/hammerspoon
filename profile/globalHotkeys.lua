@@ -6,10 +6,15 @@ local helpers = require("helperFunctions")
 
 local M = {}
 
+-- Run a macOS Shortcut asynchronously so a long-running shortcut
+-- doesn't block Hammerspoon's main thread (and every other hotkey)
+local function runShortcut(name)
+  hs.task.new("/usr/bin/shortcuts", nil, { "run", name }):start()
+end
+
 local actions = {
   -- App Launchers
   launchGoogleMaps = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.googleMaps) end,
-  launchHomeAssistant = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.homeAssistant) end,
   launchKarabiner = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.karabiner) end,
   launchLegcord = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.legcord) end,
   launchMail = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.mail) end,
@@ -22,51 +27,30 @@ local actions = {
   launchNotes = function() hs.application.launchOrFocusByBundleID(constants.appBundleIds.notes) end,
   launchTelegram = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.telegram) end,
 
-  openHomeAssistantConfig = function()
-    hs.execute(
-      "/usr/bin/open 'vscode://vscode-remote/ssh-remote+home-assistant-tailscale/homeassistant?windowId=_blank'")
-  end,
-
   -- Specific Chrome Launcher from Karabiner
   launchChromeNewWindow = function()
     hs.task.new("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", nil, { "--new-window" }):start()
   end,
 
-  -- Home Assistant Actions
-  toggleLights = function()
-    os.execute("curl -X POST http://home-assistant:8123/api/webhook/-yUrGzgTyzR953PAr3ndMGQaD")
-  end,
-  toggleCurtains = function()
-    os.execute("curl -X POST http://home-assistant:8123/api/webhook/-O-SiE-KQqWSyyT8qolHlwsb1")
-  end,
-  toggleACUnit = function()
-    os.execute("/usr/bin/shortcuts run 'Toggle AC Unit'")
-  end,
-
-
   -- Raycast Extensions
   openClipboardHistory = function()
-    os.execute(
-      "/usr/bin/open 'raycast-x://extensions/raycast/clipboard-history/clipboard-history'")
+    hs.urlevent.openURL("raycast-x://extensions/raycast/clipboard-history/clipboard-history")
   end,
   pasteLatestOtpCode = function()
-    os.execute(
-      "/usr/bin/open 'raycast-x://extensions/thomaslombart/messages/paste-latest-otp-code'")
+    hs.urlevent.openURL("raycast-x://extensions/thomaslombart/messages/paste-latest-otp-code")
   end,
   searchEmojisAndSymbols = function()
-    os.execute(
-      "/usr/bin/open 'raycast-x://extensions/raycast/emoji-symbols/search-emoji-symbols'")
+    hs.urlevent.openURL("raycast-x://extensions/raycast/emoji-symbols/search-emoji-symbols")
   end,
-  searchFiles = function() os.execute("/usr/bin/open 'raycast-x://extensions/raycast/file-search/search-files'") end,
+  searchFiles = function() hs.urlevent.openURL("raycast-x://extensions/raycast/file-search/search-files") end,
   manageBluetoothConnections = function()
-    os.execute(
-      "/usr/bin/open 'raycast-x://extensions/VladCuciureanu/toothpick/manage-bluetooth-connections'")
+    hs.urlevent.openURL("raycast-x://extensions/VladCuciureanu/toothpick/manage-bluetooth-connections")
   end,
-  listRepos = function() hs.execute("/usr/bin/open 'raycast-x://extensions/moored/git-repos/list'") end,
+  listRepos = function() hs.urlevent.openURL("raycast-x://extensions/moored/git-repos/list") end,
 
   -- Shortcuts
-  shazamToSpotify = function() os.execute("/usr/bin/shortcuts run 'Shazam → Spotify'") end,
-  receptor = function() os.execute("/usr/bin/shortcuts run 'Receptor 💭'") end,
+  shazamToSpotify = function() runShortcut("Shazam → Spotify") end,
+  receptor = function() runShortcut("Receptor 💭") end,
 
   -- Spotify Media Control Remaps
   spotifyNext = function() hs.eventtap.keyStroke({ "ctrl", "alt", "cmd" }, "0") end,
@@ -99,17 +83,9 @@ M.definitions = {
   { mods = { "alt" },                 key = "1",  action = actions.launchOnePassword },
   { mods = { "alt" },                 key = "a",  action = actions.launchNotes },
   { mods = { "alt" },                 key = "b",  action = actions.launchChromeNewWindow },
-  { mods = { "alt" },                 key = "h",  action = actions.launchHomeAssistant },
   { mods = { "alt", "shift" },        key = "g",  action = actions.launchGoogleMaps },
   { mods = { "alt", "shift" },        key = "m",  action = actions.launchMessages },
   { mods = { "alt", "shift" },        key = "t",  action = actions.launchTelegram },
-  { mods = { "cmd", "alt", "shift" }, key = "h",  action = actions.openHomeAssistantConfig },
-
-  -- Home Assistant Actions
-  { mods = constants.hyperKeyMods,    key = "l",  action = actions.toggleLights },
-  { mods = constants.hyperKeyMods,    key = "c",  action = actions.toggleCurtains },
-  { mods = constants.hyperKeyMods,    key = "a",  action = actions.toggleACUnit },
-
   -- Raycast Extensions
   { mods = { "cmd", "shift" },        key = "h",  action = actions.openClipboardHistory },
   { mods = { "cmd", "shift" },        key = "e",  action = actions.searchEmojisAndSymbols },
