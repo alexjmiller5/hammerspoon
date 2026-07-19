@@ -303,11 +303,6 @@ M.definitions = {
   },
   {
     mods = { "alt", "shift" },
-    key = "w",
-    action = actions.openDownloadsFolder
-  },
-  {
-    mods = { "alt", "shift" },
     key = "e",
     action = actions.openDocumentsFolder
   },

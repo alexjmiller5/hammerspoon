@@ -47,6 +47,9 @@ local actions = {
     hs.urlevent.openURL("raycast-x://extensions/VladCuciureanu/toothpick/manage-bluetooth-connections")
   end,
   listRepos = function() hs.urlevent.openURL("raycast-x://extensions/moored/git-repos/list") end,
+  manageDownloads = function()
+    hs.urlevent.openURL("raycast-x://extensions/thomas/downloads-manager/manage-downloads")
+  end,
 
   -- Shortcuts
   shazamToSpotify = function() runShortcut("Shazam → Spotify") end,
@@ -92,6 +95,7 @@ M.definitions = {
   { mods = { "cmd", "shift" },        key = "f",  action = actions.searchFiles },
   -- { mods = { "cmd", "shift" },        key = "b",  action = actions.manageBluetoothConnections },
   { mods = { "cmd", "shift" },        key = "l",  action = actions.listRepos },
+  { mods = { "alt", "shift" },        key = "w",  action = actions.manageDownloads },
 
   -- Shortcuts
   { mods = constants.hyperKeyMods,    key = "s",  action = actions.shazamToSpotify },
