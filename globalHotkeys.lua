@@ -82,9 +82,6 @@ local actions = {
   openDesktopFolder = function()
     hs.task.new("/usr/bin/open", nil, { profileConstants.paths.desktopFolder }):start()
   end,
-  openDownloadsFolder = function()
-    hs.task.new("/usr/bin/open", nil, { profileConstants.paths.downloadsFolder }):start()
-  end,
   openDocumentsFolder = function()
     hs.task.new("/usr/bin/open", nil, { profileConstants.paths.documentsFolder }):start()
   end,
