@@ -27,13 +27,12 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
 ├── scripts/             # Shell scripts and AppleScripts invoked by hotkeys
 ├── hyperkey.lua         # F19 → Hyper key conversion (disabled, use Karabiner instead)
 ├── keylogger.lua        # Diagnostic key event logger (disabled by default)
-└── profile/             # User-specific overrides (personal)
-    ├── init.lua
-    ├── constants.lua
-    ├── globalHotkeys.lua
-    ├── appBasedHotkeys.lua
-    ├── watcherFunctions.lua
-    └── scripts/         # Profile-specific compiled binaries/scripts
+├── activeProfile.lua    # Reads ~/.config/hammerspoon-profile, resolves the active profile
+└── profiles/            # Machine-role profiles (selected at runtime, default: personal)
+    ├── personal/        # init.lua, constants.lua, globalHotkeys.lua,
+    │                    # appBasedHotkeys.lua, watcherFunctions.lua, scripts/
+    └── work/            # same shape (+ Spoons/, spoons.lua); untested since the
+                         # blueprint era — verify when the work machine adopts it
 ```
 
 ### Key Patterns
@@ -56,14 +55,14 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
 
 **Pass-through pattern**: When an app-based hotkey needs to temporarily let the original keystroke through (e.g., `quitFromLastWindow` sends `Cmd+W` which would re-trigger itself), use `helperFunctions.disableHotkeysForApp()` before sending the keystroke, then `enableHotkeysForApp()` in a `hs.timer.doAfter()` callback.
 
-**Profile System**: The `profile/` directory extends the base config. `profile/init.lua` loads after the main init and adds hotkeys to the same global `AppBasedHotkeyRegistry`. Profile modules are loaded via `pcall` so missing profiles don't crash the config.
+**Profile System**: `profiles/<name>/` dirs extend the base config; the active one is chosen at runtime by `activeProfile.lua`, which reads `~/.config/hammerspoon-profile` (one line: `personal` or `work` — written per machine by nix-config; defaults to `personal` if absent). The selected `profiles/<name>/init.lua` loads after the main init and adds hotkeys to the same global `AppBasedHotkeyRegistry`, via `pcall` so a broken profile doesn't crash the config. Main-config modules that need the active profile's constants use `require("activeProfile").require("constants")`.
 
 ### Adding New Hotkeys
 
 1. **Global hotkey**: Add action function to `actions` table in `globalHotkeys.lua`, then add definition to `M.definitions`
 2. **App-specific hotkey**: Add action to `actions` table in `appBasedHotkeys.lua`, then add to `M.definitions` with `only` or `except` containing bundle IDs from `constants.appBundleIds`
-3. **Profile-specific**: Same pattern in `profile/globalHotkeys.lua` or `profile/appBasedHotkeys.lua`, using `profileConstants` for profile-only bundle IDs
-4. **New bundle ID**: Add to `constants.appBundleIds` (shared) or `profile/constants.appBundleIds` (profile-only)
+3. **Profile-specific**: Same pattern in `profiles/<name>/globalHotkeys.lua` or `profiles/<name>/appBasedHotkeys.lua`, using that profile's `constants` for profile-only bundle IDs
+4. **New bundle ID**: Add to `constants.appBundleIds` (shared) or `profiles/<name>/constants.appBundleIds` (profile-only)
 
 ### Hyper Key
 

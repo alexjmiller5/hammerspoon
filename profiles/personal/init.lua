@@ -3,10 +3,10 @@ local log = hs.logger.new("Profile Init", "debug")
 -- Require modules
 
 local helperFunctions = require("helperFunctions")
-local profileGlobalHotkeyDefinitions = require("profile.globalHotkeys").definitions
-local profileAppBasedHotkeyDefinitions = require("profile.appBasedHotkeys").definitions
-local profileWatcherFunctions = require("profile.watcherFunctions")
-local profileConstants = require("profile.constants")
+local profileGlobalHotkeyDefinitions = require("profiles.personal.globalHotkeys").definitions
+local profileAppBasedHotkeyDefinitions = require("profiles.personal.appBasedHotkeys").definitions
+local profileWatcherFunctions = require("profiles.personal.watcherFunctions")
+local profileConstants = require("profiles.personal.constants")
 
 -- Bind hotkeys
 

@@ -22,11 +22,13 @@ AppBasedHotkeyRegistry = {}
 helperFunctions.bindGlobalHotkeys(globalDefHotkeyDefinitions)
 helperFunctions.registerAppBasedHotkeys(AppBasedHotkeyRegistry, AppBasedHotkeyDefintions)
 
--- Load profile
+-- Load profile: runtime-selected via ~/.config/hammerspoon-profile (see
+-- activeProfile.lua); profiles live in profiles/<name>/.
 
-local status, err = pcall(require, "profile.init")
+local activeProfile = require("activeProfile")
+local status, err = pcall(activeProfile.require, "init")
 if not status then
-    log.w("No profile found: " .. tostring(err))
+    log.w("Profile '" .. activeProfile.name .. "' failed to load: " .. tostring(err))
 end
 
 -- Instantiate and start watchers

@@ -1,6 +1,6 @@
 local log = hs.logger.new("Profile Global Hotkeys", "debug")
 
-local profileConstants = require("profile.constants")
+local profileConstants = require("profiles.personal.constants")
 local constants = require("constants")
 local helpers = require("helperFunctions")
 
