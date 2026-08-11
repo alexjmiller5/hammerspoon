@@ -64,6 +64,8 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
 3. **Profile-specific**: Same pattern in `profiles/<name>/globalHotkeys.lua` or `profiles/<name>/appBasedHotkeys.lua`, using that profile's `constants` for profile-only bundle IDs
 4. **New bundle ID**: Add to `constants.appBundleIds` (shared) or `profiles/<name>/constants.appBundleIds` (profile-only)
 
+**Whenever a hotkey is added, changed, or removed here, mirror it in the Notion Hotkeys DB** (data_source_id `1bb03953-a8af-801d-8436-000b25e00006` — see the `notion` skill). That DB is the documentation of every binding; an edit to the Lua config isn't done until the corresponding Notion entry is created/updated/archived too.
+
 ### Hyper Key
 
 The "Hyper" modifier (`Cmd+Alt+Ctrl+Shift`) is defined in `constants.hyperKeyMods`. Use Karabiner-Elements externally to map Caps Lock → F19, then Karabiner can convert F19 to the hyper combination. The built-in `hyperkey.lua` exists but is not currently used.
