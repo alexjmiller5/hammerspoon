@@ -8,9 +8,6 @@ local M                = {}
 
 local actions          = {
   -- PWA
-  pwaCloseWindow = function()
-    hs.eventtap.keyStroke({ "cmd" }, "h")
-  end,
   pwaDevTools = function()
     hs.eventtap.keyStroke({ "cmd", "alt" }, "i")
   end,
@@ -35,8 +32,6 @@ local actions          = {
     end
   end,
   notionNewShifted = function() helperFunctions.tryMenuItem({ "File", "New Window" }) end,
-  notionCmdK = function() hs.eventtap.keyStroke({ "cmd" }, "k") end,
-  notionSearch = function() hs.eventtap.keyStroke({ "cmd" }, "f") end,
 
   sendUrlToReceptor = function()
     -- Active tab URL via chrome-cli (replaces the "get URL of active tab" osascript)
@@ -55,12 +50,6 @@ local actions          = {
 
   focusChrome = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.chrome)
-  end,
-
-  -- Mail
-  mailClearSearch = function()
-    hs.eventtap.keyStroke({ "cmd" }, "k")
-    hs.timer.doAfter(0.05, function() hs.eventtap.keyStroke({}, "escape") end)
   end,
 
   -- iMessage
@@ -85,14 +74,9 @@ local actions          = {
   hitCommandF = function()
     hs.eventtap.keyStroke({ "cmd" }, "f")
   end,
-  onePasswordToggleSidebar = function()
-    if not helperFunctions.tryMenuItem({ "View", "Show Sidebar" }) then
-      helperFunctions.tryMenuItem({ "View", "Hide Sidebar" })
-    end
-  end,
 
-  -- Photos
-  togglePhotosSidebar = function()
+  -- 1Password + Photos share the same View-menu sidebar toggle
+  toggleSidebarViaMenu = function()
     if not helperFunctions.tryMenuItem({ "View", "Show Sidebar" }) then
       helperFunctions.tryMenuItem({ "View", "Hide Sidebar" })
     end
@@ -155,8 +139,6 @@ local apps = {
 
 M.definitions          = {
   -- Google Maps PWA
-  -- { mods = { "cmd" },          key = "w", action = actions.pwaCloseWindow,
-  --   only = apps.googleMaps },
   {
     mods = { "cmd", "shift" },
     key = "d",
@@ -177,15 +159,6 @@ M.definitions          = {
     action = actions.notionNewShifted,
     only = apps.notion
   },
-  -- { mods = { "cmd", "shift" }, key = "k", action = actions.notionCmdK,
-  --   only = apps.notion },
-  -- {
-  --   mods = { "cmd" },
-  --   key = "k",
-  --   action = actions.notionSearch,
-  --   only = apps.notion
-  -- },
-
   -- Chrome
   {
     mods = { "cmd", "shift" },
@@ -193,8 +166,6 @@ M.definitions          = {
     action = actions.sendUrlToReceptor,
     only = apps.chrome
   },
-  -- { mods = constants.hyperKeyMods, key = "b", action = actions.sendUrlToReceptor,
-  --   only = apps.chrome },
   {
     mods = constants.hyperKeyMods,
     key = "b",
@@ -209,10 +180,6 @@ M.definitions          = {
     action = actions.t3ToggleSidebar,
     only = apps.t3Chat
   },
-
-  -- Mail
-  -- { mods = {}, key = "escape", action = actions.mailClearSearch,
-  --   only = { profileConstants.appBundleIds.mail } },
 
   -- Messages
   {
@@ -260,7 +227,7 @@ M.definitions          = {
   {
     mods = { "cmd" },
     key = "\\",
-    action = actions.onePasswordToggleSidebar,
+    action = actions.toggleSidebarViaMenu,
     only = apps.onePassword
   },
 
@@ -276,7 +243,7 @@ M.definitions          = {
   {
     mods = { "cmd" },
     key = "\\",
-    action = actions.togglePhotosSidebar,
+    action = actions.toggleSidebarViaMenu,
     only = apps.photos
   },
 }

@@ -14,9 +14,6 @@ local actions = {
   launchVSCode = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.vscode)
   end,
-  launchClaude = function()
-    hs.application.launchOrFocusByBundleID(constants.appBundleIds.claude)
-  end,
   launchGemini = function()
     -- The Gemini Desktop app runs windowless-resident (launched at login via
     -- its LaunchAgent), so launchOrFocus alone would activate an app with no
@@ -48,16 +45,9 @@ local actions = {
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.xcode)
   end,
   launchFinder = function()
-    -- hs.application.launchOrFocusByBundleID(constants.appBundleIds.finder)
     hs.osascript.applescript(
       'tell application "Finder" \n if not (exists window 1) then make new Finder window \n activate \n end tell'
     )
-  end,
-  launchOrFocusChrome = function()
-    hs.application.launchOrFocusByBundleID(constants.appBundleIds.chrome)
-  end,
-  launchChromeNewWindow = function()
-    hs.task.new("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", nil, { "--new-window" }):start()
   end,
 
   -- Scripts
@@ -67,9 +57,6 @@ local actions = {
   searchClipIncognito = function()
     hs.task.new("/bin/sh", nil, { constants.paths.searchClipIncognito }):start()
   end,
-  -- openHsConfigInVscode = function()
-  --   hs.task.new("/usr/bin/open", nil, { "vscode://file/" .. constants.paths.hsConfig .. "?windowId=_blank" }):start()
-  -- end,
   openDesktopFolder = function()
     hs.task.new("/usr/bin/open", nil, { profileConstants.paths.desktopFolder }):start()
   end,
@@ -96,9 +83,8 @@ local actions = {
   -- Window Management
   windowCenter = function()
     hs.execute([[
-    export PATH=/opt/homebrew/bin:$PATH
-    YABAI=$(which yabai)
-    JQ=$(which jq)
+    YABAI=]] .. constants.paths.yabai .. [[
+    JQ=/usr/bin/jq
 
     WIN_JSON=$($YABAI -m query --windows --window)
     DISP_JSON=$($YABAI -m query --displays --display)
@@ -121,75 +107,75 @@ local actions = {
   windowLeft = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Left" }) then
       -- Grid 1:2, start at 0, span 1 (Left Half)
-      hs.execute("/opt/homebrew/bin/yabai -m window --grid 1:2:0:0:1:1")
+      hs.execute(constants.paths.yabai .. " -m window --grid 1:2:0:0:1:1")
     end
   end,
 
   windowRight = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Right" }) then
       -- Grid 1:2, start at 1, span 1 (Right Half)
-      hs.execute("/opt/homebrew/bin/yabai -m window --grid 1:2:1:0:1:1")
+      hs.execute(constants.paths.yabai .. " -m window --grid 1:2:1:0:1:1")
     end
   end,
 
   windowMaximize = function()
     if not helpers.tryMenuItem({ "Window", "Fill" }) then
       -- Grid 1:1, full span (Maximize)
-      hs.execute("/opt/homebrew/bin/yabai -m window --grid 1:1:0:0:1:1")
+      hs.execute(constants.paths.yabai .. " -m window --grid 1:1:0:0:1:1")
     end
   end,
 
   windowBottomHalf = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Bottom" }) then
       -- Grid 2:1 (2 rows, 1 col), start at x:0 y:1, span 1x1
-      hs.execute("/opt/homebrew/bin/yabai -m window --grid 2:1:0:1:1:1")
+      hs.execute(constants.paths.yabai .. " -m window --grid 2:1:0:1:1:1")
     end
   end,
 
   windowTopLeft = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Top Left" }) then
       -- Grid 2:2, start 0,0 (Top Left Quarter)
-      hs.execute("/opt/homebrew/bin/yabai -m window --grid 2:2:0:0:1:1")
+      hs.execute(constants.paths.yabai .. " -m window --grid 2:2:0:0:1:1")
     end
   end,
 
   windowBottomLeft = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Bottom Left" }) then
       -- Grid 2:2, start 0,1 (Bottom Left Quarter)
-      hs.execute("/opt/homebrew/bin/yabai -m window --grid 2:2:0:1:1:1")
+      hs.execute(constants.paths.yabai .. " -m window --grid 2:2:0:1:1:1")
     end
   end,
 
   windowTopRight = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Top Right" }) then
       -- Grid 2:2, start 1,0 (Top Right Quarter)
-      hs.execute("/opt/homebrew/bin/yabai -m window --grid 2:2:1:0:1:1")
+      hs.execute(constants.paths.yabai .. " -m window --grid 2:2:1:0:1:1")
     end
   end,
 
   windowBottomRight = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Bottom Right" }) then
       -- Grid 2:2, start 1,1 (Bottom Right Quarter)
-      hs.execute("/opt/homebrew/bin/yabai -m window --grid 2:2:1:1:1:1")
+      hs.execute(constants.paths.yabai .. " -m window --grid 2:2:1:1:1:1")
     end
   end,
 
   windowMakeLarger = function()
     -- Increase window size ratio by 5%
-    hs.execute("/opt/homebrew/bin/yabai -m window --ratio rel:0.05")
+    hs.execute(constants.paths.yabai .. " -m window --ratio rel:0.05")
   end,
 
   windowMakeSmaller = function()
     -- Decrease window size ratio by 5%
-    hs.execute("/opt/homebrew/bin/yabai -m window --ratio rel:-0.05")
+    hs.execute(constants.paths.yabai .. " -m window --ratio rel:-0.05")
   end,
 
   nextDesktop = function()
-    hs.execute("/opt/homebrew/bin/yabai -m space --focus next")
+    hs.execute(constants.paths.yabai .. " -m space --focus next")
   end,
 
   prevDesktop = function()
-    hs.execute("/opt/homebrew/bin/yabai -m space --focus prev")
+    hs.execute(constants.paths.yabai .. " -m space --focus prev")
   end,
 
   -- Native Hammerspoon
@@ -267,12 +253,6 @@ M.definitions = {
     key = "f",
     action = actions.launchFinder
   },
-  -- {
-  --   mods = constants.hyperKeyMods,
-  --   key = "b",
-  --   action = actions.launchOrFocusChrome
-  -- },
-
   -- Scripts
   {
     mods = { "alt", "shift" },

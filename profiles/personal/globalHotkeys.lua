@@ -36,16 +36,10 @@ local actions = {
   openClipboardHistory = function()
     hs.urlevent.openURL("raycast-x://extensions/raycast/clipboard-history/clipboard-history")
   end,
-  pasteLatestOtpCode = function()
-    hs.urlevent.openURL("raycast-x://extensions/thomaslombart/messages/paste-latest-otp-code")
-  end,
   searchEmojisAndSymbols = function()
     hs.urlevent.openURL("raycast-x://extensions/raycast/emoji-symbols/search-emoji-symbols")
   end,
   searchFiles = function() hs.urlevent.openURL("raycast-x://extensions/raycast/file-search/search-files") end,
-  manageBluetoothConnections = function()
-    hs.urlevent.openURL("raycast-x://extensions/VladCuciureanu/toothpick/manage-bluetooth-connections")
-  end,
   listRepos = function() hs.urlevent.openURL("raycast-x://extensions/moored/git-repos/list") end,
   manageDownloads = function()
     hs.urlevent.openURL("raycast-x://extensions/thomas/downloads-manager/manage-downloads")
@@ -59,18 +53,6 @@ local actions = {
   spotifyNext = function() hs.eventtap.keyStroke({ "ctrl", "alt", "cmd" }, "0") end,
   spotifyPlayPause = function() hs.eventtap.keyStroke({ "ctrl", "alt", "cmd" }, "9") end,
   spotifyPrev = function() hs.eventtap.keyStroke({ "ctrl", "alt", "cmd" }, "8") end,
-
-  -- Window Management
-  windowMakeLarger = function() hs.execute("/opt/homebrew/bin/yabai -m window --ratio rel:0.05") end,
-  windowMakeSmaller = function() hs.execute("/opt/homebrew/bin/yabai -m window --ratio rel:-0.05") end,
-  nextDesktop = function() hs.execute("/opt/homebrew/bin/yabai -m space --focus next") end,
-  prevDesktop = function() hs.execute("/opt/homebrew/bin/yabai -m space --focus prev") end,
-
-  -- MacOS Clipboard History
-  -- openClipboardHistory = function()
-  --   hs.eventtap.keyStroke({ "alt" }, "space")
-  --   hs.eventtap.keyStroke({ "cmd" }, "4")
-  -- end,
 }
 
 -- Hotkey Definitions Table
@@ -93,7 +75,6 @@ M.definitions = {
   { mods = { "cmd", "shift" },        key = "h",  action = actions.openClipboardHistory },
   { mods = { "cmd", "shift" },        key = "e",  action = actions.searchEmojisAndSymbols },
   { mods = { "cmd", "shift" },        key = "f",  action = actions.searchFiles },
-  -- { mods = { "cmd", "shift" },        key = "b",  action = actions.manageBluetoothConnections },
   { mods = { "cmd", "shift" },        key = "l",  action = actions.listRepos },
   { mods = { "alt", "shift" },        key = "w",  action = actions.manageDownloads },
 

@@ -4,10 +4,6 @@ local log = hs.logger.new("Init", "debug")
 
 require("hs.ipc")
 
--- Load the diagnostic key logger based on config
-
--- require("keylogger"):start()
-
 -- Require modules
 
 local helperFunctions = require("helperFunctions")
@@ -37,10 +33,6 @@ end
 helperFunctions.updateActiveAppHotkeys(hs.application.frontmostApplication(), AppBasedHotkeyRegistry, nil)
 MainAppWatcher = watcherFunctions.createAppBasedHotkeyWatcher(AppBasedHotkeyRegistry)
 MainAppWatcher:start()
-
--- -- 2. Mouse Watcher
--- MainMouseWatcher = watcherFunctions.createMouseWatcher()
--- MainMouseWatcher:start()
 
 -- Global Variables
 

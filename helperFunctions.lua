@@ -131,21 +131,4 @@ function M.findChromeSidebarButton(element, depth)
   return nil
 end
 
-function M.executeJsOnFocusedChrome(jsCode)
-
-    -- Use hs.task to run osascript
-    -- Arguments are passed safely as an array, avoiding quote-escaping hell
-    local task = hs.task.new("/usr/bin/osascript", function(exitCode, stdOut, stdErr)
-        if exitCode ~= 0 then
-            log.e("Chrome Injector Error: " .. stdErr)
-        elseif stdOut:match("Error") then
-            log.e("Chrome Injector Failed: " .. stdOut)
-        else
-            log.i("JS Injected Successfully")
-        end
-    end, { constants.paths.chromeJsInjector, jsCode })
-
-    task:start()
-end
-
 return M

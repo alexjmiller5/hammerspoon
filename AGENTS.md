@@ -24,16 +24,18 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
 ├── watcherFunctions.lua # Event watcher factories (app activation, mouse events)
 ├── globalHotkeys.lua    # System-wide hotkey definitions
 ├── appBasedHotkeys.lua  # Context-aware hotkeys (active only in specific apps)
-├── scripts/             # Shell scripts and AppleScripts invoked by hotkeys
-├── hyperkey.lua         # F19 → Hyper key conversion (disabled, use Karabiner instead)
-├── keylogger.lua        # Diagnostic key event logger (disabled by default)
+├── scripts/             # Shell scripts invoked by hotkeys
 ├── activeProfile.lua    # Reads ~/.config/hammerspoon-profile, resolves the active profile
 └── profiles/            # Machine-role profiles (selected at runtime, default: personal)
     ├── personal/        # init.lua, constants.lua, globalHotkeys.lua,
     │                    # appBasedHotkeys.lua, watcherFunctions.lua, scripts/
-    └── work/            # same shape (+ Spoons/, spoons.lua); untested since the
+    └── work/            # same shape (+ spoons.lua); untested since the
                          # blueprint era — verify when the work machine adopts it
 ```
+
+`profiles/personal/scripts/toggle_messages_sidebar` is a compiled Swift
+binary and is gitignored — rebuild it with the `swiftc` command in the
+comment above `toggleMessagesSidebar` in `profiles/personal/appBasedHotkeys.lua`.
 
 ### Key Patterns
 
@@ -68,15 +70,15 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
 
 ### Hyper Key
 
-The "Hyper" modifier (`Cmd+Alt+Ctrl+Shift`) is defined in `constants.hyperKeyMods`. Use Karabiner-Elements externally to map Caps Lock → F19, then Karabiner can convert F19 to the hyper combination. The built-in `hyperkey.lua` exists but is not currently used.
+The "Hyper" modifier (`Cmd+Alt+Ctrl+Shift`) is defined in `constants.hyperKeyMods`. Karabiner-Elements maps Caps Lock → F19 → the hyper combination.
 
 ### Window Management
 
-Window management uses yabai (must be installed separately). Functions in `globalHotkeys.lua` shell out to `/opt/homebrew/bin/yabai` for positioning. Some window actions attempt native macOS menu items first via `helpers.tryMenuItem()` before falling back to yabai.
+Window management uses yabai (nix-installed via nix-config `services.yabai`). Functions in `globalHotkeys.lua` shell out to `constants.paths.yabai` for positioning. Some window actions attempt native macOS menu items first via `helpers.tryMenuItem()` before falling back to yabai.
 
 ## External Dependencies
 
-- **yabai**: Window manager, expected at `/opt/homebrew/bin/yabai`
+- **yabai**: Window manager, nix-installed (`services.yabai` in nix-config) — path in `constants.paths.yabai` (`/run/current-system/sw/bin/yabai`)
 - **Karabiner-Elements**: For Caps Lock → Hyper key mapping (optional)
 - **Raycast**: Profile uses Raycast deep links for clipboard history, emoji search, file search, bluetooth management
 - **Chrome**: Several scripts target Chrome specifically; profile uses Chrome PWAs (identified by `com.google.Chrome.app.*` bundle IDs)

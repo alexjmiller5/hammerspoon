@@ -1,9 +1,9 @@
 {
   "Lua.diagnostics.globals": [
     "hs",
-    "textClipboardHistory",
     "spoon",
-    "AppHotkeyRegistry",
-    "previousBundleID"
+    "AppBasedHotkeyRegistry",
+    "MainAppWatcher",
+    "PreviewSidebarVisible"
   ]
 }

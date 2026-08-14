@@ -27,7 +27,6 @@ M.appBundleIds = {
 
 M.paths = {
   desktopFolder          = home .. "/Desktop",
-  downloadsFolder        = home .. "/Downloads",
   documentsFolder        = home .. "/Documents",
   applicationsFolder     = "/Applications",
   toggleMessagesSidebar  = home .. "/.hammerspoon/profiles/personal/scripts/toggle_messages_sidebar",

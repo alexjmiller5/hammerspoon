@@ -32,9 +32,6 @@ local actions = {
     helperFunctions.tryMenuItem({ "Tab", "Duplicate Tab" })
     helperFunctions.tryMenuItem({ "History", "Back" })
   end,
-  -- chromeBookmarkTab = function()
-  --   helperFunctions.tryMenuItem({ "Bookmarks", "Bookmark This Tab..." })
-  -- end,
   chromeToggleDevTools = function()
     helperFunctions.tryMenuItem({ "View", "Developer", "Developer Tools" })
   end,
@@ -48,8 +45,6 @@ local actions = {
     if button then button:performAction("AXPress") end
   end,
 
-
-
   previewToggleSidebar = function()
     if PreviewSidebarVisible then
       helperFunctions.tryMenuItem({ "View", "Hide Sidebar" })
@@ -58,25 +53,6 @@ local actions = {
       helperFunctions.tryMenuItem({ "View", "Thumbnails" })
       PreviewSidebarVisible = true
     end
-    -- Alternative native approach which is slower
-    -- local app = hs.application.frontmostApplication()
-    -- local thumbItem = app:findMenuItem({ "View", "Thumbnails" })
-
-    -- -- Log the specific table to see if it uses 'ticked' or 'toggled'
-    -- if thumbItem then
-    --   log.d("Thumbnails Menu Item found: " .. hs.inspect(thumbItem))
-    -- else
-    --   log.d("Thumbnails Menu Item NOT found")
-    -- end
-
-    -- -- 'ticked' is the standard property in Hammerspoon for a checked item
-    -- if thumbItem and thumbItem.ticked then
-    --   log.d("Sidebar is visible (Thumbnails is ticked). Hiding it...")
-    --   helperFunctions.tryMenuItem({ "View", "Hide Sidebar" })
-    -- else
-    --   log.d("Sidebar is hidden. Showing it...")
-    --   helperFunctions.tryMenuItem({ "View", "Thumbnails" })
-    -- end
   end,
 
   -- Hammerspoon Native
@@ -87,7 +63,6 @@ local actions = {
   -- Generic
   quit = function()
     hs.eventtap.keyStroke({ "cmd" }, "q")
-    -- hs.application.frontmostApplication():kill()
   end,
 }
 
