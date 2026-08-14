@@ -11,9 +11,6 @@ local actions = {
   launchGhostty = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.ghostty)
   end,
-  launchNotes = function()
-    hs.application.launchOrFocusByBundleID(constants.appBundleIds.notes)
-  end,
   launchVSCode = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.vscode)
   end,
@@ -44,9 +41,6 @@ local actions = {
   launchHammerspoon = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.hammerspoon)
   end,
-  launchSlack = function()
-    hs.application.launchOrFocusByBundleID(constants.appBundleIds.slack)
-  end,
   launchSystemSettings = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.systemSettings)
   end,
@@ -67,9 +61,6 @@ local actions = {
   end,
 
   -- Scripts
-  searchClipTab = function()
-    hs.task.new("/bin/sh", nil, { constants.paths.searchClipTab }):start()
-  end,
   searchClipWindow = function()
     hs.task.new("/bin/sh", nil, { constants.paths.searchClipWindow }):start()
   end,
@@ -92,10 +83,6 @@ local actions = {
     hs.osascript.applescript(
       'tell application "Google Chrome" to make new window with properties {mode:"incognito"} \n activate'
     )
-    hs.application.launchOrFocusByBundleID(constants.appBundleIds.chrome)
-  end,
-  newChromeWindow = function()
-    hs.osascript.applescript('tell application "Google Chrome" to make new window \n activate')
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.chrome)
   end,
   forceQuitApp = function()
@@ -231,11 +218,10 @@ M.definitions = {
     key = "t",
     action = actions.launchGhostty
   },
-  {
-    mods = { "alt" },
-    key = "n",
-    action = actions.launchNotes
-  },
+  -- NOTE: alt+n / alt+b / alt+shift+m / alt+shift+t deliberately have NO base
+  -- bindings — the personal profile owns them (Notion / new Chrome window /
+  -- Messages / Telegram). Profile bindings load after base ones and silently
+  -- win any same-combo conflict, so a base binding here would be dead code.
   {
     mods = { "alt" },
     key = "v",
@@ -273,11 +259,6 @@ M.definitions = {
   },
   {
     mods = { "alt", "shift" },
-    key = "m",
-    action = actions.launchSlack
-  },
-  {
-    mods = { "alt", "shift" },
     key = "s",
     action = actions.launchSystemSettings
   },
@@ -310,11 +291,6 @@ M.definitions = {
   },
   {
     mods = { "alt", "shift" },
-    key = "t",
-    action = actions.searchClipTab
-  },
-  {
-    mods = { "alt", "shift" },
     key = "b",
     action = actions.searchClipWindow
   },
@@ -327,11 +303,6 @@ M.definitions = {
     mods = { "alt" },
     key = "i",
     action = actions.newIncognitoWindow
-  },
-  {
-    mods = { "alt" },
-    key = "b",
-    action = actions.newChromeWindow
   },
   {
     mods = { "cmd", "shift" },

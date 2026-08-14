@@ -30,7 +30,7 @@ M.paths = {
   downloadsFolder        = home .. "/Downloads",
   documentsFolder        = home .. "/Documents",
   applicationsFolder     = "/Applications",
-  toggleMessagesSidebar  = home .. "/.hammerspoon/profile/scripts/toggle_messages_sidebar",
+  toggleMessagesSidebar  = home .. "/.hammerspoon/profiles/personal/scripts/toggle_messages_sidebar",
   marioWaowAudioFilePath = home .. "/Documents/sound-bites/Mario Waow.mp3"
 }
 

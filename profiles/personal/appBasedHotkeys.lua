@@ -70,7 +70,7 @@ local actions          = {
     end
   end,
   toggleMessagesSidebar = function()
-    -- Reload the script: swiftc -O -framework AppKit -framework ApplicationServices ~/.hammerspoon/profile/scripts/toggle_messages_sidebar.swift -o ~/.hammerspoon/profile/scripts/toggle_messages_sidebar
+    -- Rebuild the script: swiftc -O -framework AppKit -framework ApplicationServices ~/.hammerspoon/profiles/personal/scripts/toggle_messages_sidebar.swift -o ~/.hammerspoon/profiles/personal/scripts/toggle_messages_sidebar
     hs.task.new(profileConstants.paths.toggleMessagesSidebar, nil):start()
   end,
 
@@ -118,8 +118,10 @@ local actions          = {
 
     if windowCount <= 1 then
       log.i("[quitFromLastWindow] Condition Met: Window count <= 1. Sending Cmd+Q to quit app.")
-      -- app:kill()
-      hs.eventtap.keyStroke({ "cmd", "shift" }, "q")
+      -- Plain Cmd+Q (graceful quit, save prompts intact). NEVER Cmd+Shift+Q
+      -- here: the global force-quit hotkey turns that into kill -9 and eats
+      -- unsaved documents.
+      hs.eventtap.keyStroke({ "cmd" }, "q")
     else
       log.i("[quitFromLastWindow] Condition Met: Window count > 1. Proceeding to pass-through Cmd+W.")
 
