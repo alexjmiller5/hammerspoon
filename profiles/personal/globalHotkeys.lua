@@ -34,15 +34,15 @@ local actions = {
 
   -- Raycast Extensions
   openClipboardHistory = function()
-    hs.urlevent.openURL("raycast-x://extensions/raycast/clipboard-history/clipboard-history")
+    hs.urlevent.openURL("raycast://extensions/raycast/clipboard-history/clipboard-history")
   end,
   searchEmojisAndSymbols = function()
-    hs.urlevent.openURL("raycast-x://extensions/raycast/emoji-symbols/search-emoji-symbols")
+    hs.urlevent.openURL("raycast://extensions/raycast/emoji-symbols/search-emoji-symbols")
   end,
-  searchFiles = function() hs.urlevent.openURL("raycast-x://extensions/raycast/file-search/search-files") end,
-  listRepos = function() hs.urlevent.openURL("raycast-x://extensions/moored/git-repos/list") end,
+  searchFiles = function() hs.urlevent.openURL("raycast://extensions/raycast/file-search/search-files") end,
+  listRepos = function() hs.urlevent.openURL("raycast://extensions/moored/git-repos/list") end,
   manageDownloads = function()
-    hs.urlevent.openURL("raycast-x://extensions/thomas/downloads-manager/manage-downloads")
+    hs.urlevent.openURL("raycast://extensions/thomas/downloads-manager/manage-downloads")
   end,
 
   -- Shortcuts
