@@ -1,72 +1,63 @@
--- Chrome tab helpers built on chrome-cli (https://github.com/prasmussen/chrome-cli).
--- The work machine consolidates Gmail/Calendar/Tasks/Jira/Slack into one Chrome
--- tab group, so hotkeys target tabs by URL instead of PWA windows.
+-- Chrome tab helpers. The work machine consolidates Gmail/Calendar/Tasks/Jira/
+-- Slack into one Chrome tab group, so hotkeys target tabs by URL instead of
+-- PWA windows.
 --
--- Requires in Chrome: View > Developer > "Allow JavaScript from Apple Events"
--- (chrome-cli execute is built on it).
-
-local constants = require("constants")
+-- Everything runs as ONE in-process AppleScript per keypress (hs.osascript) —
+-- no shell, no external binaries. Spawning chrome-cli/osascript per press cost
+-- multiple seconds; this takes tens of milliseconds.
+--
+-- The JS hotkeys additionally require Chrome's View > Developer >
+-- "Allow JavaScript from Apple Events".
 
 local M = {}
 
--- Resolve chrome-cli ONCE via the user's login shell (finds mise/brew PATH with
--- no hardcoded path), then run every call through plain /bin/sh with the
--- absolute path — the interactive shell is slow and its startup output pollutes
--- captured stdout, so it must not run per keypress.
-local chromeCliPath
-local function chromeCli()
-  if chromeCliPath == nil then
-    local out = hs.execute("command -v chrome-cli", true) or ""
-    chromeCliPath = out:match("(%S+)%s*$") or false -- last token skips shell-startup noise
-    if not chromeCliPath then hs.alert.show("chrome-cli not found on PATH") end
-  end
-  return chromeCliPath or nil
-end
-
-local function shellQuote(s)
-  return "'" .. s:gsub("'", "'\\''") .. "'"
+-- Escape into an AppleScript double-quoted string literal
+local function asQuote(s)
+  return '"' .. s:gsub("\\", "\\\\"):gsub('"', '\\"') .. '"'
 end
 
 -- Run JS in the active tab of the front Chrome window.
 function M.js(code)
-  local cli = chromeCli()
-  if not cli then return "" end
-  return hs.execute(shellQuote(cli) .. " execute " .. shellQuote(code)) or ""
+  local ok, result = hs.osascript.applescript(
+    "tell application \"Google Chrome\" to execute active tab of front window javascript "
+    .. asQuote(code))
+  return ok and result or nil
 end
 
 -- Focus the first tab whose URL contains tab.match (plain substring), opening
 -- tab.url if no tab matches, then bring Chrome (and the tab's window) forward.
--- `chrome-cli activate` selects the tab inside its window but does NOT raise
--- that window over other Chrome windows, so we raise it by id ourselves.
+-- One pass, one Apple Events session: fetching "URL of tabs of w" is a single
+-- event per window, and raising the window is "set index to 1".
 function M.focusTab(tab)
   if not (tab and tab.match) then return end
-  local cli = chromeCli()
-  if not cli then return end
-  local winId, tabId
-  local links = hs.execute(shellQuote(cli) .. " list links") or ""
-  for line in links:gmatch("[^\n]+") do
-    if line:find(tab.match, 1, true) then
-      winId, tabId = line:match("^%[(%d+):(%d+)%]")
-      tabId = tabId or line:match("^%[(%d+)%]") -- single-window output has no window id
-      break
-    end
+  local fallback = ""
+  if tab.url and tab.url ~= "" then
+    fallback = "  open location " .. asQuote(tab.url) .. "\n"
   end
-  if tabId then
-    hs.execute(shellQuote(cli) .. " activate -t " .. tabId)
-    if winId then
-      hs.osascript.applescript(
-        'tell application "Google Chrome" to set index of window id ' .. winId .. " to 1")
-    end
-  elseif tab.url and tab.url ~= "" then
-    hs.execute(shellQuote(cli) .. " open " .. shellQuote(tab.url))
-  end
-  hs.application.launchOrFocusByBundleID(constants.appBundleIds.chrome)
+  hs.osascript.applescript([[
+tell application "Google Chrome"
+  repeat with w in windows
+    try
+      set urlList to URL of tabs of w
+      repeat with i from 1 to count of urlList
+        if item i of urlList contains ]] .. asQuote(tab.match) .. [[ then
+          set active tab index of w to i
+          set index of w to 1
+          activate
+          return
+        end if
+      end repeat
+    end try
+  end repeat
+]] .. fallback .. [[
+  activate
+end tell]])
 end
 
 -- Front Chrome window title ("<tab title> - Google Chrome"). Cheap (no shell),
 -- used to dispatch app-based hotkeys on which site the active tab is showing.
 function M.frontTitle()
-  local chrome = hs.application.get(constants.appBundleIds.chrome)
+  local chrome = hs.application.get("com.google.Chrome")
   local win = chrome and chrome:focusedWindow()
   return win and win:title() or ""
 end

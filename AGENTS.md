@@ -31,7 +31,10 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
     │                    # appBasedHotkeys.lua, watcherFunctions.lua, scripts/
     └── work/            # same shape (+ chrome.lua). Targets Chrome TABS (one
                          # always-alive tab group: Gmail/Calendar/Tasks/Jira/
-                         # Slack web), not PWAs, via the chrome-cli CLI.
+                         # Slack web), not PWAs, via in-process AppleScript
+                         # (hs.osascript — never shell out per keypress; a
+                         # spawned chrome-cli/osascript cost seconds, this
+                         # costs ~100ms).
                          # Company-specific URLs/paths never live in this
                          # public repo — they come from the machine-local
                          # override file ~/.config/hammerspoon/work-local.lua
@@ -87,5 +90,5 @@ Window management uses yabai (nix-installed via nix-config `services.yabai`). Fu
 - **Karabiner-Elements**: For Caps Lock → Hyper key mapping (optional)
 - **Raycast**: Profile uses Raycast deep links for clipboard history, emoji search, file search, bluetooth management
 - **Chrome**: Several scripts target Chrome specifically; the personal profile uses Chrome PWAs (identified by `com.google.Chrome.app.*` bundle IDs)
-- **chrome-cli** (work profile only): CLI for driving Chrome tabs over AppleScript — tab focus and in-page JS. Needs Chrome's View > Developer > "Allow JavaScript from Apple Events" enabled. Found via login-shell PATH (mise/brew), no hardcoded path
+- **"Allow JavaScript from Apple Events"** (work profile only): the work profile's in-page JS hotkeys (`chrome.js`) require Chrome's View > Developer > "Allow JavaScript from Apple Events"; no external binaries needed
 - **hs CLI**: Enabled via `require("hs.ipc")` for terminal commands like `hs -c "..."`
