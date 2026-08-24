@@ -20,22 +20,22 @@ M.paths = {
   -- vscodeRepo: set in work-local.lua (company path; alt+shift+A opens it)
 }
 
--- The always-alive Chrome tab group. pattern = grep -E over open tab URLs;
+-- The always-alive Chrome tab group. match = plain substring of the tab URL;
 -- url = what to open when no tab matches (empty = never auto-open).
 M.tabs = {
-  gmail    = { pattern = [[mail\.google\.com]], url = "https://mail.google.com" },
-  calendar = { pattern = [[calendar\.google\.com]], url = "https://calendar.google.com" },
-  tasks    = { pattern = [[tasks\.google\.com]], url = "https://tasks.google.com" },
-  drive    = { pattern = [[drive\.google\.com]], url = "https://drive.google.com" },
-  slack    = { pattern = [[app\.slack\.com]], url = "https://app.slack.com/client" },
-  -- jira: set the real board pattern/url in work-local.lua
-  jira     = { pattern = [[atlassian\.net]], url = "" },
+  gmail    = { match = "mail.google.com", url = "https://mail.google.com" },
+  calendar = { match = "calendar.google.com", url = "https://calendar.google.com" },
+  tasks    = { match = "tasks.google.com", url = "https://tasks.google.com" },
+  drive    = { match = "drive.google.com", url = "https://drive.google.com" },
+  slack    = { match = "app.slack.com", url = "https://app.slack.com/client" },
+  -- jira: set the real board match/url in work-local.lua
+  jira     = { match = "atlassian.net", url = "" },
 }
 
 -- Machine-local overrides: company-specific URLs, paths, and bundle ids live
 -- OUTSIDE this public repo in ~/.config/hammerspoon/work-local.lua, a file
 -- returning a table merged over M one level deep, e.g.
---   return { tabs = { jira = { pattern = "myco\\.atlassian\\.net", url = "https://..." } },
+--   return { tabs = { jira = { match = "myco.atlassian.net", url = "https://..." } },
 --            paths = { vscodeRepo = "/path/to/repo" } }
 local ok, localConf = pcall(dofile, home .. "/.config/hammerspoon/work-local.lua")
 if ok and type(localConf) == "table" then

@@ -9,12 +9,18 @@ local constants = require("constants")
 
 local M = {}
 
--- ponytail: hs.execute(cmd, true) runs a login shell so chrome-cli is found via
--- PATH (mise/brew) with no hardcoded path. Costs ~100-300ms per invocation; if
--- that ever grates, replace "chrome-cli" below with an absolute path.
-local function sh(cmd)
-  local out = hs.execute(cmd, true)
-  return out or ""
+-- Resolve chrome-cli ONCE via the user's login shell (finds mise/brew PATH with
+-- no hardcoded path), then run every call through plain /bin/sh with the
+-- absolute path — the interactive shell is slow and its startup output pollutes
+-- captured stdout, so it must not run per keypress.
+local chromeCliPath
+local function chromeCli()
+  if chromeCliPath == nil then
+    local out = hs.execute("command -v chrome-cli", true) or ""
+    chromeCliPath = out:match("(%S+)%s*$") or false -- last token skips shell-startup noise
+    if not chromeCliPath then hs.alert.show("chrome-cli not found on PATH") end
+  end
+  return chromeCliPath or nil
 end
 
 local function shellQuote(s)
@@ -23,21 +29,37 @@ end
 
 -- Run JS in the active tab of the front Chrome window.
 function M.js(code)
-  return sh("chrome-cli execute " .. shellQuote(code))
+  local cli = chromeCli()
+  if not cli then return "" end
+  return hs.execute(shellQuote(cli) .. " execute " .. shellQuote(code)) or ""
 end
 
--- Focus the first tab whose URL matches tab.pattern (grep -E), opening
--- tab.url if no tab matches, then bring Chrome forward.
+-- Focus the first tab whose URL contains tab.match (plain substring), opening
+-- tab.url if no tab matches, then bring Chrome (and the tab's window) forward.
+-- `chrome-cli activate` selects the tab inside its window but does NOT raise
+-- that window over other Chrome windows, so we raise it by id ourselves.
 function M.focusTab(tab)
-  if not (tab and tab.pattern) then return end
-  local cmd = "id=$(chrome-cli list links | grep -E -m1 " .. shellQuote(tab.pattern)
-      .. " | sed -E " .. shellQuote([[s/^\[([0-9]+:)?([0-9]+)\].*/\2/]]) .. "); "
-      .. 'if [ -n "$id" ]; then chrome-cli activate -t "$id"; '
-  if tab.url and tab.url ~= "" then
-    cmd = cmd .. "else chrome-cli open " .. shellQuote(tab.url) .. "; "
+  if not (tab and tab.match) then return end
+  local cli = chromeCli()
+  if not cli then return end
+  local winId, tabId
+  local links = hs.execute(shellQuote(cli) .. " list links") or ""
+  for line in links:gmatch("[^\n]+") do
+    if line:find(tab.match, 1, true) then
+      winId, tabId = line:match("^%[(%d+):(%d+)%]")
+      tabId = tabId or line:match("^%[(%d+)%]") -- single-window output has no window id
+      break
+    end
   end
-  cmd = cmd .. "fi"
-  sh(cmd)
+  if tabId then
+    hs.execute(shellQuote(cli) .. " activate -t " .. tabId)
+    if winId then
+      hs.osascript.applescript(
+        'tell application "Google Chrome" to set index of window id ' .. winId .. " to 1")
+    end
+  elseif tab.url and tab.url ~= "" then
+    hs.execute(shellQuote(cli) .. " open " .. shellQuote(tab.url))
+  end
   hs.application.launchOrFocusByBundleID(constants.appBundleIds.chrome)
 end
 
