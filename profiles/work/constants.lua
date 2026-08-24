@@ -4,27 +4,48 @@ M.profileName = "Work"
 
 local home = os.getenv("HOME")
 
--- Application Bundle IDs
+-- Application Bundle IDs. gemini/youtube are required by the base config's
+-- alt+G / alt+Y launchers; PWA ids are machine-specific, so override them in
+-- work-local.lua (below) if those PWAs exist on the work machine.
 M.appBundleIds = {
-  gemini         = "com.google.Chrome.app.caidcmannjgahlnhpmdmihecjcoiigg",
-  youtube        = "com.google.Chrome.app.agimnkijcaahngcdmfeangaknmldooml",
-  googleTasks    = "com.google.Chrome.app.okhfeehhillipaleckndoboggdkcebmo",
-  googleCalendar = "com.google.Chrome.app.kjbdgfilnfhdofibpgamdcdgpehopbep",
-  gmail          = "com.google.Chrome.app.fmgjjmmmlfnkbppncabfkddbjimcfncm",
-  googleDrive    = "com.google.Chrome.app.aghbiahbpaijignceidepookljebhfak",
+  gemini  = "com.google.Chrome.app.caidcmannjgahlnhpmdmihecjcoiigg",
+  youtube = "com.google.Chrome.app.agimnkijcaahngcdmfeangaknmldooml",
 }
 
+-- Required by the base config's folder-opening hotkeys (alt+shift+D/E/A).
 M.paths = {
-  clickMyDrive               = home .. "/.local/bin/click-my-drive-button.applescript",
-  openGooglePasswordsManager = home .. "/.local/bin/open-google-passwords-manager.applescript",
-  artifactoryRepo            = home ..
-  "/Library/CloudStorage/GoogleDrive-<work-email>/My Drive/Desktop/repos/Artifactory-Artifactory",
-  driveDesktop               = home ..
-  "/Library/CloudStorage/GoogleDrive-<work-email>/My Drive/Desktop",
-  driveDownloads             = home ..
-  "/Library/CloudStorage/GoogleDrive-<work-email>/My Drive/Downloads",
-  driveDocuments             = home ..
-  "/Library/CloudStorage/GoogleDrive-<work-email>/My Drive/Documents",
+  desktopFolder      = home .. "/Desktop",
+  documentsFolder    = home .. "/Documents",
+  applicationsFolder = "/Applications",
+  -- vscodeRepo: set in work-local.lua (company path; alt+shift+A opens it)
 }
+
+-- The always-alive Chrome tab group. pattern = grep -E over open tab URLs;
+-- url = what to open when no tab matches (empty = never auto-open).
+M.tabs = {
+  gmail    = { pattern = [[mail\.google\.com]], url = "https://mail.google.com" },
+  calendar = { pattern = [[calendar\.google\.com]], url = "https://calendar.google.com" },
+  tasks    = { pattern = [[tasks\.google\.com]], url = "https://tasks.google.com" },
+  drive    = { pattern = [[drive\.google\.com]], url = "https://drive.google.com" },
+  slack    = { pattern = [[app\.slack\.com]], url = "https://app.slack.com/client" },
+  -- jira: set the real board pattern/url in work-local.lua
+  jira     = { pattern = [[atlassian\.net]], url = "" },
+}
+
+-- Machine-local overrides: company-specific URLs, paths, and bundle ids live
+-- OUTSIDE this public repo in ~/.config/hammerspoon/work-local.lua, a file
+-- returning a table merged over M one level deep, e.g.
+--   return { tabs = { jira = { pattern = "myco\\.atlassian\\.net", url = "https://..." } },
+--            paths = { vscodeRepo = "/path/to/repo" } }
+local ok, localConf = pcall(dofile, home .. "/.config/hammerspoon/work-local.lua")
+if ok and type(localConf) == "table" then
+  for key, value in pairs(localConf) do
+    if type(value) == "table" and type(M[key]) == "table" then
+      for k, v in pairs(value) do M[key][k] = v end
+    else
+      M[key] = value
+    end
+  end
+end
 
 return M

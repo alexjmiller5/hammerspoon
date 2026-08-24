@@ -29,8 +29,13 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
 └── profiles/            # Machine-role profiles (selected at runtime, default: personal)
     ├── personal/        # init.lua, constants.lua, globalHotkeys.lua,
     │                    # appBasedHotkeys.lua, watcherFunctions.lua, scripts/
-    └── work/            # same shape (+ spoons.lua); untested since the
-                         # blueprint era — verify when the work machine adopts it
+    └── work/            # same shape (+ chrome.lua). Targets Chrome TABS (one
+                         # always-alive tab group: Gmail/Calendar/Tasks/Jira/
+                         # Slack web), not PWAs, via the chrome-cli CLI.
+                         # Company-specific URLs/paths never live in this
+                         # public repo — they come from the machine-local
+                         # override file ~/.config/hammerspoon/work-local.lua
+                         # (see profiles/work/constants.lua for its shape)
 ```
 
 `profiles/personal/scripts/toggle_messages_sidebar` is a compiled Swift
@@ -81,5 +86,6 @@ Window management uses yabai (nix-installed via nix-config `services.yabai`). Fu
 - **yabai**: Window manager, nix-installed (`services.yabai` in nix-config) — path in `constants.paths.yabai` (`/run/current-system/sw/bin/yabai`)
 - **Karabiner-Elements**: For Caps Lock → Hyper key mapping (optional)
 - **Raycast**: Profile uses Raycast deep links for clipboard history, emoji search, file search, bluetooth management
-- **Chrome**: Several scripts target Chrome specifically; profile uses Chrome PWAs (identified by `com.google.Chrome.app.*` bundle IDs)
+- **Chrome**: Several scripts target Chrome specifically; the personal profile uses Chrome PWAs (identified by `com.google.Chrome.app.*` bundle IDs)
+- **chrome-cli** (work profile only): CLI for driving Chrome tabs over AppleScript — tab focus and in-page JS. Needs Chrome's View > Developer > "Allow JavaScript from Apple Events" enabled. Found via login-shell PATH (mise/brew), no hardcoded path
 - **hs CLI**: Enabled via `require("hs.ipc")` for terminal commands like `hs -c "..."`
