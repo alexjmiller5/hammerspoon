@@ -17,7 +17,6 @@ M.paths = {
   desktopFolder      = home .. "/Desktop",
   documentsFolder    = home .. "/Documents",
   applicationsFolder = "/Applications",
-  -- vscodeRepo: set in work-local.lua (company path; alt+shift+A opens it)
 }
 
 -- The always-alive Chrome tab group. match = plain substring of the tab URL;
@@ -35,8 +34,7 @@ M.tabs = {
 -- Machine-local overrides: company-specific URLs, paths, and bundle ids live
 -- OUTSIDE this public repo in ~/.config/hammerspoon/work-local.lua, a file
 -- returning a table merged over M one level deep, e.g.
---   return { tabs = { jira = { match = "myco.atlassian.net", url = "https://..." } },
---            paths = { vscodeRepo = "/path/to/repo" } }
+--   return { tabs = { jira = { match = "myco.atlassian.net", url = "https://..." } } }
 local ok, localConf = pcall(dofile, home .. "/.config/hammerspoon/work-local.lua")
 if ok and type(localConf) == "table" then
   for key, value in pairs(localConf) do

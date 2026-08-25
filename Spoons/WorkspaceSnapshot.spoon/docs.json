@@ -1,0 +1,24 @@
+[
+  {
+    "Name": "WorkspaceSnapshot",
+    "Desc": "Snapshot a macOS Space's window state to clipboard and restore it later into a fresh space.",
+    "items": [
+      {
+        "Type": "Method",
+        "Name": "bindHotkeys",
+        "Desc": "Bind snapshot, snapshotClose, and restore hotkeys.",
+        "Parameters": [ { "Name": "mapping", "Desc": "Table with snapshot/snapshotClose/restore keys, each {mods, key}." } ]
+      },
+      {
+        "Type": "Method",
+        "Name": "start",
+        "Desc": "Start the Spoon (currently a no-op; hotkeys handle the work)."
+      },
+      {
+        "Type": "Method",
+        "Name": "stop",
+        "Desc": "Unbind hotkeys."
+      }
+    ]
+  }
+]

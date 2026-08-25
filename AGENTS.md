@@ -25,6 +25,10 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
 ├── globalHotkeys.lua    # System-wide hotkey definitions
 ├── appBasedHotkeys.lua  # Context-aware hotkeys (active only in specific apps)
 ├── scripts/             # Shell scripts invoked by hotkeys
+├── Spoons/              # Vendored spoons, ALL committed (installed software
+│                        # lives in the repo). WorkspaceSnapshot's dev home is
+│                        # the workspace-snapshot repo — change it there first,
+│                        # then re-copy the .spoon dir here
 ├── activeProfile.lua    # Reads ~/.config/hammerspoon-profile, resolves the active profile
 └── profiles/            # Machine-role profiles (selected at runtime, default: personal)
     ├── personal/        # init.lua, constants.lua, globalHotkeys.lua,

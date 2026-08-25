@@ -24,13 +24,6 @@ local actions = {
       tell application "Google Chrome" to activate
     ]])
   end,
-  openRepoInVscode = function()
-    if not constants.paths.vscodeRepo then
-      hs.alert.show("Set paths.vscodeRepo in ~/.config/hammerspoon/work-local.lua")
-      return
-    end
-    hs.task.new("/usr/bin/open", nil, { "vscode://file/" .. constants.paths.vscodeRepo .. "?windowId=_blank" }):start()
-  end,
 }
 
 M.definitions = {
@@ -41,9 +34,6 @@ M.definitions = {
   { mods = { "alt" },          key = "l", action = actions.openChromePasswords },
   { mods = { "alt", "shift" }, key = "n", action = actions.focusTasks },
   { mods = { "alt", "shift" }, key = "m", action = actions.focusSlack },
-  -- Overrides the base alt+shift+A (open /Applications) by design: profile
-  -- bindings load after base ones and win same-combo conflicts.
-  { mods = { "alt", "shift" }, key = "a", action = actions.openRepoInVscode },
 }
 
 return M

@@ -33,7 +33,7 @@ The base config (`init.lua` + top-level modules) loads everywhere; then
 
 Missing ones degrade gracefully (their hotkeys just don't fire): yabai (window
 management), Karabiner-Elements (Caps Lock → Hyper), Raycast (clipboard/emoji/
-file search), the WorkspaceSnapshot spoon. Chrome's View > Developer > "Allow
+file search). Chrome's View > Developer > "Allow
 JavaScript from Apple Events" is needed for the work profile's in-page JS
 hotkeys.
 

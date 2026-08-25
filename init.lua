@@ -38,10 +38,10 @@ MainAppWatcher:start()
 
 PreviewSidebarVisible = false
 
--- WorkspaceSnapshot Spoon — hotkeys defined in globalHotkeys.lua. The spoon
--- is installed by nix-config (flake input → ~/.hammerspoon/Spoons symlink;
--- this repo gitignores that path). pcall: a missing spoon (fresh machine
--- before first switch) must not kill the rest of the config.
+-- WorkspaceSnapshot Spoon — hotkeys defined in globalHotkeys.lua. Vendored in
+-- Spoons/ like every spoon (its dev home is the workspace-snapshot repo —
+-- change it there, then re-copy here). pcall: a broken/missing spoon must not
+-- kill the rest of the config.
 local spoonOk, spoonErr = pcall(function() hs.loadSpoon("WorkspaceSnapshot"):start() end)
 if not spoonOk then
   log.w("WorkspaceSnapshot spoon failed to load: " .. tostring(spoonErr))
