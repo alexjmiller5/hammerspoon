@@ -13,9 +13,10 @@ helperFunctions.bindGlobalHotkeys(profileGlobalHotkeyDefinitions)
 -- We access the 'AppBasedHotkeyRegistry' Global defined in the main init.lua
 helperFunctions.registerAppBasedHotkeys(AppBasedHotkeyRegistry, profileAppBasedHotkeyDefinitions)
 
--- TextClipboardHistory spoon: machine-local, copied into Spoons/ by the work
--- machine's bootstrap (gitignored here, like WorkspaceSnapshot). Load + bind
--- only when present so a machine without it still gets the rest of the profile.
+-- TextClipboardHistory spoon: Alex's customized fork of the official spoon
+-- (full-text dedupe/paste, preview rows), committed at
+-- Spoons/TextClipboardHistory.spoon. pcall so a checkout missing it (or a
+-- broken spoon) still loads the rest of the profile.
 local spoonOk = pcall(function()
   hs.loadSpoon("TextClipboardHistory")
   spoon.TextClipboardHistory:start()
