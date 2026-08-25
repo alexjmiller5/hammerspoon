@@ -31,14 +31,23 @@ local jsClick = [[var clk=function(e){if(!e)return;
 ]]
 
 local actions = {
-  -- cmd+\ — context-aware sidebar toggle
-  toggleContextSidebar = function()
+  -- cmd+shift+\ — Google Docs: toggle tabs & outlines (cmd+\ stays the
+  -- general Chrome tab-strip sidebar there)
+  toggleDocsTabsOutlines = function()
     local title = chrome.frontTitle()
     if title:find("Google Docs", 1, true) then
       chrome.js(jsClick .. [[clk([...document.querySelectorAll(
         '[aria-label="Hide tabs & outlines"],[aria-label="Show tabs & outlines"]')]
         .find(function(e){return e.offsetParent}));]])
-    elseif title:find("Confluence", 1, true) then
+    else
+      passThrough({ "cmd", "shift" }, "\\")
+    end
+  end,
+
+  -- cmd+\ — context-aware sidebar toggle
+  toggleContextSidebar = function()
+    local title = chrome.frontTitle()
+    if title:find("Confluence", 1, true) then
       chrome.js(jsClick .. [[clk(document.querySelector(
         'button[aria-label="Collapse sidebar"],button[aria-label="Expand sidebar"],' +
         '[data-testid="grid-left-sidebar-collapse-button"],[data-testid="grid-left-sidebar-expand-button"]'));]])
@@ -98,7 +107,8 @@ local actions = {
 local chromeOnly = { chromeBundleId }
 
 M.definitions = {
-  { mods = { "cmd" },        key = "\\",     action = actions.toggleContextSidebar,    only = chromeOnly },
+  { mods = { "cmd" },          key = "\\",     action = actions.toggleContextSidebar,    only = chromeOnly },
+  { mods = { "cmd", "shift" }, key = "\\",     action = actions.toggleDocsTabsOutlines,  only = chromeOnly },
   { mods = { "cmd" },        key = "k",      action = actions.searchCurrentSite,       only = chromeOnly },
   { mods = {},               key = "escape", action = actions.escapeOrClearGmailSearch, only = chromeOnly },
   { mods = { "cmd", "alt" }, key = "delete", action = actions.deleteCurrentGoogleDoc,  only = chromeOnly },
