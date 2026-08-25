@@ -31,14 +31,19 @@ local jsClick = [[var clk=function(e){if(!e)return;
 ]]
 
 local actions = {
-  -- cmd+shift+\ — Google Docs: toggle tabs & outlines (cmd+\ stays the
-  -- general Chrome tab-strip sidebar there)
-  toggleDocsTabsOutlines = function()
+  -- cmd+shift+\ — site-specific panel toggle (cmd+\ stays the general Chrome
+  -- tab-strip sidebar everywhere)
+  toggleSitePanel = function()
     local title = chrome.frontTitle()
     if title:find("Google Docs", 1, true) then
       chrome.js(jsClick .. [[clk([...document.querySelectorAll(
         '[aria-label="Hide tabs & outlines"],[aria-label="Show tabs & outlines"]')]
         .find(function(e){return e.offsetParent}));]])
+    elseif title:find("Confluence", 1, true) then
+      -- Confluence's own sidebar shortcut. Caveat: like the native shortcut,
+      -- it only toggles when focus is outside a text field - mid-edit it
+      -- types a literal "[".
+      hs.eventtap.keyStroke({}, "[", 0, hs.application.get(chromeBundleId))
     else
       passThrough({ "cmd", "shift" }, "\\")
     end
@@ -47,12 +52,7 @@ local actions = {
   -- cmd+\ — context-aware sidebar toggle
   toggleContextSidebar = function()
     local title = chrome.frontTitle()
-    if title:find("Confluence", 1, true) then
-      -- Confluence's own sidebar shortcut. Caveat: like the native shortcut,
-      -- it only toggles when focus is outside a text field - mid-edit it
-      -- types a literal "[".
-      hs.eventtap.keyStroke({}, "[", 0, hs.application.get(chromeBundleId))
-    elseif title:find("Gmail", 1, true) or title:find("Google Calendar", 1, true) then
+    if title:find("Gmail", 1, true) or title:find("Google Calendar", 1, true) then
       -- Google Tasks side panel (clicking its rail tab toggles open/closed)
       chrome.js(jsClick .. [[clk(document.querySelector('[aria-label="Tasks"]'));]])
     else
@@ -109,7 +109,7 @@ local chromeOnly = { chromeBundleId }
 
 M.definitions = {
   { mods = { "cmd" },          key = "\\",     action = actions.toggleContextSidebar,    only = chromeOnly },
-  { mods = { "cmd", "shift" }, key = "\\",     action = actions.toggleDocsTabsOutlines,  only = chromeOnly },
+  { mods = { "cmd", "shift" }, key = "\\",     action = actions.toggleSitePanel,         only = chromeOnly },
   { mods = { "cmd" },        key = "k",      action = actions.searchCurrentSite,       only = chromeOnly },
   { mods = {},               key = "escape", action = actions.escapeOrClearGmailSearch, only = chromeOnly },
   { mods = { "cmd", "alt" }, key = "delete", action = actions.deleteCurrentGoogleDoc,  only = chromeOnly },
