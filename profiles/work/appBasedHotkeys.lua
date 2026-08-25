@@ -91,12 +91,16 @@ local actions = {
     end
   end,
 
-  -- cmd+alt+backspace — Google Docs: move the current doc to trash.
+  -- cmd+shift+backspace — Google Docs: move the current doc to trash.
   -- Docs menus reject untrusted clicks, so this types into the real
-  -- "Search the menus" box (Option+/) with genuine keystrokes.
+  -- "Search the menus" box (Option+/) with genuine keystrokes. Outside Docs
+  -- the combo passes through (it's Chrome's Clear Browsing Data shortcut).
   deleteCurrentGoogleDoc = function()
     local title = chrome.frontTitle()
-    if not title:find("Google Docs", 1, true) then return end
+    if not title:find("Google Docs", 1, true) then
+      passThrough({ "cmd", "shift" }, "delete")
+      return
+    end
     local app = hs.application.get(chromeBundleId)
     hs.eventtap.keyStroke({ "alt" }, "/", 0, app)
     hs.timer.doAfter(0.6, function()
@@ -115,7 +119,7 @@ M.definitions = {
   { mods = { "cmd", "shift" }, key = "\\",     action = actions.toggleSitePanel,         only = chromeOnly },
   { mods = { "cmd" },        key = "k",      action = actions.searchCurrentSite,       only = chromeOnly },
   { mods = {},               key = "escape", action = actions.escapeOrClearGmailSearch, only = chromeOnly },
-  { mods = { "cmd", "alt" }, key = "delete", action = actions.deleteCurrentGoogleDoc,  only = chromeOnly },
+  { mods = { "cmd", "shift" }, key = "delete", action = actions.deleteCurrentGoogleDoc, only = chromeOnly },
 }
 
 return M
