@@ -48,9 +48,10 @@ local actions = {
   toggleContextSidebar = function()
     local title = chrome.frontTitle()
     if title:find("Confluence", 1, true) then
-      chrome.js(jsClick .. [[clk(document.querySelector(
-        'button[aria-label="Collapse sidebar"],button[aria-label="Expand sidebar"],' +
-        '[data-testid="grid-left-sidebar-collapse-button"],[data-testid="grid-left-sidebar-expand-button"]'));]])
+      -- Confluence's own sidebar shortcut. Caveat: like the native shortcut,
+      -- it only toggles when focus is outside a text field - mid-edit it
+      -- types a literal "[".
+      hs.eventtap.keyStroke({}, "[", 0, hs.application.get(chromeBundleId))
     elseif title:find("Gmail", 1, true) or title:find("Google Calendar", 1, true) then
       -- Google Tasks side panel (clicking its rail tab toggles open/closed)
       chrome.js(jsClick .. [[clk(document.querySelector('[aria-label="Tasks"]'));]])
