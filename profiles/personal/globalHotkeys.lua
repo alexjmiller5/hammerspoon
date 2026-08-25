@@ -44,6 +44,8 @@ local actions = {
   manageDownloads = function()
     hs.urlevent.openURL("raycast://extensions/thomas/downloads-manager/manage-downloads")
   end,
+  -- macOS built-in dictation; the menu item is only enabled with a text field focused
+  dictate = function() helpers.tryMenuItem({ "Edit", "Start Dictation" }) end,
 
   -- Shortcuts
   shazamToSpotify = function() runShortcut("Shazam → Spotify") end,
@@ -77,6 +79,7 @@ M.definitions = {
   { mods = { "cmd", "shift" },        key = "f",  action = actions.searchFiles },
   { mods = { "cmd", "shift" },        key = "l",  action = actions.listRepos },
   { mods = { "alt", "shift" },        key = "w",  action = actions.manageDownloads },
+  { mods = constants.hyperKeyMods,    key = "d",  action = actions.dictate },
 
   -- Shortcuts
   { mods = constants.hyperKeyMods,    key = "s",  action = actions.shazamToSpotify },
