@@ -36,9 +36,12 @@ local actions = {
   toggleSitePanel = function()
     local title = chrome.frontTitle()
     if title:find("Google Docs", 1, true) then
+      -- Prefix match + getClientRects: in multi-tab docs the closed-state
+      -- button is labeled "Show tabs & outlines, N tabs", and offsetParent
+      -- is null for elements in fixed-position containers.
       chrome.js(jsClick .. [[clk([...document.querySelectorAll(
-        '[aria-label="Hide tabs & outlines"],[aria-label="Show tabs & outlines"]')]
-        .find(function(e){return e.offsetParent}));]])
+        '[aria-label^="Hide tabs & outlines"],[aria-label^="Show tabs & outlines"]')]
+        .find(function(e){return e.getClientRects().length}));]])
     elseif title:find("Confluence", 1, true) then
       -- Confluence's own sidebar shortcut. Caveat: like the native shortcut,
       -- it only toggles when focus is outside a text field - mid-edit it
