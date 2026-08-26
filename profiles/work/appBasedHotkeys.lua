@@ -91,6 +91,14 @@ local actions = {
     end
   end,
 
+  -- Slack DESKTOP app (kept alongside Slack web: Alex uses both)
+  slackToggleSidebar = function()
+    hs.eventtap.keyStroke({ "cmd", "shift" }, "d")
+  end,
+  slackSearch = function()
+    hs.eventtap.keyStroke({ "cmd" }, "g")
+  end,
+
   -- cmd+shift+backspace — Google Docs: move the current doc to trash.
   -- Docs menus reject untrusted clicks, so this types into the real
   -- "Search the menus" box (Option+/) with genuine keystrokes. Outside Docs
@@ -113,6 +121,7 @@ local actions = {
 }
 
 local chromeOnly = { chromeBundleId }
+local slackOnly = { baseConstants.appBundleIds.slack }
 
 M.definitions = {
   { mods = { "cmd" },          key = "\\",     action = actions.toggleContextSidebar,    only = chromeOnly },
@@ -120,6 +129,8 @@ M.definitions = {
   { mods = { "cmd" },        key = "k",      action = actions.searchCurrentSite,       only = chromeOnly },
   { mods = {},               key = "escape", action = actions.escapeOrClearGmailSearch, only = chromeOnly },
   { mods = { "cmd", "shift" }, key = "delete", action = actions.deleteCurrentGoogleDoc, only = chromeOnly },
+  { mods = { "cmd" },          key = "\\",     action = actions.slackToggleSidebar,      only = slackOnly },
+  { mods = { "cmd" },          key = "k",      action = actions.slackSearch,             only = slackOnly },
 }
 
 return M
