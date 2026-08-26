@@ -27,14 +27,21 @@ end
 -- Focus the first tab whose URL contains tab.match (plain substring), opening
 -- tab.url if no tab matches, then bring Chrome (and the tab's window) forward.
 -- One pass, one Apple Events session: fetching "URL of tabs of w" is a single
--- event per window, and raising the window is "set index to 1".
+-- event per window.
+--
+-- Raising the window is the hard part: "activate" lands on Chrome's most-
+-- recently-used window, "set index"/AXRaise cannot cross Mission Control
+-- spaces, and AX can't even SEE other-space windows to focus them. So after
+-- activating, if the wrong window came up, walk Chrome's windows with real
+-- cmd+` presses - macOS's own window cycling, which DOES switch spaces -
+-- until the selected tab's title is frontmost.
 function M.focusTab(tab)
   if not (tab and tab.match) then return end
   local fallback = ""
   if tab.url and tab.url ~= "" then
     fallback = "  open location " .. asQuote(tab.url) .. "\n"
   end
-  hs.osascript.applescript([[
+  local ok, tabTitle = hs.osascript.applescript([[
 tell application "Google Chrome"
   repeat with w in windows
     try
@@ -42,19 +49,31 @@ tell application "Google Chrome"
       repeat with i from 1 to count of urlList
         if item i of urlList contains ]] .. asQuote(tab.match) .. [[ then
           set active tab index of w to i
-          -- activate BEFORE raising: raising an inactive app's window with
-          -- "set index" doesn't decide which window becomes key on activation
-          -- (the previously-key one sometimes wins) - raise after instead.
+          set theTitle to title of tab i of w
           activate
           set index of w to 1
-          return
+          return theTitle
         end if
       end repeat
     end try
   end repeat
 ]] .. fallback .. [[
   activate
+  return ""
 end tell]])
+  if not ok or type(tabTitle) ~= "string" or tabTitle == "" then return end
+
+  local function frontMatches()
+    return M.frontTitle():find(tabTitle, 1, true) == 1
+  end
+  local attempts = 0
+  local function step()
+    if frontMatches() or attempts >= 8 then return end
+    attempts = attempts + 1
+    hs.eventtap.keyStroke({ "cmd" }, "`", 0, hs.application.get("com.google.Chrome"))
+    hs.timer.doAfter(0.25, step)
+  end
+  hs.timer.doAfter(0.3, step)
 end
 
 -- Front Chrome window title ("<tab title> - Google Chrome"). Cheap (no shell),
