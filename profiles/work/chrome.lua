@@ -119,9 +119,9 @@ end tell]]
       dlog("step %d: front=%q -> re-running raise (the 'second press')", attempts, front)
       hs.osascript.applescript(script)
     end
-    hs.timer.doAfter(0.35, step)
+    hs.timer.doAfter(0.05, step)
   end
-  hs.timer.doAfter(0.3, step)
+  hs.timer.doAfter(0.05, step)
 end
 
 -- Front Chrome window title ("<tab title> - Google Chrome"). Cheap (no shell),
