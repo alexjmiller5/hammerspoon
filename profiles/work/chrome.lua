@@ -82,21 +82,42 @@ end tell]])
   tabTitle = tabTitle or result
   dlog("selected tab %q in one of %s windows", tabTitle, winCount or "?")
 
+  -- Success = Chrome is genuinely the frontmost APP and its focused window
+  -- carries the tab's title. (chrome:focusedWindow() alone lies: it reports
+  -- Chrome's internal key window even when Chrome isn't frontmost, and
+  -- AppleScript "activate" is sometimes ignored under focus-steal protection.)
   local attempts = 0
   local function step()
+    local frontmost = hs.application.frontmostApplication()
+    local chromeFront = frontmost ~= nil and frontmost:bundleID() == "com.google.Chrome"
     local front = M.frontTitle()
-    if front:find(tabTitle, 1, true) == 1 then
-      dlog("front matches after %d cycles: %q", attempts, front)
+    if chromeFront and front:find(tabTitle, 1, true) == 1 then
+      dlog("done after %d steps: front=%q", attempts, front)
       return
     end
-    if attempts >= 8 then
-      dlog("GAVE UP after %d cycles; wanted %q, front is %q", attempts, tabTitle, front)
+    if attempts >= 10 then
+      dlog("GAVE UP after %d steps; wanted %q; chromeFront=%s front=%q",
+        attempts, tabTitle, tostring(chromeFront), front)
       return
     end
     attempts = attempts + 1
-    dlog("cycle %d: front=%q -> sending cmd+`", attempts, front)
-    hs.eventtap.keyStroke({ "cmd" }, "`", 0, hs.application.get("com.google.Chrome"))
-    hs.timer.doAfter(0.25, step)
+    if not chromeFront then
+      -- hs activation (NSRunningApplication, ignoring-other-apps) is more
+      -- forceful than AppleScript "activate".
+      dlog("step %d: frontmost=%q - activating Chrome",
+        attempts, frontmost and frontmost:name() or "?")
+      local chromeApp = hs.application.get("com.google.Chrome")
+      if chromeApp then chromeApp:activate() end
+    else
+      -- UNtargeted keystroke: pid-targeted modifier shortcuts are dropped by
+      -- some apps/macOS versions; the global event path is what a real
+      -- keypress uses, and Chrome is frontmost so it lands there. cmd+` is
+      -- macOS's native next-window cycling, the one public mechanism that
+      -- crosses Mission Control spaces.
+      dlog("step %d: front=%q -> cmd+`", attempts, front)
+      hs.eventtap.keyStroke({ "cmd" }, "`", 0)
+    end
+    hs.timer.doAfter(0.3, step)
   end
   hs.timer.doAfter(0.3, step)
 end
