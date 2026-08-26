@@ -24,17 +24,6 @@ function M.js(code)
   return ok and result or nil
 end
 
--- Focus the first tab whose URL contains tab.match (plain substring), opening
--- tab.url if no tab matches, then bring Chrome (and the tab's window) forward.
--- One pass, one Apple Events session: fetching "URL of tabs of w" is a single
--- event per window.
---
--- Raising the window is the hard part: "activate" lands on Chrome's most-
--- recently-used window, "set index"/AXRaise cannot cross Mission Control
--- spaces, and AX can't even SEE other-space windows to focus them. So after
--- activating, if the wrong window came up, walk Chrome's windows with real
--- cmd+` presses - macOS's own window cycling, which DOES switch spaces -
--- until the selected tab's title is frontmost.
 -- Diagnostic trace, one block per invocation — when a tab-jump hotkey
 -- misbehaves, send the tail of this file along with the bug report.
 local logPath = os.getenv("HOME") .. "/.hammerspoon-focustab.log"
