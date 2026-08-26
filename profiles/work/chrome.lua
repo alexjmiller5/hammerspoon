@@ -42,8 +42,11 @@ tell application "Google Chrome"
       repeat with i from 1 to count of urlList
         if item i of urlList contains ]] .. asQuote(tab.match) .. [[ then
           set active tab index of w to i
-          set index of w to 1
+          -- activate BEFORE raising: raising an inactive app's window with
+          -- "set index" doesn't decide which window becomes key on activation
+          -- (the previously-key one sometimes wins) - raise after instead.
           activate
+          set index of w to 1
           return
         end if
       end repeat
