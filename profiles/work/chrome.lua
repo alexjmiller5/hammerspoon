@@ -53,7 +53,7 @@ function M.focusTab(tab)
   if tab.url and tab.url ~= "" then
     fallback = "  open location " .. asQuote(tab.url) .. "\n"
   end
-  local ok, result = hs.osascript.applescript([[
+  local script = [[
 tell application "Google Chrome"
   repeat with w in windows
     try
@@ -72,7 +72,8 @@ tell application "Google Chrome"
 ]] .. fallback .. [[
   activate
   return ""
-end tell]])
+end tell]]
+  local ok, result = hs.osascript.applescript(script)
   if not ok or type(result) ~= "string" or result == "" then
     dlog("NO TAB URL contained %q (ok=%s) - fallback opened %q as a NEW tab in Chrome's most-recent window",
       tab.match, tostring(ok), tab.url or "")
@@ -82,10 +83,16 @@ end tell]])
   tabTitle = tabTitle or result
   dlog("selected tab %q in one of %s windows", tabTitle, winCount or "?")
 
-  -- Success = Chrome is genuinely the frontmost APP and its focused window
-  -- carries the tab's title. (chrome:focusedWindow() alone lies: it reports
-  -- Chrome's internal key window even when Chrome isn't frontmost, and
-  -- AppleScript "activate" is sometimes ignored under focus-steal protection.)
+  -- The raise only sticks once Chrome is ALREADY the frontmost app: from the
+  -- background, "activate" lands on Chrome's most-recent window and the
+  -- pre-activation raise is ignored (macOS decides the key window, and
+  -- nothing scriptable crosses Mission Control spaces from the back).
+  -- Empirically a SECOND press always works - so automate the second press:
+  -- once activation has landed, re-run the same raise script.
+  --
+  -- Success = Chrome genuinely frontmost AND its focused window carries the
+  -- tab's title. (chrome:focusedWindow() alone lies: it reports Chrome's
+  -- internal key window even when Chrome isn't frontmost.)
   local attempts = 0
   local function step()
     local frontmost = hs.application.frontmostApplication()
@@ -95,7 +102,7 @@ end tell]])
       dlog("done after %d steps: front=%q", attempts, front)
       return
     end
-    if attempts >= 10 then
+    if attempts >= 6 then
       dlog("GAVE UP after %d steps; wanted %q; chromeFront=%s front=%q",
         attempts, tabTitle, tostring(chromeFront), front)
       return
@@ -109,15 +116,10 @@ end tell]])
       local chromeApp = hs.application.get("com.google.Chrome")
       if chromeApp then chromeApp:activate() end
     else
-      -- UNtargeted keystroke: pid-targeted modifier shortcuts are dropped by
-      -- some apps/macOS versions; the global event path is what a real
-      -- keypress uses, and Chrome is frontmost so it lands there. cmd+` is
-      -- macOS's native next-window cycling, the one public mechanism that
-      -- crosses Mission Control spaces.
-      dlog("step %d: front=%q -> cmd+`", attempts, front)
-      hs.eventtap.keyStroke({ "cmd" }, "`", 0)
+      dlog("step %d: front=%q -> re-running raise (the 'second press')", attempts, front)
+      hs.osascript.applescript(script)
     end
-    hs.timer.doAfter(0.3, step)
+    hs.timer.doAfter(0.35, step)
   end
   hs.timer.doAfter(0.3, step)
 end
