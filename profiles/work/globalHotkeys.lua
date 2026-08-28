@@ -54,7 +54,7 @@ M.definitions = {
   { mods = { "cmd", "shift" }, key = ".", action = actions.windowRight },
   { mods = { "alt" },          key = "m", action = actions.focusGmail },
   { mods = { "alt" },          key = "c", action = actions.focusCalendar },
-  { mods = { "alt" },          key = "h", action = actions.focusDrive },
+  { mods = { "alt" },          key = "n", action = actions.focusDrive },
   { mods = { "alt" },          key = "j", action = actions.focusJira },
   { mods = { "alt" },          key = "l", action = actions.openChromePasswords },
   { mods = { "alt", "shift" }, key = "n", action = actions.focusTasks },
