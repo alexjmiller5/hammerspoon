@@ -87,7 +87,7 @@ M.definitions = {
   { mods = { "alt", "shift" },        key = "w",  action = actions.manageDownloads },
   { mods = constants.hyperKeyMods,    key = "d",  action = actions.dictate },
   { mods = { "cmd", "shift" },        key = "o",  action = actions.pasteLatestOtp },
-  { mods = { "cmd", "alt" },          key = "o",  action = actions.pasteLatestMailOtp },
+  { mods = { "alt", "shift" },        key = "o",  action = actions.pasteLatestMailOtp },
 
   -- Shortcuts
   { mods = constants.hyperKeyMods,    key = "s",  action = actions.shazamToSpotify },

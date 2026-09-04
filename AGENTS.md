@@ -40,7 +40,7 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
     │                    # otp.lua (Cmd+Shift+O: types the latest 2FA code from
     │                    # Messages — reads chat.db via hs.sqlite3, so
     │                    # Hammerspoon needs Full Disk Access), otpMail.lua
-    │                    # (Cmd+Alt+O: same from Gmail via the gog CLI -
+    │                    # (Alt+Shift+O: same from Gmail via the gog CLI -
     │                    # 1Password-backed, so it prompts Touch ID)
     └── work/            # same shape (+ chrome.lua). Targets Chrome TABS (one
                          # always-alive tab group: Gmail/Calendar/Tasks/Jira/
