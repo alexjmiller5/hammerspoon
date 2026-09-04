@@ -13,6 +13,10 @@ After making changes, reload Hammerspoon config:
 - Or press `Cmd+R` when Hammerspoon console is focused
 - Or run `hs -c "hs.reload()"` from terminal
 
+Ad-hoc `hs -c` chunks: keep `hs.timer` objects in globals (locals are GC'd
+before they fire) and wrap calls in `pcall` (an uncaught error hangs the CLI
+instead of printing).
+
 ## Architecture
 
 ### Module Structure
@@ -32,7 +36,10 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
 ├── activeProfile.lua    # Reads ~/.config/hammerspoon-profile, resolves the active profile
 └── profiles/            # Machine-role profiles (selected at runtime, default: personal)
     ├── personal/        # init.lua, constants.lua, globalHotkeys.lua,
-    │                    # appBasedHotkeys.lua, watcherFunctions.lua, scripts/
+    │                    # appBasedHotkeys.lua, watcherFunctions.lua, scripts/,
+    │                    # otp.lua (Cmd+Shift+O: types the latest 2FA code from
+    │                    # Messages — reads chat.db via hs.sqlite3, so
+    │                    # Hammerspoon needs Full Disk Access)
     └── work/            # same shape (+ chrome.lua). Targets Chrome TABS (one
                          # always-alive tab group: Gmail/Calendar/Tasks/Jira/
                          # Slack web), not PWAs, via in-process AppleScript
@@ -93,6 +100,7 @@ Window management uses yabai (nix-installed via nix-config `services.yabai`). Fu
 - **yabai**: Window manager, nix-installed (`services.yabai` in nix-config) — path in `constants.paths.yabai` (`/run/current-system/sw/bin/yabai`)
 - **Karabiner-Elements**: For Caps Lock → Hyper key mapping (optional)
 - **Raycast**: Profile uses Raycast deep links for clipboard history, emoji search, file search, bluetooth management
+- **Full Disk Access** (personal profile only): the OTP hotkey reads `~/Library/Messages/chat.db` in-process; without the grant it logs an error and does nothing
 - **Chrome**: Several scripts target Chrome specifically; the personal profile uses Chrome PWAs (identified by `com.google.Chrome.app.*` bundle IDs)
 - **"Allow JavaScript from Apple Events"** (work profile only): the work profile's in-page JS hotkeys (`chrome.js`) require Chrome's View > Developer > "Allow JavaScript from Apple Events"; no external binaries needed
 - **hs CLI**: Enabled via `require("hs.ipc")` for terminal commands like `hs -c "..."`

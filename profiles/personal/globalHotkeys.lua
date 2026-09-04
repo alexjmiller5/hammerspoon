@@ -3,6 +3,7 @@ local log = hs.logger.new("Profile Global Hotkeys", "debug")
 local profileConstants = require("profiles.personal.constants")
 local constants = require("constants")
 local helpers = require("helperFunctions")
+local otp = require("profiles.personal.otp")
 
 local M = {}
 
@@ -46,6 +47,8 @@ local actions = {
   end,
   -- macOS built-in dictation; the menu item is only enabled with a text field focused
   dictate = function() helpers.tryMenuItem({ "Edit", "Start Dictation" }) end,
+  -- Types the latest incoming 2FA code from Messages + Return (see otp.lua)
+  pasteLatestOtp = otp.pasteLatest,
 
   -- Shortcuts
   shazamToSpotify = function() runShortcut("Shazam → Spotify") end,
@@ -80,6 +83,7 @@ M.definitions = {
   { mods = { "cmd", "shift" },        key = "l",  action = actions.listRepos },
   { mods = { "alt", "shift" },        key = "w",  action = actions.manageDownloads },
   { mods = constants.hyperKeyMods,    key = "d",  action = actions.dictate },
+  { mods = { "cmd", "shift" },        key = "o",  action = actions.pasteLatestOtp },
 
   -- Shortcuts
   { mods = constants.hyperKeyMods,    key = "s",  action = actions.shazamToSpotify },
