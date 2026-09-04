@@ -4,6 +4,7 @@ local profileConstants = require("profiles.personal.constants")
 local constants = require("constants")
 local helpers = require("helperFunctions")
 local otp = require("profiles.personal.otp")
+local otpMail = require("profiles.personal.otpMail")
 
 local M = {}
 
@@ -49,6 +50,8 @@ local actions = {
   dictate = function() helpers.tryMenuItem({ "Edit", "Start Dictation" }) end,
   -- Types the latest incoming 2FA code from Messages + Return (see otp.lua)
   pasteLatestOtp = otp.pasteLatest,
+  -- Same, from Gmail via gog (Touch ID for 1Password) (see otpMail.lua)
+  pasteLatestMailOtp = otpMail.pasteLatest,
 
   -- Shortcuts
   shazamToSpotify = function() runShortcut("Shazam → Spotify") end,
@@ -84,6 +87,7 @@ M.definitions = {
   { mods = { "alt", "shift" },        key = "w",  action = actions.manageDownloads },
   { mods = constants.hyperKeyMods,    key = "d",  action = actions.dictate },
   { mods = { "cmd", "shift" },        key = "o",  action = actions.pasteLatestOtp },
+  { mods = { "cmd", "alt" },          key = "o",  action = actions.pasteLatestMailOtp },
 
   -- Shortcuts
   { mods = constants.hyperKeyMods,    key = "s",  action = actions.shazamToSpotify },
