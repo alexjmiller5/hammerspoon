@@ -34,6 +34,8 @@ helperFunctions.updateActiveAppHotkeys(hs.application.frontmostApplication(), Ap
 MainAppWatcher = watcherFunctions.createAppBasedHotkeyWatcher(AppBasedHotkeyRegistry)
 MainAppWatcher:start()
 
+CopyConfirmationWatcher = watcherFunctions.createCopyConfirmationWatcher()
+
 -- Global Variables
 
 PreviewSidebarVisible = false
