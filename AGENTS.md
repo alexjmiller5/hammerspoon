@@ -80,6 +80,13 @@ comment above `toggleMessagesSidebar` in `profiles/personal/appBasedHotkeys.lua`
 
 **Profile System**: `profiles/<name>/` dirs extend the base config; the active one is chosen at runtime by `activeProfile.lua`, which reads `~/.config/hammerspoon-profile` (one line: `personal` or `work` — written per machine by nix-config; defaults to `personal` if absent). The selected `profiles/<name>/init.lua` loads after the main init and adds hotkeys to the same global `AppBasedHotkeyRegistry`, via `pcall` so a broken profile doesn't crash the config. Main-config modules that need the active profile's constants use `require("activeProfile").require("constants")`.
 
+**Copy confirmation**: The shared `CopyConfirmationWatcher` shows a half-second
+fading "Copied" badge for nonempty text clipboard updates while Ghostty is
+frontmost. It never displays or stores the copied text. This detects clipboard
+changes, including copies from programs inside Ghostty, rather than their source.
+Run its behavior check with
+`hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-copy-confirmation.lua"))'`.
+
 ### Adding New Hotkeys
 
 1. **Global hotkey**: Add action function to `actions` table in `globalHotkeys.lua`, then add definition to `M.definitions`
