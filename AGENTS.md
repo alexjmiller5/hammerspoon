@@ -60,6 +60,10 @@ comment above `toggleMessagesSidebar` in `profiles/personal/appBasedHotkeys.lua`
 
 ### Key Patterns
 
+**Charger sound**: The personal profile plays `assets/mario-waow.mp3` when
+power changes from battery to AC. Resolve bundled assets through
+`hs.configdir` so playback does not depend on external folders or iCloud.
+
 **Hotkey Definition Format**: All hotkeys use a consistent table structure. Each hotkey module has a local `actions` table (action functions) and an exported `M.definitions` list (keybinding specs):
 ```lua
 -- Global hotkey

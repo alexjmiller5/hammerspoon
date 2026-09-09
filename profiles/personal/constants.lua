@@ -30,7 +30,7 @@ M.paths = {
   documentsFolder        = home .. "/Documents",
   applicationsFolder     = "/Applications",
   toggleMessagesSidebar  = home .. "/.hammerspoon/profiles/personal/scripts/toggle_messages_sidebar",
-  marioWaowAudioFilePath = home .. "/Documents/sound-bites/Mario Waow.mp3"
+  marioWaowAudioFilePath = hs.configdir .. "/assets/mario-waow.mp3"
 }
 
 M.shortcutIds = {
