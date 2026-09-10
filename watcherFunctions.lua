@@ -38,4 +38,20 @@ function M.createCopyConfirmationWatcher()
   end)
 end
 
+function M.createGhosttyCommandClickWatcher()
+  local types = hs.eventtap.event.types
+  return hs.eventtap.new({ types.mouseMoved, types.leftMouseDown, types.leftMouseUp }, function(event)
+    local flags = event:getFlags()
+    if flags.cmd and not flags.alt and not flags.ctrl and not flags.shift then
+      local app = hs.application.frontmostApplication()
+      if app and app:bundleID() == constants.appBundleIds.ghostty then
+        -- Shift lets Ghostty open links even when Herdr captures the mouse.
+        flags.shift = true
+        event:setFlags(flags)
+      end
+    end
+    return false
+  end)
+end
+
 return M

@@ -35,6 +35,7 @@ MainAppWatcher = watcherFunctions.createAppBasedHotkeyWatcher(AppBasedHotkeyRegi
 MainAppWatcher:start()
 
 CopyConfirmationWatcher = watcherFunctions.createCopyConfirmationWatcher()
+GhosttyCommandClickWatcher = watcherFunctions.createGhosttyCommandClickWatcher():start()
 
 -- Global Variables
 
