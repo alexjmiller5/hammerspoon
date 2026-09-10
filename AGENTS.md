@@ -82,6 +82,19 @@ power changes from battery to AC. Resolve bundled assets through
 
 **Profile System**: `profiles/<name>/` dirs extend the base config; the active one is chosen at runtime by `activeProfile.lua`, which reads `~/.config/hammerspoon-profile` (one line: `personal` or `work` — written per machine by nix-config; defaults to `personal` if absent). The selected `profiles/<name>/init.lua` loads after the main init and adds hotkeys to the same global `AppBasedHotkeyRegistry`, via `pcall` so a broken profile doesn't crash the config. Main-config modules that need the active profile's constants use `require("activeProfile").require("constants")`.
 
+**Shared launchers**: Option+A opens Apple Notes; Option+B creates a Chrome
+window. Option+G launches the profile's Gemini bundle ID; the personal profile
+overrides it to reopen the resident Gemini Desktop app through its URL scheme.
+
+**Work web hotkeys**: Cmd+Shift+\ toggles the active site's panel in Docs,
+Confluence, or Slack. Slack's web button owns its toggle; sending Cmd+Shift+D
+would collide with Chrome hotkeys. Unmodified U clicks Gmail's visible Undo
+notification only while the page has focus and no editor/search field does.
+Otherwise U passes through. Test dispatch and personal-profile compatibility
+with `scripts/test-work-hotkeys.lua` through the hs CLI. Run
+`bun scripts/test-work-web-hotkeys.mjs <page-CDP-WebSocket-URL>` against a
+disposable `about:blank` tab for the browser DOM checks.
+
 **Copy confirmation**: The shared `CopyConfirmationWatcher` shows a half-second
 fading "Text Copied" badge at the focused screen's bottom-right corner for
 nonempty text clipboard updates while Ghostty is frontmost. It never displays
