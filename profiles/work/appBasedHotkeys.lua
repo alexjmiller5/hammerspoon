@@ -1,6 +1,6 @@
 -- Chrome-scoped hotkeys dispatched on the active tab (by window title, which is
 -- "<tab title> - Google Chrome") — the tab-group replacement for the old
--- per-PWA bindings. JS runs in the page via chrome-cli (see chrome.lua).
+-- per-PWA bindings. JS runs in the page via AppleScript (see chrome.lua).
 --
 -- NOTE: Google Docs' menu bar ignores synthetic (untrusted) JS clicks, so
 -- deleteCurrentGoogleDoc drives the real "Search the menus" UI (Option+/) with
@@ -20,7 +20,10 @@ local function passThrough(mods, key)
   helpers.disableHotkeysForApp(AppBasedHotkeyRegistry, chromeBundleId)
   hs.eventtap.keyStroke(mods, key, 0)
   hs.timer.doAfter(0.2, function()
-    helpers.enableHotkeysForApp(AppBasedHotkeyRegistry, chromeBundleId)
+    local app = hs.application.frontmostApplication()
+    if app and app:bundleID() == chromeBundleId then
+      helpers.enableHotkeysForApp(AppBasedHotkeyRegistry, chromeBundleId)
+    end
   end)
 end
 
@@ -47,6 +50,17 @@ local actions = {
       -- it only toggles when focus is outside a text field - mid-edit it
       -- types a literal "[".
       hs.eventtap.keyStroke({}, "[", 0, hs.application.get(chromeBundleId))
+    elseif title:find("Slack", 1, true) then
+      -- Slack enables its Cmd+Shift+D shortcut only in the desktop app.
+      -- This button dispatches the same action without reaching Chrome's shortcuts.
+      chrome.js([[(function() {
+        if (location.hostname !== 'app.slack.com') return false;
+        var button = [...document.querySelectorAll('[data-qa="floating_sidebars_toggle_button"]')]
+          .find(function(e) { return e.getClientRects().length && !e.disabled; });
+        if (!button) return false;
+        button.click();
+        return true;
+      })()]])
     else
       passThrough({ "cmd", "shift" }, "\\")
     end
@@ -91,6 +105,34 @@ local actions = {
     end
   end,
 
+  -- u: click Gmail's visible Undo notification, without stealing text input
+  -- from an editor, search box, the address bar, or another website.
+  undoGmail = function()
+    if chrome.frontTitle():find("Gmail", 1, true) then
+      local undone = chrome.js([[(function() {
+        if (location.hostname !== 'mail.google.com' || !document.hasFocus()) return false;
+        var focused = document.activeElement;
+        if (focused && (focused.isContentEditable ||
+          focused.closest('input,textarea,select,[role="textbox"]'))) return false;
+        var undo = [...document.querySelectorAll(
+          '[role="alert"] [role="link"],[role="alert"] button,[role="alert"] a,' +
+          '[role="status"] [role="link"],[role="status"] button,[role="status"] a')]
+          .find(function(e) {
+            var rect = e.getBoundingClientRect();
+            return e.textContent.trim() === 'Undo' && rect.width > 0 && rect.height > 0 &&
+              rect.bottom > 0 && rect.right > 0 && rect.top < innerHeight && rect.left < innerWidth &&
+              getComputedStyle(e).visibility === 'visible' && !e.disabled &&
+              e.getAttribute('aria-disabled') !== 'true';
+          });
+        if (!undo) return false;
+        undo.click();
+        return true;
+      })()]])
+      if undone == true then return end
+    end
+    passThrough({}, "u")
+  end,
+
   -- Slack DESKTOP app (kept alongside Slack web: Alex uses both)
   slackToggleSidebar = function()
     hs.eventtap.keyStroke({ "cmd", "shift" }, "d")
@@ -128,6 +170,7 @@ M.definitions = {
   { mods = { "cmd", "shift" }, key = "\\",     action = actions.toggleSitePanel,         only = chromeOnly },
   { mods = { "cmd" },        key = "k",      action = actions.searchCurrentSite,       only = chromeOnly },
   { mods = {},               key = "escape", action = actions.escapeOrClearGmailSearch, only = chromeOnly },
+  { mods = {},               key = "u",      action = actions.undoGmail,                only = chromeOnly },
   { mods = { "cmd", "shift" }, key = "delete", action = actions.deleteCurrentGoogleDoc, only = chromeOnly },
   { mods = { "cmd" },          key = "\\",     action = actions.slackToggleSidebar,      only = slackOnly },
   { mods = { "cmd" },          key = "k",      action = actions.slackSearch,             only = slackOnly },

@@ -14,17 +14,14 @@ local actions = {
   launchVSCode = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.vscode)
   end,
+  launchNotes = function()
+    hs.application.launchOrFocusByBundleID(constants.appBundleIds.notes)
+  end,
+  launchChromeNewWindow = function()
+    hs.task.new("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", nil, { "--new-window" }):start()
+  end,
   launchGemini = function()
-    -- The Gemini Desktop app runs windowless-resident (launched at login via
-    -- its LaunchAgent), so launchOrFocus alone would activate an app with no
-    -- window to show. Focus it if it already has a window; otherwise ask it to
-    -- create one via its URL scheme (instant, since the process is warm).
-    local app = hs.application.get(profileConstants.appBundleIds.gemini)
-    if app and #app:allWindows() > 0 then
-      app:activate()
-    else
-      hs.urlevent.openURL("geminiapp://open")
-    end
+    hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.gemini)
   end,
   launchZoom = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.zoom)
@@ -193,9 +190,10 @@ M.definitions = {
     key = "t",
     action = actions.launchGhostty
   },
-  -- NOTE: alt+n / alt+b / alt+shift+m / alt+shift+t deliberately have NO base
-  -- bindings — the personal profile owns them (Notion / new Chrome window /
-  -- Messages / Telegram). Profile bindings load after base ones and silently
+  { mods = { "alt" }, key = "a", action = actions.launchNotes },
+  { mods = { "alt" }, key = "b", action = actions.launchChromeNewWindow },
+  -- NOTE: alt+n / alt+shift+m / alt+shift+t deliberately have NO base
+  -- bindings: the profiles own them. Profile bindings load after base ones and silently
   -- win any same-combo conflict, so a base binding here would be dead code.
   {
     mods = { "alt" },

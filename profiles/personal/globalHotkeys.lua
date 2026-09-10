@@ -26,12 +26,17 @@ local actions = {
   launchPhotos = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.photos) end,
   launchWhatsApp = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.whatsapp) end,
   launchOnePassword = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.onePassword) end,
-  launchNotes = function() hs.application.launchOrFocusByBundleID(constants.appBundleIds.notes) end,
   launchTelegram = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.telegram) end,
 
-  -- Specific Chrome Launcher from Karabiner
-  launchChromeNewWindow = function()
-    hs.task.new("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", nil, { "--new-window" }):start()
+  -- The personal Gemini Desktop app stays resident without windows. Its URL
+  -- scheme creates a window; the work profile uses a standard PWA launcher.
+  launchGemini = function()
+    local app = hs.application.get(profileConstants.appBundleIds.gemini)
+    if app and #app:allWindows() > 0 then
+      app:activate()
+    else
+      hs.urlevent.openURL("geminiapp://open")
+    end
   end,
 
   -- Raycast Extensions
@@ -74,8 +79,7 @@ M.definitions = {
   { mods = { "alt" },                 key = "p",  action = actions.launchPhotos },
   { mods = { "alt" },                 key = "w",  action = actions.launchWhatsApp },
   { mods = { "alt" },                 key = "1",  action = actions.launchOnePassword },
-  { mods = { "alt" },                 key = "a",  action = actions.launchNotes },
-  { mods = { "alt" },                 key = "b",  action = actions.launchChromeNewWindow },
+  { mods = { "alt" },                 key = "g",  action = actions.launchGemini },
   { mods = { "alt", "shift" },        key = "g",  action = actions.launchGoogleMaps },
   { mods = { "alt", "shift" },        key = "m",  action = actions.launchMessages },
   { mods = { "alt", "shift" },        key = "t",  action = actions.launchTelegram },

@@ -29,6 +29,15 @@ The base config (`init.lua` + top-level modules) loads everywhere; then
   via in-process AppleScript; machine/company-specific values come from
   `~/.config/hammerspoon/work-local.lua`, never from the repo
 
+Both profiles use Option+A for Apple Notes and Option+B for a new Chrome
+window. Option+G opens Gemini: the desktop app on personal, the configured
+Chrome PWA on work. If the work PWA has a different bundle ID, set
+`appBundleIds.gemini` in the machine-local override file.
+
+The work profile uses Cmd+Shift+\ for site panels in Docs, Confluence, and
+Slack. In Gmail, U clicks a visible Undo notification; it types normally in
+text fields, when the page lacks focus, or when no Undo is available.
+
 ## Optional dependencies
 
 Missing ones degrade gracefully (their hotkeys just don't fire): yabai (window
