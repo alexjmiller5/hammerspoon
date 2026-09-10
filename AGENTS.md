@@ -103,6 +103,11 @@ changes, including copies from programs inside Ghostty, rather than their source
 Run its behavior check with
 `hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-copy-confirmation.lua"))'`.
 
+**Ghostty links**: `GhosttyCommandClickWatcher` adds Shift to Command-only
+left-click and hover events in Ghostty so native link opening bypasses Herdr's
+mouse capture. Keyboard events and other modifier combinations pass through.
+Run `scripts/test-ghostty-command-click.lua` through the hs CLI.
+
 ### Adding New Hotkeys
 
 1. **Global hotkey**: Add action function to `actions` table in `globalHotkeys.lua`, then add definition to `M.definitions`
