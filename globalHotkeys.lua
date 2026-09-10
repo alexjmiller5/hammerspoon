@@ -183,17 +183,6 @@ local actions = {
     hs.reload()
   end,
 
-  -- Workspace Snapshot Spoon (closures resolve spoon.* at trigger time,
-  -- after init.lua has called hs.loadSpoon)
-  workspaceSnapshot = function()
-    if spoon.WorkspaceSnapshot then spoon.WorkspaceSnapshot.snapshot() end
-  end,
-  workspaceSnapshotClose = function()
-    if spoon.WorkspaceSnapshot then spoon.WorkspaceSnapshot.snapshotAndClose() end
-  end,
-  workspaceRestore = function()
-    if spoon.WorkspaceSnapshot then spoon.WorkspaceSnapshot.restore() end
-  end,
 }
 
 -- Hotkey Definitions Table
@@ -369,22 +358,6 @@ M.definitions = {
     action = actions.reloadConfig
   },
 
-  -- Workspace Snapshot Spoon
-  {
-    mods = { "cmd", "shift", "alt" },
-    key = "s",
-    action = actions.workspaceSnapshot
-  },
-  {
-    mods = { "cmd", "shift", "alt" },
-    key = "x",
-    action = actions.workspaceSnapshotClose
-  },
-  {
-    mods = { "cmd", "shift", "alt" },
-    key = "r",
-    action = actions.workspaceRestore
-  }
 }
 
 return M
