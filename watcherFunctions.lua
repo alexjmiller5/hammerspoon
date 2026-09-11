@@ -56,9 +56,10 @@ end
 
 -- Apps that show a Dock icon while running (kind == 1) but are not pinned to the
 -- Dock linger there with no windows - close the last Preview window and Preview
--- is still sitting in the Dock. Quit those once they have been windowless for a
--- full sweep. Pinned apps are left alone, and menu-bar-only agents (Codex bar,
--- Synapse) never reach kind == 1, so they are never candidates.
+-- is still sitting in the Dock. Quit those as soon as focus leaves them, with a
+-- periodic sweep as the backstop. Pinned apps are left alone, and menu-bar-only
+-- agents (Codex bar, Synapse) never reach kind == 1, so they are never
+-- candidates.
 local reaperExempt = {
   [constants.appBundleIds.hammerspoon] = true,
   ["com.apple.finder"] = true, -- windowless by design, and relaunches anyway
@@ -80,18 +81,29 @@ local function dockedBundleIDs()
   return pinned
 end
 
--- One sweep. `state` maps bundle ID -> "windowless" (seen empty once, still in
--- its grace period) or "quit" (already asked to quit - don't nag an unsaved-work
--- dialog every 20 seconds). Apps that exited or regained a window drop out of
--- the returned state. Returns the next state and the names it quit.
+-- Cheap eligibility test - no subprocess, so it is safe on a focus switch.
+-- Returns the bundle ID of an app we are allowed to quit, or nil. Pinned-ness is
+-- deliberately NOT checked here: reading the Dock costs a subprocess, and almost
+-- every app we are asked about turns out to still have windows.
+local function reapCandidate(app)
+  local bundleID = app and app:bundleID()
+  if not bundleID or reaperExempt[bundleID] then return nil end
+  if app:kind() ~= 1 or #app:allWindows() > 0 then return nil end
+  return bundleID
+end
+
+-- One sweep - the backstop for apps that go windowless without a focus switch
+-- (last window closed while the app stays frontmost). `state` maps bundle ID ->
+-- "windowless" (seen empty once, still in its grace period) or "quit" (already
+-- asked to quit - don't nag an unsaved-work dialog every sweep). Apps that
+-- exited, regained a window, or got pinned just fall out of the returned state.
+-- Returns the next state and the names it quit.
 function M.reapWindowlessApps(state, apps, pinned)
   local nextState, quit = {}, {}
   for _, app in ipairs(apps) do
-    local bundleID = app:bundleID()
-    if bundleID and app:kind() == 1 and not pinned[bundleID] and not reaperExempt[bundleID] then
-      if #app:allWindows() > 0 then
-        nextState[bundleID] = nil -- has windows again: forget it
-      elseif state[bundleID] == "quit" then
+    local bundleID = reapCandidate(app)
+    if bundleID and not pinned[bundleID] then
+      if state[bundleID] == "quit" then
         nextState[bundleID] = "quit"
       elseif state[bundleID] == "windowless" then
         nextState[bundleID] = "quit"
@@ -106,15 +118,72 @@ function M.reapWindowlessApps(state, apps, pinned)
   return nextState, quit
 end
 
+-- Switching away from a windowless app is the earliest honest signal that it is
+-- idle, so that is the fast path; the timer only catches what no focus switch
+-- ever reports.
+local reapSettleDelay = 1 -- re-check after the switch, in case a window follows
+local reapLaunchGrace = 15 -- an app still opening its first window is not idle
+
+-- Should focus leaving `app` start a quit check? Returns its bundle ID, or nil.
+-- Deliberately does not read the Dock - that costs a subprocess and this runs on
+-- every app switch, so pinned-ness is checked later, once a candidate survives
+-- the settle delay.
+function M.shouldCheckOnSwitch(app, state, launchedAt, now)
+  local bundleID = reapCandidate(app)
+  if not bundleID or state[bundleID] == "quit" then return nil end
+  local born = launchedAt[app:pid()]
+  -- An app that just launched may simply not have drawn its window yet; leave
+  -- it to the sweep rather than killing it mid-open.
+  if born and now - born < reapLaunchGrace then return nil end
+  return bundleID
+end
+
 function M.createWindowlessAppReaper(interval)
-  local state = {}
-  return hs.timer.new(interval or 20, function()
+  local state, launchedAt, pendingChecks = {}, {}, {}
+
+  local timer = hs.timer.new(interval or 20, function()
     local pinned = dockedBundleIDs()
     if not pinned then return end
     local quit
     state, quit = M.reapWindowlessApps(state, hs.application.runningApplications(), pinned)
-    for _, name in ipairs(quit) do log.i("[reaper] quit windowless unpinned app: " .. name) end
+    for _, name in ipairs(quit) do log.i("[reaper] swept windowless unpinned app: " .. name) end
   end)
+
+  local events = hs.application.watcher
+  local watcher = hs.application.watcher.new(function(_, event, app)
+    if not app then return end
+
+    if event == events.launched then
+      launchedAt[app:pid()] = hs.timer.secondsSinceEpoch()
+      return
+    elseif event == events.terminated then
+      launchedAt[app:pid()] = nil
+      return
+    elseif event ~= events.deactivated then
+      return
+    end
+
+    local bundleID = M.shouldCheckOnSwitch(app, state, launchedAt, hs.timer.secondsSinceEpoch())
+    if not bundleID or pendingChecks[bundleID] then return end
+
+    -- Held in `pendingChecks` because an unreferenced hs.timer is collected
+    -- before it fires.
+    pendingChecks[bundleID] = hs.timer.doAfter(reapSettleDelay, function()
+      pendingChecks[bundleID] = nil
+      -- Opened a window, came back to the front, or is pinned after all.
+      if not reapCandidate(app) or app:isFrontmost() then return end
+      local pinned = dockedBundleIDs()
+      if not pinned or pinned[bundleID] then return end
+      state[bundleID] = "quit"
+      log.i("[reaper] quit windowless unpinned app on focus switch: " .. (app:name() or bundleID))
+      app:kill()
+    end)
+  end)
+
+  return {
+    start = function(self) timer:start(); watcher:start(); return self end,
+    stop = function(self) timer:stop(); watcher:stop(); return self end,
+  }
 end
 
 return M

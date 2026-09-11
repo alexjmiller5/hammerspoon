@@ -4,11 +4,14 @@
 
 local watcherFunctions = dofile(hs.configdir .. "/watcherFunctions.lua")
 
+local nextPid = 100
 local function fakeApp(bundleID, windows, kind)
-  local app = { killed = false }
+  nextPid = nextPid + 1
+  local app = { killed = false, fakePid = nextPid }
   function app:bundleID() return bundleID end
   function app:name() return bundleID end
   function app:kind() return kind or 1 end
+  function app:pid() return self.fakePid end
   function app:allWindows() local w = {} for i = 1, windows do w[i] = i end return w end
   function app:kill() self.killed = true end
   return app
@@ -52,6 +55,26 @@ s = watcherFunctions.reapWindowlessApps(s, { reopened }, pinned)
 assert(s["com.apple.Shortcuts"] == nil, "kept a stale countdown after a window reopened")
 s = watcherFunctions.reapWindowlessApps(s, { shortcuts }, pinned)
 assert(not shortcuts.killed, "countdown did not restart from scratch")
+
+-- Focus-switch fast path: leaving a windowless unpinned app starts a check.
+local switcher = fakeApp("com.apple.Preview", 0)
+local now = 10000
+assert(watcherFunctions.shouldCheckOnSwitch(switcher, {}, {}, now) == "com.apple.Preview")
+
+-- ...but not for an app that launched seconds ago and may still be drawing its
+-- first window, and not for one already asked to quit.
+assert(watcherFunctions.shouldCheckOnSwitch(switcher, {}, { [switcher:pid()] = now - 3 }, now) == nil,
+  "would kill an app mid-launch")
+assert(watcherFunctions.shouldCheckOnSwitch(switcher, {}, { [switcher:pid()] = now - 60 }, now) == "com.apple.Preview",
+  "launch grace never expires")
+assert(watcherFunctions.shouldCheckOnSwitch(switcher, { ["com.apple.Preview"] = "quit" }, {}, now) == nil,
+  "re-quits an app that already declined")
+
+-- The same exclusions as the sweep apply on a focus switch.
+assert(watcherFunctions.shouldCheckOnSwitch(fakeApp("com.apple.Shortcuts", 1), {}, {}, now) == nil, "app has a window")
+assert(watcherFunctions.shouldCheckOnSwitch(fakeApp("com.apple.finder", 0), {}, {}, now) == nil, "Finder")
+assert(watcherFunctions.shouldCheckOnSwitch(fakeApp("org.hammerspoon.Hammerspoon", 0), {}, {}, now) == nil, "Hammerspoon")
+assert(watcherFunctions.shouldCheckOnSwitch(fakeApp("com.alexmiller.synapse", 0, 0), {}, {}, now) == nil, "menu-bar app")
 
 print("windowless-app reaper: all checks passed")
 return true

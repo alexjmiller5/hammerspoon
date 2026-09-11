@@ -81,44 +81,6 @@ local actions          = {
       helperFunctions.tryMenuItem({ "View", "Hide Sidebar" })
     end
   end,
-
-  -- LibreOffice
-  quitFromLastWindow = function()
-    log.i("--- [quitFromLastWindow] Triggered ---")
-
-    local app = hs.application.frontmostApplication()
-    if not app then
-      log.e("[quitFromLastWindow] No frontmost application found. Exiting.")
-      return
-    end
-
-    local bundleID = app:bundleID()
-
-    -- FIX: Use #app:allWindows() instead of app:countWindows()
-    local windowCount = #app:allWindows()
-
-    log.i(string.format("[quitFromLastWindow] App: %s | BundleID: %s | Window Count: %d", app:name(), bundleID,
-      windowCount))
-
-    if windowCount <= 1 then
-      log.i("[quitFromLastWindow] Condition Met: Window count <= 1. Sending Cmd+Q to quit app.")
-      -- Plain Cmd+Q (graceful quit, save prompts intact). NEVER Cmd+Shift+Q
-      -- here: the global force-quit hotkey turns that into kill -9 and eats
-      -- unsaved documents.
-      hs.eventtap.keyStroke({ "cmd" }, "q")
-    else
-      log.i("[quitFromLastWindow] Condition Met: Window count > 1. Proceeding to pass-through Cmd+W.")
-
-      helperFunctions.disableHotkeysForApp(AppBasedHotkeyRegistry, bundleID)
-
-      hs.eventtap.keyStroke({ "cmd" }, "w")
-
-      hs.timer.doAfter(0.1, function()
-        helperFunctions.enableHotkeysForApp(AppBasedHotkeyRegistry, bundleID)
-        log.i("--- [quitFromLastWindow] Sequence Complete ---")
-      end)
-    end
-  end,
 }
 
 -- App bundle-ID lists for `only`/`except`, defined once and shared so a repeated
@@ -133,7 +95,6 @@ local apps = {
   whatsapp    = { profileConstants.appBundleIds.whatsapp },
   texts       = { profileConstants.appBundleIds.texts },
   onePassword = { profileConstants.appBundleIds.onePassword },
-  libreoffice = { profileConstants.appBundleIds.libreoffice },
   photos      = { profileConstants.appBundleIds.photos },
 }
 
@@ -229,14 +190,6 @@ M.definitions          = {
     key = "\\",
     action = actions.toggleSidebarViaMenu,
     only = apps.onePassword
-  },
-
-  -- LibreOffice
-  {
-    mods = { "cmd" },
-    key = "w",
-    action = actions.quitFromLastWindow,
-    only = apps.libreoffice
   },
 
   -- Photos

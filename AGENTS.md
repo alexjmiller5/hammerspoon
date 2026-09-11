@@ -78,7 +78,7 @@ power changes from battery to AC. Resolve bundled assets through
 - Global hotkeys (globalHotkeys.lua): Always active, bound via `hs.hotkey.bind()`
 - App-based hotkeys (appBasedHotkeys.lua): Use `only` or `except` bundle ID lists. `only` hotkeys are enabled when that app is frontmost; `except` hotkeys are enabled everywhere except those apps. The `AppBasedHotkeyRegistry` (a global table) tracks these, and an `hs.application.watcher` swaps enabled/disabled state on app focus changes.
 
-**Pass-through pattern**: When an app-based hotkey needs to temporarily let the original keystroke through (e.g., `quitFromLastWindow` sends `Cmd+W` which would re-trigger itself), use `helperFunctions.disableHotkeysForApp()` before sending the keystroke, then `enableHotkeysForApp()` in a `hs.timer.doAfter()` callback.
+**Pass-through pattern**: When an app-based hotkey needs to temporarily let the original keystroke through (e.g. the work profile's `passThrough` re-sends the very keystroke that triggered it, which would otherwise re-trigger itself), use `helperFunctions.disableHotkeysForApp()` before sending the keystroke, then `enableHotkeysForApp()` in a `hs.timer.doAfter()` callback.
 
 **Profile System**: `profiles/<name>/` dirs extend the base config; the active one is chosen at runtime by `activeProfile.lua`, which reads `~/.config/hammerspoon-profile` (one line: `personal` or `work` — written per machine by nix-config; defaults to `personal` if absent). The selected `profiles/<name>/init.lua` loads after the main init and adds hotkeys to the same global `AppBasedHotkeyRegistry`, via `pcall` so a broken profile doesn't crash the config. Main-config modules that need the active profile's constants use `require("activeProfile").require("constants")`.
 
@@ -103,16 +103,28 @@ changes, including copies from programs inside Ghostty, rather than their source
 Run its behavior check with
 `hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-copy-confirmation.lua"))'`.
 
-**Windowless app reaper**: `WindowlessAppReaper` sweeps every 20s and quits any
-app that shows a Dock icon while running (`app:kind() == 1`), is not pinned to
-the Dock, and has had zero windows for a full sweep - Preview and Shortcuts
-otherwise sit in the Dock forever after their last window closes. Pinned apps
-come from the live Dock prefs (`defaults export com.apple.dock`, which reads
-through cfprefsd, so a tile pinned seconds ago already counts); menu-bar-only
-agents never reach `kind == 1`, so they are never candidates. Finder and
-Hammerspoon are explicitly exempt. It quits with `app:kill()` (Quit AppleEvent,
-save prompts intact) and marks the app done afterwards, so an app that refuses
-to quit is not nagged every sweep. Run its behavior check with
+**Windowless app reaper**: `WindowlessAppReaper` quits any app that shows a Dock
+icon while running (`app:kind() == 1`), is not pinned to the Dock, and has no
+windows - Preview and Shortcuts otherwise sit in the Dock forever after their
+last window closes. Two triggers, one shared state table:
+- **Focus switch (the fast path).** An `hs.application.watcher` watches for
+  `deactivated`: leaving a windowless app is the earliest honest signal it is
+  idle, so it is re-checked 1s later and quit (~1.5s end to end). An app that
+  launched in the last 15s is skipped - it may just not have drawn its first
+  window yet.
+- **A 20s sweep (the backstop)**, for apps that go windowless without any focus
+  switch, or that still report phantom windows at the moment focus leaves
+  (LibreOffice does). Needs two consecutive windowless sweeps, so 20-40s.
+
+Pinned apps come from the live Dock prefs (`defaults export com.apple.dock`,
+which reads through cfprefsd, so a tile pinned seconds ago already counts).
+That subprocess costs ~25ms, so it is deliberately NOT part of `reapCandidate`:
+the focus-switch path only pays it once an app is otherwise a candidate, never
+on an ordinary app switch. Menu-bar-only agents never reach `kind == 1`, so they
+are never candidates; Finder and Hammerspoon are explicitly exempt. It quits with
+`app:kill()` (Quit AppleEvent, save prompts intact) and marks the app done
+afterwards, so an app that refuses to quit is not nagged every sweep. Run its
+behavior check with
 `hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-windowless-app-reaper.lua"))'`.
 
 **Ghostty links**: `GhosttyCommandClickWatcher` adds Shift to Command-only
