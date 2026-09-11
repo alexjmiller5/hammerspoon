@@ -20,7 +20,6 @@ M.appBundleIds = {
   whatsapp       = "net.whatsapp.WhatsApp",
   onePassword    = "com.1password.1password",
   texts          = "com.kishanbagaria.jack",
-  libreoffice    = "org.libreoffice.script",
   telegram       = "ru.keepcoder.Telegram"
 
 }
