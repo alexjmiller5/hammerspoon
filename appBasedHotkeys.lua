@@ -6,6 +6,20 @@ local helperFunctions = require("helperFunctions")
 
 local M = {}
 
+-- Chromium browsers have no keyboard shortcut for the tab-strip sidebar, so
+-- press its AX button directly.
+local function chromiumSidebarToggler(bundleID)
+  return function()
+    local ax = require("hs.axuielement")
+    local app = hs.application.get(bundleID)
+    if not app then return end
+    local win = app:focusedWindow()
+    if not win then return end
+    local button = helperFunctions.findChromeSidebarButton(ax.windowElement(win), 0)
+    if button then button:performAction("AXPress") end
+  end
+end
+
 local actions = {
   pwaDevTools = function() hs.eventtap.keyStroke({ "cmd", "alt" }, "i") end,
   claudeToggleSidebar = function()
@@ -35,15 +49,9 @@ local actions = {
   chromeToggleDevTools = function()
     helperFunctions.tryMenuItem({ "View", "Developer", "Developer Tools" })
   end,
-  chromeToggleSidebar = function()
-    local ax = require("hs.axuielement")
-    local chrome = hs.application.get(constants.appBundleIds.chrome)
-    if not chrome then return end
-    local win = chrome:focusedWindow()
-    if not win then return end
-    local button = helperFunctions.findChromeSidebarButton(ax.windowElement(win), 0)
-    if button then button:performAction("AXPress") end
-  end,
+  chromeToggleSidebar = chromiumSidebarToggler(constants.appBundleIds.chrome),
+  -- Island is a Chromium fork, so the same AX tab-strip button applies
+  islandToggleSidebar = chromiumSidebarToggler(constants.appBundleIds.island),
 
   previewToggleSidebar = function()
     if PreviewSidebarVisible then
@@ -76,6 +84,7 @@ local apps = {
   zoom        = { constants.appBundleIds.zoom },
   spotify     = { constants.appBundleIds.spotify },
   chrome      = { constants.appBundleIds.chrome },
+  island      = { constants.appBundleIds.island },
   hammerspoon = { constants.appBundleIds.hammerspoon },
   notes       = { constants.appBundleIds.notes },
   preview     = { constants.appBundleIds.preview },
@@ -112,6 +121,10 @@ M.definitions = {
     only = apps.chrome },
   { mods = { "cmd", "shift" },        key = "d", action = actions.chromeToggleDevTools,
     only = apps.chrome },
+
+  -- Island
+  { mods = { "cmd" }, key = "\\", action = actions.islandToggleSidebar,
+    only = apps.island },
 
   -- Hammerspoon
   { mods = { "cmd" }, key = "r", action = actions.hammerspoonReload,
