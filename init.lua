@@ -37,7 +37,7 @@ MainAppWatcher:start()
 CopyConfirmationWatcher = watcherFunctions.createCopyConfirmationWatcher()
 GhosttyCommandClickWatcher = watcherFunctions.createGhosttyCommandClickWatcher():start()
 
--- Quits unpinned Dock apps (Preview, Shortcuts, ...) once they sit windowless
+-- Quits unpinned Dock apps (Preview, Shortcuts, ...) when focus leaves them windowless
 WindowlessAppReaper = watcherFunctions.createWindowlessAppReaper():start()
 
 -- Global Variables

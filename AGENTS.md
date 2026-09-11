@@ -106,25 +106,30 @@ Run its behavior check with
 **Windowless app reaper**: `WindowlessAppReaper` quits any app that shows a Dock
 icon while running (`app:kind() == 1`), is not pinned to the Dock, and has no
 windows - Preview and Shortcuts otherwise sit in the Dock forever after their
-last window closes. Two triggers, one shared state table:
-- **Focus switch (the fast path).** An `hs.application.watcher` watches for
-  `deactivated`: leaving a windowless app is the earliest honest signal it is
-  idle, so it is re-checked 1s later and quit (~1.5s end to end). An app that
-  launched in the last 15s is skipped - it may just not have drawn its first
-  window yet.
-- **A 20s sweep (the backstop)**, for apps that go windowless without any focus
-  switch, or that still report phantom windows at the moment focus leaves
-  (LibreOffice does). Needs two consecutive windowless sweeps, so 20-40s.
+last window closes. It is an `hs.application.watcher` with no timer of its own:
+every `deactivated` event schedules one check 1s later.
+
+- **The check looks at every running app, not just the one focus left.** An app
+  can lose its last window while already in the background, and no switch away
+  from it will ever follow.
+- **The 1s delay is what makes it correct, not just polite.** Window counts are
+  not trustworthy at the instant focus leaves - LibreOffice still reports phantom
+  windows then - so nothing is judged on window count until the delay is up.
+- **An app that launched in the last 15s is deferred, not skipped**; its check is
+  rescheduled for when the grace expires, because nothing else will come back to
+  look at it.
+- **Nothing happens without a focus switch.** An app that goes windowless while
+  you keep using it is reaped the moment you switch away, which is also the first
+  moment its stale Dock tile is in your way.
 
 Pinned apps come from the live Dock prefs (`defaults export com.apple.dock`,
-which reads through cfprefsd, so a tile pinned seconds ago already counts).
-That subprocess costs ~25ms, so it is deliberately NOT part of `reapCandidate`:
-the focus-switch path only pays it once an app is otherwise a candidate, never
-on an ordinary app switch. Menu-bar-only agents never reach `kind == 1`, so they
-are never candidates; Finder and Hammerspoon are explicitly exempt. It quits with
-`app:kill()` (Quit AppleEvent, save prompts intact) and marks the app done
-afterwards, so an app that refuses to quit is not nagged every sweep. Run its
-behavior check with
+which reads through cfprefsd, so a tile pinned seconds ago already counts). That
+subprocess costs ~25ms, so it is read only once an app has proven windowless -
+an ordinary switch between apps with windows never pays for it - and a failed
+read aborts rather than being treated as "nothing is pinned". Menu-bar-only
+agents never reach `kind == 1`, so they are never candidates; Finder and
+Hammerspoon are explicitly exempt. It quits with `app:kill()` (Quit AppleEvent,
+save prompts intact). Run its behavior check with
 `hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-windowless-app-reaper.lua"))'`.
 
 **Ghostty links**: `GhosttyCommandClickWatcher` adds Shift to Command-only
