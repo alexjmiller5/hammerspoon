@@ -103,6 +103,18 @@ changes, including copies from programs inside Ghostty, rather than their source
 Run its behavior check with
 `hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-copy-confirmation.lua"))'`.
 
+**Windowless app reaper**: `WindowlessAppReaper` sweeps every 20s and quits any
+app that shows a Dock icon while running (`app:kind() == 1`), is not pinned to
+the Dock, and has had zero windows for a full sweep - Preview and Shortcuts
+otherwise sit in the Dock forever after their last window closes. Pinned apps
+come from the live Dock prefs (`defaults export com.apple.dock`, which reads
+through cfprefsd, so a tile pinned seconds ago already counts); menu-bar-only
+agents never reach `kind == 1`, so they are never candidates. Finder and
+Hammerspoon are explicitly exempt. It quits with `app:kill()` (Quit AppleEvent,
+save prompts intact) and marks the app done afterwards, so an app that refuses
+to quit is not nagged every sweep. Run its behavior check with
+`hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-windowless-app-reaper.lua"))'`.
+
 **Ghostty links**: `GhosttyCommandClickWatcher` adds Shift to Command-only
 left-click and hover events in Ghostty so native link opening bypasses Herdr's
 mouse capture. Keyboard events and other modifier combinations pass through.
