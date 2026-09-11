@@ -54,4 +54,67 @@ function M.createGhosttyCommandClickWatcher()
   end)
 end
 
+-- Apps that show a Dock icon while running (kind == 1) but are not pinned to the
+-- Dock linger there with no windows - close the last Preview window and Preview
+-- is still sitting in the Dock. Quit those once they have been windowless for a
+-- full sweep. Pinned apps are left alone, and menu-bar-only agents (Codex bar,
+-- Synapse) never reach kind == 1, so they are never candidates.
+local reaperExempt = {
+  [constants.appBundleIds.hammerspoon] = true,
+  ["com.apple.finder"] = true, -- windowless by design, and relaunches anyway
+}
+
+-- `defaults export` goes through cfprefsd, so a tile pinned seconds ago is
+-- already visible here; the on-disk plist can lag by minutes.
+local function dockedBundleIDs()
+  local ok, plist = pcall(hs.plist.readString, (hs.execute("/usr/bin/defaults export com.apple.dock -")))
+  if not ok or not plist then
+    log.w("[reaper] could not read the Dock's pinned apps, skipping sweep")
+    return nil
+  end
+  local pinned = {}
+  for _, tile in ipairs(plist["persistent-apps"] or {}) do
+    local bundleID = tile["tile-data"] and tile["tile-data"]["bundle-identifier"]
+    if bundleID then pinned[bundleID] = true end
+  end
+  return pinned
+end
+
+-- One sweep. `state` maps bundle ID -> "windowless" (seen empty once, still in
+-- its grace period) or "quit" (already asked to quit - don't nag an unsaved-work
+-- dialog every 20 seconds). Apps that exited or regained a window drop out of
+-- the returned state. Returns the next state and the names it quit.
+function M.reapWindowlessApps(state, apps, pinned)
+  local nextState, quit = {}, {}
+  for _, app in ipairs(apps) do
+    local bundleID = app:bundleID()
+    if bundleID and app:kind() == 1 and not pinned[bundleID] and not reaperExempt[bundleID] then
+      if #app:allWindows() > 0 then
+        nextState[bundleID] = nil -- has windows again: forget it
+      elseif state[bundleID] == "quit" then
+        nextState[bundleID] = "quit"
+      elseif state[bundleID] == "windowless" then
+        nextState[bundleID] = "quit"
+        quit[#quit + 1] = app:name() or bundleID
+        -- Graceful Quit AppleEvent, never kill9: save prompts stay intact.
+        app:kill()
+      else
+        nextState[bundleID] = "windowless"
+      end
+    end
+  end
+  return nextState, quit
+end
+
+function M.createWindowlessAppReaper(interval)
+  local state = {}
+  return hs.timer.new(interval or 20, function()
+    local pinned = dockedBundleIDs()
+    if not pinned then return end
+    local quit
+    state, quit = M.reapWindowlessApps(state, hs.application.runningApplications(), pinned)
+    for _, name in ipairs(quit) do log.i("[reaper] quit windowless unpinned app: " .. name) end
+  end)
+end
+
 return M
