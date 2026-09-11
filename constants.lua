@@ -15,6 +15,7 @@ M.appBundleIds = {
   zoom           = "us.zoom.xos",
   slack          = "com.tinyspeck.slackmacgap",
   chrome         = "com.google.Chrome",
+  island         = "io.island.Island",
   xcode          = "com.apple.dt.Xcode",
   claude         = "com.anthropic.claudefordesktop",
   preview        = "com.apple.Preview",
