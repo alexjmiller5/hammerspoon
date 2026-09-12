@@ -9,7 +9,6 @@ M.appBundleIds = {
   googleMaps     = "com.google.Chrome.app.mnhkaebcjjhencmpkapnbdaogjamfbcj",
   t3Chat         = "com.google.Chrome.app.dbocekhhejgjkfgihlgonbpbikbcbdbd",
   youtube        = "com.google.Chrome.app.agimnkijcaahngcdmfeangaknmldooml",
-  karabiner      = "org.pqrs.Karabiner-Elements.Settings",
   legcord        = "app.legcord.Legcord",
   mail           = "com.apple.mail",
   messages       = "com.apple.MobileSMS",

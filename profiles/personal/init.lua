@@ -17,6 +17,7 @@ helperFunctions.registerAppBasedHotkeys(AppBasedHotkeyRegistry, profileAppBasedH
 -- Instantiate and start watchers
 
 ProfileSpotifyMediaKeyWatcher = profileWatcherFunctions.createSpotifyMediaKeyWatcher():start()
+ProfileAppInputRemapWatcher = profileWatcherFunctions.createAppInputRemapWatcher():start()
 
 ProfilePowerWatcher = profileWatcherFunctions.createWatcherOnPowerConnect(function()
   helperFunctions.playAudioFileByPath(profileConstants.paths.marioWaowAudioFilePath)

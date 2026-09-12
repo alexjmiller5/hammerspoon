@@ -64,7 +64,6 @@ local actions = {
 
   -- App Launchers
   launchGoogleMaps = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.googleMaps) end,
-  launchKarabiner = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.karabiner) end,
   launchLegcord = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.legcord) end,
   launchMail = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.mail) end,
   launchMessages = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.messages) end,
@@ -110,7 +109,6 @@ local actions = {
 M.definitions = {
   -- App Launchers
   { mods = constants.hyperKeyMods,    key = "b",  action = actions.focusChrome },
-  { mods = { "alt" },                 key = "k",  action = actions.launchKarabiner },
   { mods = { "alt" },                 key = "d",  action = actions.launchLegcord },
   { mods = { "alt" },                 key = "m",  action = actions.launchMail },
   { mods = { "alt" },                 key = "n",  action = actions.launchNotion },
@@ -135,7 +133,7 @@ M.definitions = {
   -- Shortcuts
   { mods = constants.hyperKeyMods,    key = "s",  action = actions.shazamToSpotify },
   { mods = constants.hyperKeyMods,    key = "r",  action = actions.receptor },
-  { mods = constants.hyperKeyMods,    key = "q",  action = actions.receptor }, -- Added to match Karabiner
+  { mods = constants.hyperKeyMods,    key = "q",  action = actions.receptor },
 
   -- Media Remaps
   { mods = { "cmd" },                 key = "f9", action = actions.spotifyNext },

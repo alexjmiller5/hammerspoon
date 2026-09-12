@@ -194,7 +194,24 @@ Run `scripts/test-ghostty-command-click.lua` through the hs CLI.
 
 ### Hyper Key
 
-The "Hyper" modifier (`Cmd+Alt+Ctrl+Shift`) is defined in `constants.hyperKeyMods`. Karabiner-Elements maps Caps Lock → F19 → the hyper combination.
+The "Hyper" modifier (`Cmd+Alt+Ctrl+Shift`) is defined in
+`constants.hyperKeyMods`. Nix's exported `macos-hyper-key` module maps Caps
+Lock to Right Control through macOS and creates
+`~/.config/hammerspoon/native-hyper`. When that marker exists, `hyperKey.lua`
+adds all four modifiers to each event carrying physical Right Control.
+Right Control is reserved for Hyper. Start its event tap last, so the other
+watchers receive the transformed flags first. No modifier-down events are
+latched. A quick unused tap toggles Caps Lock; a chord or long hold does not.
+
+Secure Input blocks the Hammerspoon transformation, so Caps behaves as Right
+Control in that context. It requires Hammerspoon's Accessibility grant and
+does not operate before login. Test native unposted events with
+`scripts/test-hyper-key.lua`; also smoke-test a real Caps chord after setup.
+
+The personal `ProfileAppInputRemapWatcher` prepends Cmd+K to Mail Escape and
+adds Shift to WhatsApp Cmd+U. It preserves optional modifiers, ignores its
+own generated Escape, and passes unrelated typing through. Verify with
+`scripts/test-app-input-remaps.lua`.
 
 ### Window Management
 
@@ -221,7 +238,6 @@ launches it. Verify with `scripts/test-contacts-hotkey.lua`.
 
 ## External Dependencies
 
-- **Karabiner-Elements**: For Caps Lock → Hyper key mapping (optional)
 - **Raycast**: Profile uses Raycast deep links for clipboard history, emoji search, file search, bluetooth management
 - **Full Disk Access** (personal profile only): the OTP hotkey reads `~/Library/Messages/chat.db` in-process; without the grant it logs an error and does nothing
 - **Chrome**: Several scripts target Chrome specifically; the personal profile uses Chrome PWAs (identified by `com.google.Chrome.app.*` bundle IDs)

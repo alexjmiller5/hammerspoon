@@ -44,6 +44,12 @@ GhosttyCommandClickWatcher = watcherFunctions.createGhosttyCommandClickWatcher()
 -- Quits unpinned Dock apps (Preview, Shortcuts, ...) when focus leaves them windowless
 WindowlessAppReaper = watcherFunctions.createWindowlessAppReaper():start()
 
+-- Nix opts in alongside its native Caps-to-Right-Control mapping. Start last
+-- so this tap adds Hyper flags before other Hammerspoon event taps see input.
+if hs.fs.attributes(os.getenv("HOME") .. "/.config/hammerspoon/native-hyper", "mode") == "file" then
+  HyperKeyWatcher = require("hyperKey").new():start()
+end
+
 -- Global Variables
 
 PreviewSidebarVisible = false
