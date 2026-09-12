@@ -36,31 +36,44 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
     ├── personal/        # init.lua, constants.lua, globalHotkeys.lua,
     │                    # appBasedHotkeys.lua, watcherFunctions.lua, scripts/,
     │                    # otp.lua (Cmd+Shift+O: types the latest 2FA code from
-    │                    # Messages — reads chat.db via hs.sqlite3, so
+    │                    # Messages - reads chat.db via hs.sqlite3, so
     │                    # Hammerspoon needs Full Disk Access), otpMail.lua
     │                    # (Alt+Shift+O: same from Gmail via the gog CLI -
     │                    # 1Password-backed, so it prompts Touch ID)
     └── work/            # same shape (+ chrome.lua). Targets Chrome TABS (one
                          # always-alive tab group: Gmail/Calendar/Tasks/Jira/
                          # Slack web), not PWAs, via in-process AppleScript
-                         # (hs.osascript — never shell out per keypress; a
+                         # (hs.osascript - never shell out per keypress; a
                          # spawned chrome-cli/osascript cost seconds, this
                          # costs ~100ms).
                          # Company-specific URLs/paths never live in this
-                         # public repo — they come from the machine-local
+                         # public repo - they come from the machine-local
                          # override file ~/.config/hammerspoon/work-local.lua
                          # (see profiles/work/constants.lua for its shape)
 ```
-
-`profiles/personal/scripts/toggle_messages_sidebar` is a compiled Swift
-binary and is gitignored — rebuild it with the `swiftc` command in the
-comment above `toggleMessagesSidebar` in `profiles/personal/appBasedHotkeys.lua`.
 
 ### Key Patterns
 
 **Charger sound**: The personal profile plays `assets/mario-waow.mp3` when
 power changes from battery to AC. Resolve bundled assets through
 `hs.configdir` so playback does not depend on external folders or iCloud.
+
+**File access**: Validate files and directories at the point of use with
+`helpers.requirePath`; launch external commands with `helpers.runTask` and
+separate argv. Missing dependencies and failed processes produce a concise
+alert without logging subprocess output. Audio uses the current system output
+unless an explicit device is supplied. Optional profile files may be absent;
+existing invalid files produce an error and fall back safely. Native named
+image resources are not filesystem paths. The Dock lookup remains a short
+synchronous `defaults export` so its live preferences are read through cfprefsd.
+
+Use `alt`, `option`, or `⌥` for the Option modifier. `opt` is silently ignored
+by the installed Hammerspoon API and must not be used in definitions.
+
+**Personal actions**: Hyper+B focuses a Chrome window on the current Space,
+or creates one when none exists. Cmd+Shift+S queues its current tab URL in
+Receptor via the installed Shortcut. Hyper+T toggles an already enrolled
+Tailscale connection. Cmd+Shift+F7/F8/F9 control Spotify directly.
 
 **Hotkey Definition Format**: All hotkeys use a consistent table structure. Each hotkey module has a local `actions` table (action functions) and an exported `M.definitions` list (keybinding specs):
 ```lua
@@ -80,7 +93,7 @@ power changes from battery to AC. Resolve bundled assets through
 
 **Pass-through pattern**: When an app-based hotkey needs to temporarily let the original keystroke through (e.g. the work profile's `passThrough` re-sends the very keystroke that triggered it, which would otherwise re-trigger itself), use `helperFunctions.disableHotkeysForApp()` before sending the keystroke, then `enableHotkeysForApp()` in a `hs.timer.doAfter()` callback.
 
-**Profile System**: `profiles/<name>/` dirs extend the base config; the active one is chosen at runtime by `activeProfile.lua`, which reads `~/.config/hammerspoon-profile` (one line: `personal` or `work` — written per machine by nix-config; defaults to `personal` if absent). The selected `profiles/<name>/init.lua` loads after the main init and adds hotkeys to the same global `AppBasedHotkeyRegistry`, via `pcall` so a broken profile doesn't crash the config. Main-config modules that need the active profile's constants use `require("activeProfile").require("constants")`.
+**Profile System**: `profiles/<name>/` dirs extend the base config; the active one is chosen at runtime by `activeProfile.lua`, which reads `~/.config/hammerspoon-profile` (one line: `personal` or `work` - written per machine by nix-config; defaults to `personal` if absent). The selected `profiles/<name>/init.lua` loads after the main init and adds hotkeys to the same global `AppBasedHotkeyRegistry`, via `pcall` so a broken profile doesn't crash the config. Main-config modules that need the active profile's constants use `require("activeProfile").require("constants")`.
 
 **Shared launchers**: Option+A opens Apple Notes; Option+B creates a Chrome
 window. Option+G launches the configured Gemini PWA only in the work profile;
@@ -170,7 +183,7 @@ Run `scripts/test-ghostty-command-click.lua` through the hs CLI.
 3. **Profile-specific**: Same pattern in `profiles/<name>/globalHotkeys.lua` or `profiles/<name>/appBasedHotkeys.lua`, using that profile's `constants` for profile-only bundle IDs
 4. **New bundle ID**: Add to `constants.appBundleIds` (shared) or `profiles/<name>/constants.appBundleIds` (profile-only)
 
-**Whenever a hotkey is added, changed, or removed here, mirror it in the Notion Hotkeys DB** (data_source_id `1bb03953-a8af-801d-8436-000b25e00006` — see the `notion` skill). That DB is the documentation of every binding; an edit to the Lua config isn't done until the corresponding Notion entry is created/updated/archived too.
+**Whenever a hotkey is added, changed, or removed here, mirror it in the Notion Hotkeys DB** (data_source_id `1bb03953-a8af-801d-8436-000b25e00006` - see the `notion` skill). That DB is the documentation of every binding; an edit to the Lua config isn't done until the corresponding Notion entry is created/updated/archived too.
 
 ### Hyper Key
 
@@ -178,11 +191,14 @@ The "Hyper" modifier (`Cmd+Alt+Ctrl+Shift`) is defined in `constants.hyperKeyMod
 
 ### Window Management
 
-Window management uses yabai (nix-installed via nix-config `services.yabai`). Functions in `globalHotkeys.lua` shell out to `constants.paths.yabai` for positioning. Some window actions attempt native macOS menu items first via `helpers.tryMenuItem()` before falling back to yabai.
+Window centering uses Hammerspoon directly. Grid, ratio, and Space actions use
+asynchronous yabai CLI calls after checking its executable path. Positioning
+actions try native macOS menu items first. Nix owns the yabai launchd service;
+Hammerspoon does not start or install it.
 
 ## External Dependencies
 
-- **yabai**: Window manager, nix-installed (`services.yabai` in nix-config) — path in `constants.paths.yabai` (`/run/current-system/sw/bin/yabai`)
+- **yabai**: Window manager, nix-installed (`services.yabai` in nix-config) - path in `constants.paths.yabai` (`/run/current-system/sw/bin/yabai`)
 - **Karabiner-Elements**: For Caps Lock → Hyper key mapping (optional)
 - **Raycast**: Profile uses Raycast deep links for clipboard history, emoji search, file search, bluetooth management
 - **Full Disk Access** (personal profile only): the OTP hotkey reads `~/Library/Messages/chat.db` in-process; without the grant it logs an error and does nothing

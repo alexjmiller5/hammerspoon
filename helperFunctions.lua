@@ -4,17 +4,63 @@ local constants = require("constants")
 
 local M = {}
 
--- Play an audio file path its path
--- TODO: add an optional device parameter which defaults to the default device just use sound.play without specifying a device
-function M.playAudioFileByPath(soundPath)
-  local sound = hs.sound.getByFile(soundPath)
-  if not sound then
-    log.e("Sound file not found at " .. soundPath)
+function M.reportError(message)
+  log.e(message)
+  hs.alert.show(message)
+end
+
+-- Check at the point of use: symlinks, removable files and permissions can change.
+function M.requirePath(path, kind)
+  kind = kind or "file"
+  local attr = type(path) == "string" and path ~= "" and hs.fs.attributes(path)
+  local valid = attr and attr.mode == (kind == "directory" and "directory" or "file")
+  if valid and kind == "executable" then
+    valid = attr.permissions:find("x", 1, true) ~= nil
+  elseif valid and kind == "file" then
+    local file = io.open(path, "rb")
+    valid = file ~= nil
+    if file then file:close() end
+  end
+  if valid then return path end
+  M.reportError("Missing or inaccessible " .. kind .. ": " .. tostring(path))
+end
+
+function M.runTask(path, args, callback, input)
+  if not M.requirePath(path, "executable") then
+    if callback then callback(-1, "", "Executable unavailable") end
     return
   end
+  local function finished(code, out, err)
+    -- A callback can acknowledge an intentional failure (such as a timeout).
+    local handled = callback and callback(code, out, err)
+    if code ~= 0 and handled ~= true then M.reportError(path .. " failed (exit " .. tostring(code) .. ")") end
+  end
+  local task = hs.task.new(path, finished, args or {})
+  if task and input then task:setInput(input) end
+  if not task or not task:start() then
+    finished(-1, "", "Could not start process")
+    return
+  end
+  return task
+end
 
-  sound:device("BuiltInSpeakerDevice")
-  sound:play()
+-- Use the system output unless the caller explicitly chooses another device.
+function M.playAudioFileByPath(soundPath, device)
+  if not M.requirePath(soundPath) then return false end
+  local sound = hs.sound.getByFile(soundPath)
+  if not sound then
+    M.reportError("Cannot decode audio: " .. soundPath)
+    return false
+  end
+  if device and not sound:device(device) then
+    M.reportError("Audio output unavailable: " .. device)
+    return false
+  end
+  if not sound:play() then
+    M.reportError("Cannot play audio: " .. soundPath)
+    return false
+  end
+  return true
 end
 
 -- Attempts to select a menu item on the frontmost application.

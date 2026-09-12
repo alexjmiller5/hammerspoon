@@ -6,6 +6,8 @@ local frontmost = chromeApp
 local fakeHs = {
   configdir = hs.configdir,
   logger = hs.logger,
+  fs = { attributes = function() return { mode = "file", permissions = "rwxr-xr-x" } end },
+  alert = { show = function() end },
   application = {
     get = function() return chromeApp end,
     frontmostApplication = function() return frontmost end,
@@ -13,7 +15,7 @@ local fakeHs = {
   },
   urlevent = { openURL = function(url) calls.url = url end },
   task = { new = function(path, _, args)
-    return { start = function() calls.task = { path = path, args = args } end }
+    return { start = function(self) calls.task = { path = path, args = args }; return self end }
   end },
   osascript = { applescript = function(script) calls.script = script; return true, "" end },
   eventtap = { keyStroke = function(mods, key, _, app) calls.stroke = { mods = mods, key = key, app = app } end },

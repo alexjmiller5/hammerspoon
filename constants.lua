@@ -1,7 +1,5 @@
 local M = {}
 
-local home = os.getenv("HOME")
-
 M.hyperKeyMods = { "cmd", "alt", "ctrl", "shift" }
 
 -- Application Bundle IDs
@@ -22,8 +20,9 @@ M.appBundleIds = {
 }
 
 M.paths = {
-  searchClipWindow    = home .. "/.hammerspoon/scripts/search_from_clipboard_in_new_window.sh",
-  searchClipIncognito = home .. "/.hammerspoon/scripts/search_incognito_from_clipboard.sh",
+  searchClipboard = hs.configdir .. "/scripts/search-clipboard.py",
+  python = os.getenv("HAMMERSPOON_PYTHON") or "/usr/bin/python3",
+  chrome = os.getenv("HAMMERSPOON_CHROME") or "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   -- yabai is nix-installed (services.yabai in nix-config) — NOT in /opt/homebrew
   yabai               = "/run/current-system/sw/bin/yabai",
 }

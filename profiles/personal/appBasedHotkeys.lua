@@ -34,22 +34,60 @@ local actions          = {
   notionNewShifted = function() helperFunctions.tryMenuItem({ "File", "New Window" }) end,
 
   sendUrlToReceptor = function()
-    -- Active tab URL via chrome-cli (replaces the "get URL of active tab" osascript)
-    local url = hs.execute("/opt/homebrew/bin/chrome-cli info | awk '/^Url: /{print substr($0,6)}'")
-        :gsub("%s+$", "")
-    if url ~= "" then
-      local task = hs.task.new("/usr/bin/shortcuts", nil,
-        { "run", profileConstants.shortcutIds.receptor_outbox })
-      task:setInput(url)
-      task:start()
-      hs.alert.show("Sent to Receptor")
-    else
-      log.i("sendUrlToReceptor: could not read active tab URL from chrome-cli")
+    local ok, url = hs.osascript.applescript(
+      'tell application id "com.google.Chrome" to get URL of active tab of front window')
+    if not ok or type(url) ~= "string" or url == "" then
+      helperFunctions.reportError("Could not read the current Chrome tab URL")
+      return
     end
+    helperFunctions.runTask("/usr/bin/shortcuts", { "run", profileConstants.shortcutIds.receptor_outbox },
+      function(code) if code == 0 then hs.alert.show("Queued in Receptor") end end, url)
   end,
 
   focusChrome = function()
-    hs.application.launchOrFocusByBundleID(constants.appBundleIds.chrome)
+    local space = hs.spaces.focusedSpace()
+    if not space then
+      helperFunctions.reportError("Could not determine the current Space")
+      return
+    end
+    local app = hs.application.get(constants.appBundleIds.chrome)
+    local existing = {}
+    for _, win in ipairs(app and app:allWindows() or {}) do
+      existing[win:id()] = true
+      if win:isStandard() and not win:isMinimized() then
+        for _, windowSpace in ipairs(hs.spaces.windowSpaces(win:id()) or {}) do
+          if windowSpace == space then win:focus(); return end
+        end
+      end
+    end
+    local ok = hs.osascript.applescript(
+      'tell application id "com.google.Chrome" to make new window')
+    if not ok then helperFunctions.reportError("Could not create a Chrome window"); return end
+    -- Chrome's script window IDs differ from native window IDs. Wait for the
+    -- new native window, then enforce the requested Space before focusing it.
+    local function focusCreated(attempt)
+      local chrome = hs.application.get(constants.appBundleIds.chrome)
+      for _, win in ipairs(chrome and chrome:allWindows() or {}) do
+        if not existing[win:id()] and win:isStandard() then
+          local onSpace = false
+          for _, id in ipairs(hs.spaces.windowSpaces(win:id()) or {}) do
+            if id == space then onSpace = true end
+          end
+          if not onSpace and not hs.spaces.moveWindowToSpace(win, space) then
+            helperFunctions.reportError("Could not move the new Chrome window to this Space")
+            return
+          end
+          win:focus()
+          return
+        end
+      end
+      if attempt < 10 then
+        hs.timer.doAfter(0.1, function() focusCreated(attempt + 1) end)
+      else
+        helperFunctions.reportError("Chrome's new window is not available yet")
+      end
+    end
+    focusCreated(1)
   end,
 
   -- iMessage
@@ -57,10 +95,6 @@ local actions          = {
     if not helperFunctions.tryMenuItem({ "Conversation", "Mark as Read" }) then
       helperFunctions.tryMenuItem({ "Conversation", "Mark as Unread" })
     end
-  end,
-  toggleMessagesSidebar = function()
-    -- Rebuild the script: swiftc -O -framework AppKit -framework ApplicationServices ~/.hammerspoon/profiles/personal/scripts/toggle_messages_sidebar.swift -o ~/.hammerspoon/profiles/personal/scripts/toggle_messages_sidebar
-    hs.task.new(profileConstants.paths.toggleMessagesSidebar, nil):start()
   end,
 
   -- Texts
@@ -147,12 +181,6 @@ M.definitions          = {
     mods = { "cmd" },
     key = "u",
     action = actions.markReadUnread,
-    only = apps.messages
-  },
-  {
-    mods = { "cmd" },
-    key = "\\",
-    action = actions.toggleMessagesSidebar,
     only = apps.messages
   },
 
