@@ -2,6 +2,7 @@ local log = hs.logger.new("App Based Hotkeys", "debug")
 
 local constants = require("constants")
 local helperFunctions = require("helperFunctions")
+local windows = require("windowManagement")
 
 local M = {}
 
@@ -20,6 +21,8 @@ local function chromiumSidebarToggler(bundleID)
 end
 
 local actions = {
+  windowMakeLarger = function() windows.resize(0.05) end,
+  windowMakeSmaller = function() windows.resize(-0.05) end,
   contactsEdit = function()
     local app = hs.application.get(constants.appBundleIds.contacts)
     if app and not app:selectMenuItem({ "Edit", "Edit Card" }) then
@@ -79,6 +82,7 @@ local actions = {
 -- app (e.g. Chrome, used 4×) isn't spelled out on every definition. These lists
 -- are only read (never mutated), so sharing one table across definitions is safe.
 local apps = {
+  finder      = { constants.appBundleIds.finder },
   contacts    = { constants.appBundleIds.contacts },
   claude      = { constants.appBundleIds.claude },
   xcode       = { constants.appBundleIds.xcode },
@@ -92,6 +96,12 @@ local apps = {
 }
 
 M.definitions = {
+  -- Finder owns Cmd+Plus/Minus for icon sizing (Plus is Shift+Equals on U.S.).
+  { mods = { "cmd", "shift" }, key = "=", action = actions.windowMakeLarger,
+    except = apps.finder },
+  { mods = { "cmd", "shift" }, key = "-", action = actions.windowMakeSmaller,
+    except = apps.finder },
+
   -- Contacts retains its native Cmd+S save action.
   { mods = { "cmd" }, key = "e", action = actions.contactsEdit,
     only = apps.contacts },

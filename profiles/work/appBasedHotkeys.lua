@@ -10,6 +10,7 @@ local baseConstants = require("constants")
 local constants = require("profiles.work.constants")
 local chrome = require("profiles.work.chrome")
 local helpers = require("helperFunctions")
+local windows = require("windowManagement")
 
 local M = {}
 
@@ -35,6 +36,7 @@ local jsClick = [[var clk=function(e){if(!e)return;
 ]]
 
 local actions = {
+  windowRight = function() windows.place("right") end,
   pwaDevTools = function() hs.eventtap.keyStroke({ "cmd", "alt" }, "i") end,
   -- cmd+shift+\ — site-specific panel toggle (cmd+\ stays the general Chrome
   -- tab-strip sidebar everywhere)
@@ -168,6 +170,9 @@ local chromeOnly = { chromeBundleId }
 local slackOnly = { baseConstants.appBundleIds.slack }
 
 M.definitions = {
+  -- Preserve Finder's native hidden-files shortcut.
+  { mods = { "cmd", "shift" }, key = ".", action = actions.windowRight,
+    except = { baseConstants.appBundleIds.finder } },
   { mods = { "cmd", "shift" }, key = "d", action = actions.pwaDevTools,
     only = { constants.appBundleIds.gemini } },
   { mods = { "cmd" },          key = "\\",     action = actions.toggleContextSidebar,    only = chromeOnly },
