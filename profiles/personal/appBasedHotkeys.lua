@@ -80,7 +80,6 @@ local apps = {
   chrome      = { constants.appBundleIds.chrome },
   t3Chat      = { profileConstants.appBundleIds.t3Chat },
   messages    = { profileConstants.appBundleIds.messages },
-  whatsapp    = { profileConstants.appBundleIds.whatsapp },
   texts       = { profileConstants.appBundleIds.texts },
   onePassword = { profileConstants.appBundleIds.onePassword },
   photos      = { profileConstants.appBundleIds.photos },
@@ -130,14 +129,6 @@ M.definitions          = {
     key = "u",
     action = actions.markReadUnread,
     only = apps.messages
-  },
-
-  -- WhatsApp
-  {
-    mods = { "cmd" },
-    key = "u",
-    action = actions.markReadUnread,
-    only = apps.whatsapp
   },
 
   -- Texts
