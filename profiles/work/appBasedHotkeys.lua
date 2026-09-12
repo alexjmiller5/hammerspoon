@@ -7,6 +7,7 @@
 -- genuine keystrokes instead.
 
 local baseConstants = require("constants")
+local constants = require("profiles.work.constants")
 local chrome = require("profiles.work.chrome")
 local helpers = require("helperFunctions")
 
@@ -34,6 +35,7 @@ local jsClick = [[var clk=function(e){if(!e)return;
 ]]
 
 local actions = {
+  pwaDevTools = function() hs.eventtap.keyStroke({ "cmd", "alt" }, "i") end,
   -- cmd+shift+\ — site-specific panel toggle (cmd+\ stays the general Chrome
   -- tab-strip sidebar everywhere)
   toggleSitePanel = function()
@@ -166,6 +168,8 @@ local chromeOnly = { chromeBundleId }
 local slackOnly = { baseConstants.appBundleIds.slack }
 
 M.definitions = {
+  { mods = { "cmd", "shift" }, key = "d", action = actions.pwaDevTools,
+    only = { constants.appBundleIds.gemini } },
   { mods = { "cmd" },          key = "\\",     action = actions.toggleContextSidebar,    only = chromeOnly },
   { mods = { "cmd", "shift" }, key = "\\",     action = actions.toggleSitePanel,         only = chromeOnly },
   { mods = { "cmd" },        key = "k",      action = actions.searchCurrentSite,       only = chromeOnly },

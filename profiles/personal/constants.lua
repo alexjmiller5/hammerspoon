@@ -7,7 +7,6 @@ local home = os.getenv("HOME")
 -- Application Bundle IDs
 M.appBundleIds = {
   googleMaps     = "com.google.Chrome.app.mnhkaebcjjhencmpkapnbdaogjamfbcj",
-  gemini         = "com.alexmiller.geminidesktop",
   t3Chat         = "com.google.Chrome.app.dbocekhhejgjkfgihlgonbpbikbcbdbd",
   youtube        = "com.google.Chrome.app.agimnkijcaahngcdmfeangaknmldooml",
   karabiner      = "org.pqrs.Karabiner-Elements.Settings",

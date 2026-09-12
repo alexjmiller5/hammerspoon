@@ -42,6 +42,7 @@ env.require = function(name)
   return cache[name]
 end
 local helpers = env.require("helperFunctions")
+env.require("profiles.work.constants").appBundleIds.gemini = "com.example.gemini-pwa"
 helpers.bindGlobalHotkeys(env.require("globalHotkeys").definitions)
 helpers.bindGlobalHotkeys(env.require("profiles.work.globalHotkeys").definitions)
 local failed = 0
@@ -115,12 +116,23 @@ check("pass-through does not enable Chrome bindings after focus leaves Chrome", 
   assert(not enabled, "Chrome bindings leaked into another app")
 end)
 
--- Loading the personal profile must keep its windowless Gemini behavior.
+-- Each profile loads independently, including the shared definitions.
+bindings = {}
 cache["profiles.personal.otp"], cache["profiles.personal.otpMail"] = {}, {}
+cache["activeProfile"] = { require = function() return env.require("profiles.personal.constants") end }
+cache["globalHotkeys"] = nil
+helpers.bindGlobalHotkeys(env.require("globalHotkeys").definitions)
 helpers.bindGlobalHotkeys(env.require("profiles.personal.globalHotkeys").definitions)
-check("personal Gemini still opens its resident desktop app window", function()
-  bindings["alt:g"]()
-  assert(calls.url == "geminiapp://open" and not calls.launch)
+check("personal Option+G is unbound", function()
+  assert(not bindings["alt:g"], "personal Option+G still launches Gemini")
+end)
+check("personal app hotkeys have no Gemini target or empty app scope", function()
+  for _, def in ipairs(env.require("appBasedHotkeys").definitions) do
+    assert(not def.only or #def.only > 0, "empty app scope")
+    for _, id in ipairs(def.only or {}) do
+      assert(id ~= "com.alexmiller.geminidesktop", "desktop Gemini still has app hotkeys")
+    end
+  end
 end)
 assert(failed == 0, failed .. " work hotkey checks failed")
 print("work-hotkeys: all checks passed")
