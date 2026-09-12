@@ -6,6 +6,7 @@ M.hyperKeyMods = { "cmd", "alt", "ctrl", "shift" }
 M.appBundleIds = {
   ghostty        = "com.mitchellh.ghostty",
   notes          = "com.apple.Notes",
+  contacts       = "com.apple.AddressBook",
   vscode         = "com.microsoft.VSCode",
   spotify        = "com.spotify.client",
   hammerspoon    = "org.hammerspoon.Hammerspoon",
@@ -23,8 +24,6 @@ M.paths = {
   searchClipboard = hs.configdir .. "/scripts/search-clipboard.py",
   python = os.getenv("HAMMERSPOON_PYTHON") or "/usr/bin/python3",
   chrome = os.getenv("HAMMERSPOON_CHROME") or "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  -- yabai is nix-installed (services.yabai in nix-config) — NOT in /opt/homebrew
-  yabai               = "/run/current-system/sw/bin/yabai",
 }
 
 return M

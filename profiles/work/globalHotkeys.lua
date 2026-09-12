@@ -1,31 +1,14 @@
 local constants = require("profiles.work.constants")
 local chrome = require("profiles.work.chrome")
-local helpers = require("helperFunctions")
+local windows = require("windowManagement")
 
 local M = {}
 
 local actions = {
   launchGemini = function() hs.application.launchOrFocusByBundleID(constants.appBundleIds.gemini) end,
-  -- Window movers: native macOS menu items first, hs geometry fallback
-  -- (no yabai on the work machine)
-  windowMaximize = function()
-    if not helpers.tryMenuItem({ "Window", "Fill" }) then
-      local win = hs.window.focusedWindow()
-      if win then win:maximize() end
-    end
-  end,
-  windowLeft = function()
-    if not helpers.tryMenuItem({ "Window", "Move & Resize", "Left" }) then
-      local win = hs.window.focusedWindow()
-      if win then win:moveToUnit({ x = 0, y = 0, w = 0.5, h = 1 }) end
-    end
-  end,
-  windowRight = function()
-    if not helpers.tryMenuItem({ "Window", "Move & Resize", "Right" }) then
-      local win = hs.window.focusedWindow()
-      if win then win:moveToUnit({ x = 0.5, y = 0, w = 0.5, h = 1 }) end
-    end
-  end,
+  windowMaximize = function() windows.place("maximize") end,
+  windowLeft = function() windows.place("left") end,
+  windowRight = function() windows.place("right") end,
 
   -- Tab-group jumps (Chrome tabs, not PWAs — see chrome.lua)
   focusGmail    = function() chrome.focusTab(constants.tabs.gmail) end,

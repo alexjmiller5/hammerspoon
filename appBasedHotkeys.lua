@@ -20,6 +20,12 @@ local function chromiumSidebarToggler(bundleID)
 end
 
 local actions = {
+  contactsEdit = function()
+    local app = hs.application.get(constants.appBundleIds.contacts)
+    if app and not app:selectMenuItem({ "Edit", "Edit Card" }) then
+      helperFunctions.reportError("Select an editable contact in Contacts first.")
+    end
+  end,
   claudeToggleSidebar = function()
     hs.eventtap.keyStroke({ "cmd" }, ".")
   end,
@@ -73,6 +79,7 @@ local actions = {
 -- app (e.g. Chrome, used 4×) isn't spelled out on every definition. These lists
 -- are only read (never mutated), so sharing one table across definitions is safe.
 local apps = {
+  contacts    = { constants.appBundleIds.contacts },
   claude      = { constants.appBundleIds.claude },
   xcode       = { constants.appBundleIds.xcode },
   zoom        = { constants.appBundleIds.zoom },
@@ -85,6 +92,10 @@ local apps = {
 }
 
 M.definitions = {
+  -- Contacts retains its native Cmd+S save action.
+  { mods = { "cmd" }, key = "e", action = actions.contactsEdit,
+    only = apps.contacts },
+
   -- Claude
   { mods = { "cmd" }, key = "\\", action = actions.claudeToggleSidebar,
     only = apps.claude },
