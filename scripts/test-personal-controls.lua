@@ -137,9 +137,13 @@ toggle(); toggle()
 assert(#processes == before + 2, "process start failure must release the repeat guard")
 failStart = false
 for _, s in ipairs(errors) do assert(not s:find("private"), "process errors must not leak private output") end
-action("cmd+shift", "f9")()
-action("cmd+shift", "f8")()
-action("cmd+shift", "f7")()
+action("cmd", "f9")()
+action("cmd", "f8")()
+action("cmd", "f7")()
+for _, def in ipairs(definitions) do
+  assert(not (def.key:match("^f[789]$") and table.concat(def.mods, "+") == "cmd+shift"),
+    "old Cmd+Shift Spotify bindings must be released")
+end
 assert(table.concat(playback, " ") == "next playpause previous", "media keys must target Spotify directly")
 action("cmd+alt+ctrl+shift", "s")()
 local shortcut = processes[#processes]

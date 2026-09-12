@@ -16,15 +16,15 @@ function M.createSpotifyMediaKeyWatcher()
     local media = event:systemKey()
     local action = actions[media.key]
     if not action then return false end
-    -- Swallow repeats and the matching release, including when Cmd/Shift
+    -- Swallow repeats and the matching release, including when Cmd
     -- were released first, so macOS cannot also handle this press.
     if held[media.key] then
       if not media.down then held[media.key] = nil end
       return true
     end
     local flags = event:getFlags()
-    if media.down and not media["repeat"] and flags.cmd and flags.shift
-        and not flags.alt and not flags.ctrl then
+    if media.down and not media["repeat"] and flags.cmd
+        and not flags.shift and not flags.alt and not flags.ctrl then
       held[media.key] = true
       action()
       return true

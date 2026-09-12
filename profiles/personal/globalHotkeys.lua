@@ -91,9 +91,9 @@ M.definitions = {
   { mods = constants.hyperKeyMods,    key = "q",  action = actions.receptor }, -- Added to match Karabiner
 
   -- Media Remaps
-  { mods = { "cmd", "shift" },        key = "f9", action = actions.spotifyNext },
-  { mods = { "cmd", "shift" },        key = "f8", action = actions.spotifyPlayPause },
-  { mods = { "cmd", "shift" },        key = "f7", action = actions.spotifyPrev },
+  { mods = { "cmd" },                 key = "f9", action = actions.spotifyNext },
+  { mods = { "cmd" },                 key = "f8", action = actions.spotifyPlayPause },
+  { mods = { "cmd" },                 key = "f7", action = actions.spotifyPrev },
 
 }
 
