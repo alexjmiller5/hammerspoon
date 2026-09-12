@@ -30,8 +30,8 @@ The base config (`init.lua` + top-level modules) loads everywhere; then
   `~/.config/hammerspoon/work-local.lua`, never from the repo
 
 Both profiles use Option+A for Apple Notes and Option+B for a new Chrome
-window. Option+G opens Gemini: the desktop app on personal, the configured
-Chrome PWA on work. If the work PWA has a different bundle ID, set
+window. Option+G opens the configured Gemini Chrome PWA on work and is
+unbound on personal. If the work PWA has a different bundle ID, set
 `appBundleIds.gemini` in the machine-local override file.
 
 The work profile uses Cmd+Shift+\ for site panels in Docs, Confluence, and

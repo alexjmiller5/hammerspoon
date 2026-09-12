@@ -28,17 +28,6 @@ local actions = {
   launchOnePassword = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.onePassword) end,
   launchTelegram = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.telegram) end,
 
-  -- The personal Gemini Desktop app stays resident without windows. Its URL
-  -- scheme creates a window; the work profile uses a standard PWA launcher.
-  launchGemini = function()
-    local app = hs.application.get(profileConstants.appBundleIds.gemini)
-    if app and #app:allWindows() > 0 then
-      app:activate()
-    else
-      hs.urlevent.openURL("geminiapp://open")
-    end
-  end,
-
   -- Raycast Extensions
   openClipboardHistory = function()
     hs.urlevent.openURL("raycast://extensions/raycast/clipboard-history/clipboard-history")
@@ -79,7 +68,6 @@ M.definitions = {
   { mods = { "alt" },                 key = "p",  action = actions.launchPhotos },
   { mods = { "alt" },                 key = "w",  action = actions.launchWhatsApp },
   { mods = { "alt" },                 key = "1",  action = actions.launchOnePassword },
-  { mods = { "alt" },                 key = "g",  action = actions.launchGemini },
   { mods = { "alt", "shift" },        key = "g",  action = actions.launchGoogleMaps },
   { mods = { "alt", "shift" },        key = "m",  action = actions.launchMessages },
   { mods = { "alt", "shift" },        key = "t",  action = actions.launchTelegram },

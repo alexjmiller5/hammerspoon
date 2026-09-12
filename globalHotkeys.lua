@@ -20,9 +20,6 @@ local actions = {
   launchChromeNewWindow = function()
     hs.task.new("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", nil, { "--new-window" }):start()
   end,
-  launchGemini = function()
-    hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.gemini)
-  end,
   launchZoom = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.zoom)
   end,
@@ -199,11 +196,6 @@ M.definitions = {
     mods = { "alt" },
     key = "v",
     action = actions.launchVSCode
-  },
-  {
-    mods = { "alt" },
-    key = "g",
-    action = actions.launchGemini
   },
   {
     mods = { "alt" },

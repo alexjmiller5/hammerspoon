@@ -4,8 +4,8 @@ M.profileName = "Work"
 
 local home = os.getenv("HOME")
 
--- Application Bundle IDs. gemini/youtube are required by the base config's
--- alt+G / alt+Y launchers; PWA ids are machine-specific, so override them in
+-- Application Bundle IDs for the work alt+G and shared alt+Y launchers.
+-- PWA ids are machine-specific, so override them in
 -- work-local.lua (below) if those PWAs exist on the work machine.
 M.appBundleIds = {
   gemini  = "com.google.Chrome.app.caidcmannjgahlnhpmdmihecjcoiigg",

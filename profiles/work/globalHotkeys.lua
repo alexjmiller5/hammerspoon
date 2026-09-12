@@ -5,6 +5,7 @@ local helpers = require("helperFunctions")
 local M = {}
 
 local actions = {
+  launchGemini = function() hs.application.launchOrFocusByBundleID(constants.appBundleIds.gemini) end,
   -- Window movers: native macOS menu items first, hs geometry fallback
   -- (no yabai on the work machine)
   windowMaximize = function()
@@ -49,6 +50,7 @@ local actions = {
 }
 
 M.definitions = {
+  { mods = { "alt" },          key = "g", action = actions.launchGemini },
   { mods = { "cmd", "shift" }, key = "m", action = actions.windowMaximize },
   { mods = { "cmd", "shift" }, key = ",", action = actions.windowLeft },
   { mods = { "cmd", "shift" }, key = ".", action = actions.windowRight },
