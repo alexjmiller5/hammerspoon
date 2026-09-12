@@ -16,6 +16,52 @@ local function runShortcut(name)
 end
 
 local actions = {
+  focusChrome = function()
+    local space = hs.spaces.focusedSpace()
+    if not space then
+      helpers.reportError("Could not determine the current Space")
+      return
+    end
+    local app = hs.application.get(constants.appBundleIds.chrome)
+    local existing = {}
+    for _, win in ipairs(app and app:allWindows() or {}) do
+      existing[win:id()] = true
+      if win:isStandard() and not win:isMinimized() then
+        for _, windowSpace in ipairs(hs.spaces.windowSpaces(win:id()) or {}) do
+          if windowSpace == space then win:focus(); return end
+        end
+      end
+    end
+    local ok = hs.osascript.applescript(
+      'tell application id "com.google.Chrome" to make new window')
+    if not ok then helpers.reportError("Could not create a Chrome window"); return end
+    -- Chrome's script window IDs differ from native window IDs. Wait for the
+    -- new native window, then enforce the requested Space before focusing it.
+    local function focusCreated(attempt)
+      local chrome = hs.application.get(constants.appBundleIds.chrome)
+      for _, win in ipairs(chrome and chrome:allWindows() or {}) do
+        if not existing[win:id()] and win:isStandard() then
+          local onSpace = false
+          for _, id in ipairs(hs.spaces.windowSpaces(win:id()) or {}) do
+            if id == space then onSpace = true end
+          end
+          if not onSpace and not hs.spaces.moveWindowToSpace(win, space) then
+            helpers.reportError("Could not move the new Chrome window to this Space")
+            return
+          end
+          win:focus()
+          return
+        end
+      end
+      if attempt < 10 then
+        hs.timer.doAfter(0.1, function() focusCreated(attempt + 1) end)
+      else
+        helpers.reportError("Chrome's new window is not available yet")
+      end
+    end
+    focusCreated(1)
+  end,
+
   -- App Launchers
   launchGoogleMaps = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.googleMaps) end,
   launchKarabiner = function() hs.application.launchOrFocusByBundleID(profileConstants.appBundleIds.karabiner) end,
@@ -63,6 +109,7 @@ local actions = {
 -- Hotkey Definitions Table
 M.definitions = {
   -- App Launchers
+  { mods = constants.hyperKeyMods,    key = "b",  action = actions.focusChrome },
   { mods = { "alt" },                 key = "k",  action = actions.launchKarabiner },
   { mods = { "alt" },                 key = "d",  action = actions.launchLegcord },
   { mods = { "alt" },                 key = "m",  action = actions.launchMail },
