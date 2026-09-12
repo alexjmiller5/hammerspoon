@@ -17,11 +17,13 @@ helperFunctions.registerAppBasedHotkeys(AppBasedHotkeyRegistry, profileAppBasedH
 -- (full-text dedupe/paste, preview rows), committed at
 -- Spoons/TextClipboardHistory.spoon. pcall so a checkout missing it (or a
 -- broken spoon) still loads the rest of the profile.
-local spoonOk = pcall(function()
+local spoonOk, spoonError = pcall(function()
+  assert(helperFunctions.requirePath(hs.configdir .. "/Spoons/TextClipboardHistory.spoon/init.lua"),
+    "TextClipboardHistory source is unavailable")
   hs.loadSpoon("TextClipboardHistory")
   spoon.TextClipboardHistory:start()
   spoon.TextClipboardHistory:bindHotkeys({ toggle_clipboard = { { "cmd", "shift" }, "h" } })
 end)
-if not spoonOk then log.i("TextClipboardHistory spoon not installed; skipping") end
+if not spoonOk then log.e("TextClipboardHistory could not start: " .. tostring(spoonError)) end
 
 log.i(profileConstants.profileName .. " profile Loaded")

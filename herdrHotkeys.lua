@@ -101,10 +101,17 @@ end
 -- A window created while herdr-window's sentinel is fresh is a herdr window.
 local function claimPendingWindow(win)
   if not isGhostty(win) then return false end
-  local modified = hs.fs.attributes(PENDING, "modification")
-  if not modified then return false end
-  os.remove(PENDING)
-  if os.time() - modified > PENDING_MAX_AGE then
+  local attributes = hs.fs.attributes(PENDING)
+  if not attributes then return false end
+  if attributes.mode ~= "file" then
+    log.w("ignoring an invalid herdr-window sentinel")
+    return false
+  end
+  if not os.remove(PENDING) then
+    log.w("cannot consume the herdr-window sentinel")
+    return false
+  end
+  if os.time() - attributes.modification > PENDING_MAX_AGE then
     log.w("ignoring a stale herdr-window sentinel")
     return false
   end

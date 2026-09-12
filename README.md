@@ -22,10 +22,10 @@ Hammerspoon console).
 The base config (`init.lua` + top-level modules) loads everywhere; then
 `profiles/<name>/` extends it. The active profile is chosen per machine by
 `~/.config/hammerspoon-profile` (one line: `personal` or `work`; defaults to
-`personal`) — the repo itself carries no machine identity.
+`personal`) - the repo itself carries no machine identity.
 
-- **personal** — native apps + Chrome PWAs
-- **work** — drives a Chrome tab group (Gmail/Calendar/Tasks/Jira/Slack web)
+- **personal** - native apps + Chrome PWAs
+- **work** - drives a Chrome tab group (Gmail/Calendar/Tasks/Jira/Slack web)
   via in-process AppleScript; machine/company-specific values come from
   `~/.config/hammerspoon/work-local.lua`, never from the repo
 
@@ -40,10 +40,27 @@ text fields, when the page lacks focus, or when no Undo is available.
 
 ## Optional dependencies
 
-Missing ones degrade gracefully (their hotkeys just don't fire): yabai (window
+File-backed actions report missing dependencies or execution failures: yabai (window
 management), Karabiner-Elements (Caps Lock → Hyper), Raycast (clipboard/emoji/
 file search). Chrome's View > Developer > "Allow
 JavaScript from Apple Events" is needed for the work profile's in-page JS
 hotkeys.
 
 Architecture, hotkey table format, and conventions: see [AGENTS.md](AGENTS.md).
+
+## File-backed actions
+
+Sounds, scripts, executables, and folders are checked when used. Charger audio
+uses the current system output. Clipboard search passes literal text over stdin
+and preserves Unicode and complete URLs. Optional local configuration can be
+absent, while invalid existing configuration is reported.
+
+On the personal profile, Hyper+T toggles the existing Tailscale connection
+without changing its settings. A 30-second deadline bounds the whole toggle,
+including the initial status query. Sign in to the native app first on each machine;
+`HAMMERSPOON_TAILSCALE_BIN` can override the executable location. Cmd+Shift+F7/F8/F9
+control Spotify through its native AppleScript interface.
+
+Regression checks run through `hs -c` using `scripts/test-*.lua`; they substitute
+UI and process effects so they do not operate on your current app. Run the
+clipboard CLI tests with `python3 scripts/test-search-clipboard.py`.

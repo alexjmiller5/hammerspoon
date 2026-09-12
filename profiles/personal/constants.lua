@@ -27,7 +27,6 @@ M.paths = {
   desktopFolder          = home .. "/Desktop",
   documentsFolder        = home .. "/Documents",
   applicationsFolder     = "/Applications",
-  toggleMessagesSidebar  = home .. "/.hammerspoon/profiles/personal/scripts/toggle_messages_sidebar",
   marioWaowAudioFilePath = hs.configdir .. "/assets/mario-waow.mp3"
 }
 

@@ -1,10 +1,24 @@
-local log = hs.logger.new("Global Hotkeys", "debug")
-
 local constants = require("constants")
 local profileConstants = require("activeProfile").require("constants")
 local helpers = require("helperFunctions")
 
 local M = {}
+
+local function searchClipboard(mode)
+  local script = helpers.requirePath(constants.paths.searchClipboard)
+  if not script then return end
+  local browser = helpers.requirePath(constants.paths.chrome, "executable")
+  if not browser then return end
+  local text = hs.pasteboard.getContents()
+  if not text or text == "" then return end
+  helpers.runTask(constants.paths.python, { script, "--mode", mode, "--browser", browser }, nil, text)
+end
+
+local function openFolder(path)
+  if helpers.requirePath(path, "directory") then
+    helpers.runTask("/usr/bin/open", { path })
+  end
+end
 
 local actions = {
   -- App Launchers
@@ -18,7 +32,7 @@ local actions = {
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.notes)
   end,
   launchChromeNewWindow = function()
-    hs.task.new("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", nil, { "--new-window" }):start()
+    helpers.runTask(constants.paths.chrome, { "--new-window" })
   end,
   launchZoom = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.zoom)
@@ -46,19 +60,19 @@ local actions = {
 
   -- Scripts
   searchClipWindow = function()
-    hs.task.new("/bin/sh", nil, { constants.paths.searchClipWindow }):start()
+    searchClipboard("window")
   end,
   searchClipIncognito = function()
-    hs.task.new("/bin/sh", nil, { constants.paths.searchClipIncognito }):start()
+    searchClipboard("incognito")
   end,
   openDesktopFolder = function()
-    hs.task.new("/usr/bin/open", nil, { profileConstants.paths.desktopFolder }):start()
+    openFolder(profileConstants.paths.desktopFolder)
   end,
   openDocumentsFolder = function()
-    hs.task.new("/usr/bin/open", nil, { profileConstants.paths.documentsFolder }):start()
+    openFolder(profileConstants.paths.documentsFolder)
   end,
   openApplicationsFolder = function()
-    hs.task.new("/usr/bin/open", nil, { profileConstants.paths.applicationsFolder }):start()
+    openFolder(profileConstants.paths.applicationsFolder)
   end,
   newIncognitoWindow = function()
     hs.osascript.applescript(
@@ -76,100 +90,82 @@ local actions = {
 
   -- Window Management
   windowCenter = function()
-    hs.execute([[
-    YABAI=]] .. constants.paths.yabai .. [[
-    JQ=/usr/bin/jq
-
-    WIN_JSON=$($YABAI -m query --windows --window)
-    DISP_JSON=$($YABAI -m query --displays --display)
-
-    read -r W H IS_FLOAT <<< $(echo "$WIN_JSON" | $JQ -r '.frame.w, .frame.h, ."is-floating" | tonumber | floor')
-    read -r DW DH DX DY <<< $(echo "$DISP_JSON" | $JQ -r '.frame.w, .frame.h, .frame.x, .frame.y | tonumber | floor')
-
-    if [ "$IS_FLOAT" = "0" ]; then
-      $YABAI -m window --toggle float
-      sleep 0.1
-    fi
-
-    TARGET_X=$(( DX + (DW - W) / 2 ))
-    TARGET_Y=$(( DY + (DH - H) / 2 ))
-
-    $YABAI -m window --move abs:$TARGET_X:$TARGET_Y
-  ]])
+    local window = hs.window.focusedWindow()
+    if window then window:centerOnScreen() end
   end,
 
   windowLeft = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Left" }) then
       -- Grid 1:2, start at 0, span 1 (Left Half)
-      hs.execute(constants.paths.yabai .. " -m window --grid 1:2:0:0:1:1")
+      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "1:2:0:0:1:1" })
     end
   end,
 
   windowRight = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Right" }) then
       -- Grid 1:2, start at 1, span 1 (Right Half)
-      hs.execute(constants.paths.yabai .. " -m window --grid 1:2:1:0:1:1")
+      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "1:2:1:0:1:1" })
     end
   end,
 
   windowMaximize = function()
     if not helpers.tryMenuItem({ "Window", "Fill" }) then
       -- Grid 1:1, full span (Maximize)
-      hs.execute(constants.paths.yabai .. " -m window --grid 1:1:0:0:1:1")
+      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "1:1:0:0:1:1" })
     end
   end,
 
   windowBottomHalf = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Bottom" }) then
       -- Grid 2:1 (2 rows, 1 col), start at x:0 y:1, span 1x1
-      hs.execute(constants.paths.yabai .. " -m window --grid 2:1:0:1:1:1")
+      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "2:1:0:1:1:1" })
     end
   end,
 
   windowTopLeft = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Top Left" }) then
       -- Grid 2:2, start 0,0 (Top Left Quarter)
-      hs.execute(constants.paths.yabai .. " -m window --grid 2:2:0:0:1:1")
+      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "2:2:0:0:1:1" })
     end
   end,
 
   windowBottomLeft = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Bottom Left" }) then
       -- Grid 2:2, start 0,1 (Bottom Left Quarter)
-      hs.execute(constants.paths.yabai .. " -m window --grid 2:2:0:1:1:1")
+      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "2:2:0:1:1:1" })
     end
   end,
 
   windowTopRight = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Top Right" }) then
       -- Grid 2:2, start 1,0 (Top Right Quarter)
-      hs.execute(constants.paths.yabai .. " -m window --grid 2:2:1:0:1:1")
+      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "2:2:1:0:1:1" })
     end
   end,
 
   windowBottomRight = function()
     if not helpers.tryMenuItem({ "Window", "Move & Resize", "Bottom Right" }) then
       -- Grid 2:2, start 1,1 (Bottom Right Quarter)
-      hs.execute(constants.paths.yabai .. " -m window --grid 2:2:1:1:1:1")
+      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "2:2:1:1:1:1" })
     end
   end,
 
   windowMakeLarger = function()
     -- Increase window size ratio by 5%
-    hs.execute(constants.paths.yabai .. " -m window --ratio rel:0.05")
+    helpers.runTask(constants.paths.yabai, { "-m", "window", "--ratio", "rel:0.05" })
   end,
 
   windowMakeSmaller = function()
     -- Decrease window size ratio by 5%
-    hs.execute(constants.paths.yabai .. " -m window --ratio rel:-0.05")
+    helpers.runTask(constants.paths.yabai, { "-m", "window", "--ratio", "rel:-0.05" })
   end,
 
   nextDesktop = function()
-    hs.execute(constants.paths.yabai .. " -m space --focus next")
+    helpers.runTask(constants.paths.yabai, { "-m", "space", "--focus", "next" })
   end,
 
   prevDesktop = function()
-    hs.execute(constants.paths.yabai .. " -m space --focus prev")
+    helpers.runTask(constants.paths.yabai, { "-m", "space", "--focus", "prev" })
   end,
 
   -- Native Hammerspoon

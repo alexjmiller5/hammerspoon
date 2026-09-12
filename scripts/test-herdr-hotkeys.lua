@@ -10,10 +10,11 @@ end
 
 local strokes, hotkeys, subscriptions, stored = {}, {}, {}, { 4242 }
 local focused, existing = nil, { [4242] = true }
-local pendingMtime, removed = nil, nil
+local pendingMtime, removed, pendingMode, removalFails = nil, nil, "file", false
+local errors = {}
 
 local fakeHs = {
-  logger = { new = function() return { i = function() end, w = function() end } end },
+  logger = { new = function() return { i = function() end, w = function(message) errors[#errors + 1] = message end } end },
   timer = { usleep = function() end },
   settings = {
     get = function() return stored end,
@@ -32,7 +33,11 @@ local fakeHs = {
     keyStroke = function(mods, key) table.insert(strokes, { mods = mods, key = key }) end,
     keyStrokes = function(text) table.insert(strokes, { text = text }) end,
   },
-  fs = { attributes = function(_, _) return pendingMtime end },
+  fs = { attributes = function(_, field)
+    if not pendingMtime then return nil end
+    local attributes = { mode = pendingMode, modification = pendingMtime }
+    return field and attributes[field] or attributes
+  end },
   window = {
     get = function(id) return existing[id] and fakeWindow(id) or nil end,
     focusedWindow = function() return focused end,
@@ -49,7 +54,11 @@ local fakeHs = {
 
 local fakeOs = setmetatable({
   time = function() return 1000 end,
-  remove = function(path) removed = path; pendingMtime = nil; return true end,
+  remove = function(path)
+    removed = path
+    if removalFails then return nil, "permission denied" end
+    pendingMtime = nil; return true
+  end,
 }, { __index = os })
 local env = setmetatable({ hs = fakeHs, os = fakeOs }, { __index = _G })
 local M = assert(loadfile(hs.configdir .. "/herdrHotkeys.lua", "t", env))()
@@ -114,6 +123,16 @@ assert(removed == M._pendingPath, "a stale sentinel must still be cleared")
 pendingMtime, removed = nil, nil
 subscriptions.created(fakeWindow(1114))
 assert(not M._isHerdrWindow(fakeWindow(1114)), "no sentinel means an ordinary Ghostty window")
+
+pendingMtime, removed, pendingMode = 995, nil, "directory"
+subscriptions.created(fakeWindow(1115))
+assert(not M._isHerdrWindow(fakeWindow(1115)) and not removed, "a directory must not be consumed as a sentinel")
+pendingMtime, pendingMode, removalFails = 995, "file", true
+subscriptions.created(fakeWindow(1116))
+assert(not M._isHerdrWindow(fakeWindow(1116)), "failed sentinel consumption must not mark a window")
+subscriptions.created(fakeWindow(1117))
+assert(not M._isHerdrWindow(fakeWindow(1117)), "failed consumption must not claim later unrelated windows")
+removalFails = false
 
 -- Every shortcut sends Herdr's prefix first, then its own key. hs.hotkey.new's
 -- third argument is the action, so re-load with a stub that records it.

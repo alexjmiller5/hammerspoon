@@ -69,6 +69,7 @@ local reaperExempt = {
 -- `defaults export` goes through cfprefsd, so a tile pinned seconds ago is
 -- already visible here; the on-disk plist can lag by minutes.
 local function dockedBundleIDs()
+  if not helperFunctions.requirePath("/usr/bin/defaults", "executable") then return nil end
   local ok, plist = pcall(hs.plist.readString, (hs.execute("/usr/bin/defaults export com.apple.dock -")))
   if not ok or not plist then
     log.w("[reaper] could not read the Dock's pinned apps, skipping sweep")

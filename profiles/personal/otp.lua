@@ -5,7 +5,7 @@
 -- needs Full Disk Access), polls for up to pollSeconds for an incoming
 -- message from the last lookbackSeconds that contains a code, types the code
 -- into the focused field and presses Return.
-local log = hs.logger.new("OTP", "info")
+local helpers = require("helperFunctions")
 
 local M = {}
 
@@ -73,19 +73,26 @@ end
 
 -- Newest-first scan of incoming messages from the lookback window.
 function M.findRecentCode()
-  local db = hs.sqlite3.open(M.dbPath, hs.sqlite3.OPEN_READONLY)
-  if not db then
-    log.e("cannot open " .. M.dbPath .. " (Hammerspoon needs Full Disk Access)")
-    return nil
+  if not helpers.requirePath(M.dbPath) then return nil, "Messages database unavailable" end
+  local opened, db = pcall(hs.sqlite3.open, M.dbPath, hs.sqlite3.OPEN_READONLY)
+  if not opened or not db then
+    helpers.reportError("Cannot open Messages database (check Hammerspoon Full Disk Access)")
+    return nil, "Messages database unavailable"
   end
   local since = (os.time() - M.lookbackSeconds - 978307200) * 1000000000
   local rows = {}
-  for row in db:nrows(string.format(
-    "SELECT text, attributedBody FROM message WHERE is_from_me = 0 AND date > %d ORDER BY date DESC LIMIT 50",
-    since)) do
-    rows[#rows + 1] = row
+  local queried = pcall(function()
+    for row in db:nrows(string.format(
+      "SELECT text, attributedBody FROM message WHERE is_from_me = 0 AND date > %d ORDER BY date DESC LIMIT 50",
+      since)) do
+      rows[#rows + 1] = row
+    end
+  end)
+  local closed, closeStatus = pcall(function() return db:close() end)
+  if not queried or not closed or closeStatus ~= hs.sqlite3.OK then
+    helpers.reportError("Cannot read Messages database")
+    return nil, "Messages database unavailable"
   end
-  db:close()
   for _, row in ipairs(rows) do
     local body = (row.text and row.text ~= "") and row.text or M.decodeAttributedBody(row.attributedBody)
     local code = M.pickOtp(body)
@@ -100,8 +107,10 @@ function M.pasteLatest()
   if poller then poller:stop() end
   local deadline = hs.timer.secondsSinceEpoch() + M.pollSeconds
   local function attempt()
-    local code = M.findRecentCode()
-    if code then
+    local code, err = M.findRecentCode()
+    if err then
+      poller:stop(); poller = nil
+    elseif code then
       poller:stop(); poller = nil
       hs.eventtap.keyStrokes(code)
       hs.eventtap.keyStroke({}, "return")

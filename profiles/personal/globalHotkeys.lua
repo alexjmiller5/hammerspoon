@@ -5,13 +5,14 @@ local constants = require("constants")
 local helpers = require("helperFunctions")
 local otp = require("profiles.personal.otp")
 local otpMail = require("profiles.personal.otpMail")
+local tailscale = require("profiles.personal.tailscale")
 
 local M = {}
 
 -- Run a macOS Shortcut asynchronously so a long-running shortcut
 -- doesn't block Hammerspoon's main thread (and every other hotkey)
 local function runShortcut(name)
-  hs.task.new("/usr/bin/shortcuts", nil, { "run", name }):start()
+  helpers.runTask("/usr/bin/shortcuts", { "run", name })
 end
 
 local actions = {
@@ -51,10 +52,12 @@ local actions = {
   shazamToSpotify = function() runShortcut("Shazam → Spotify") end,
   receptor = function() runShortcut("Receptor 💭") end,
 
-  -- Spotify Media Control Remaps
-  spotifyNext = function() hs.eventtap.keyStroke({ "ctrl", "alt", "cmd" }, "0") end,
-  spotifyPlayPause = function() hs.eventtap.keyStroke({ "ctrl", "alt", "cmd" }, "9") end,
-  spotifyPrev = function() hs.eventtap.keyStroke({ "ctrl", "alt", "cmd" }, "8") end,
+  toggleTailscale = tailscale.toggle,
+
+  -- Control Spotify directly, regardless of which app has focus.
+  spotifyNext = function() hs.spotify.next() end,
+  spotifyPlayPause = function() hs.spotify.playpause() end,
+  spotifyPrev = function() hs.spotify.previous() end,
 }
 
 -- Hotkey Definitions Table
@@ -78,6 +81,7 @@ M.definitions = {
   { mods = { "cmd", "shift" },        key = "l",  action = actions.listRepos },
   { mods = { "alt", "shift" },        key = "w",  action = actions.manageDownloads },
   { mods = constants.hyperKeyMods,    key = "d",  action = actions.dictate },
+  { mods = constants.hyperKeyMods,    key = "t",  action = actions.toggleTailscale },
   { mods = { "cmd", "shift" },        key = "o",  action = actions.pasteLatestOtp },
   { mods = { "alt", "shift" },        key = "o",  action = actions.pasteLatestMailOtp },
 

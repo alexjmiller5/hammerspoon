@@ -1,4 +1,5 @@
 local M = {}
+local helpers = require("helperFunctions")
 
 M.profileName = "Work"
 
@@ -35,8 +36,24 @@ M.tabs = {
 -- OUTSIDE this public repo in ~/.config/hammerspoon/work-local.lua, a file
 -- returning a table merged over M one level deep, e.g.
 --   return { tabs = { jira = { match = "myco.atlassian.net", url = "https://..." } } }
-local ok, localConf = pcall(dofile, home .. "/.config/hammerspoon/work-local.lua")
-if ok and type(localConf) == "table" then
+local path = (os.getenv("XDG_CONFIG_HOME") or (home .. "/.config")) .. "/hammerspoon/work-local.lua"
+local file, _, errno = io.open(path, "r")
+local localConf
+if file then
+  local contents = file:read("*a")
+  file:close()
+  local chunk = contents and load(contents, "@" .. path, "t")
+  local ok, value = false, nil
+  if chunk then ok, value = pcall(chunk) end
+  if ok and type(value) == "table" then
+    localConf = value
+  else
+    helpers.reportError("Invalid or unreadable work configuration: " .. path)
+  end
+elseif errno ~= 2 then
+  helpers.reportError("Cannot read work configuration: " .. path)
+end
+if localConf then
   for key, value in pairs(localConf) do
     if type(value) == "table" and type(M[key]) == "table" then
       for k, v in pairs(value) do M[key][k] = v end

@@ -24,20 +24,8 @@ function M.js(code)
   return ok and result or nil
 end
 
--- Diagnostic trace, one block per invocation — when a tab-jump hotkey
--- misbehaves, send the tail of this file along with the bug report.
-local logPath = os.getenv("HOME") .. "/.hammerspoon-focustab.log"
-local function dlog(fmt, ...)
-  local f = io.open(logPath, "a")
-  if not f then return end
-  f:write(os.date("%H:%M:%S ") .. string.format(fmt, ...) .. "\n")
-  f:close()
-end
-
 function M.focusTab(tab)
   if not (tab and tab.match) then return end
-  local frontApp = hs.application.frontmostApplication()
-  dlog("-- focusTab(%q) frontmost=%q", tab.match, frontApp and frontApp:name() or "?")
   local fallback = ""
   if tab.url and tab.url ~= "" then
     fallback = "  open location " .. asQuote(tab.url) .. "\n"
@@ -53,7 +41,7 @@ tell application "Google Chrome"
           set theTitle to title of tab i of w
           activate
           set index of w to 1
-          return theTitle & linefeed & ((count of windows) as text)
+          return theTitle
         end if
       end repeat
     end try
@@ -64,13 +52,9 @@ tell application "Google Chrome"
 end tell]]
   local ok, result = hs.osascript.applescript(script)
   if not ok or type(result) ~= "string" or result == "" then
-    dlog("NO TAB URL contained %q (ok=%s) - fallback opened %q as a NEW tab in Chrome's most-recent window",
-      tab.match, tostring(ok), tab.url or "")
     return
   end
-  local tabTitle, winCount = result:match("^(.*)\n(%d+)$")
-  tabTitle = tabTitle or result
-  dlog("selected tab %q in one of %s windows", tabTitle, winCount or "?")
+  local tabTitle = result
 
   -- The raise only sticks once Chrome is ALREADY the frontmost app: from the
   -- background, "activate" lands on Chrome's most-recent window and the
@@ -88,24 +72,18 @@ end tell]]
     local chromeFront = frontmost ~= nil and frontmost:bundleID() == "com.google.Chrome"
     local front = M.frontTitle()
     if chromeFront and front:find(tabTitle, 1, true) == 1 then
-      dlog("done after %d steps: front=%q", attempts, front)
       return
     end
     if attempts >= 6 then
-      dlog("GAVE UP after %d steps; wanted %q; chromeFront=%s front=%q",
-        attempts, tabTitle, tostring(chromeFront), front)
       return
     end
     attempts = attempts + 1
     if not chromeFront then
       -- hs activation (NSRunningApplication, ignoring-other-apps) is more
       -- forceful than AppleScript "activate".
-      dlog("step %d: frontmost=%q - activating Chrome",
-        attempts, frontmost and frontmost:name() or "?")
       local chromeApp = hs.application.get("com.google.Chrome")
       if chromeApp then chromeApp:activate() end
     else
-      dlog("step %d: front=%q -> re-running raise (the 'second press')", attempts, front)
       hs.osascript.applescript(script)
     end
     hs.timer.doAfter(0.3, step)
