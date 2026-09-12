@@ -27,6 +27,7 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
 ├── helperFunctions.lua  # Utility functions for hotkey binding and app control
 ├── watcherFunctions.lua # Event watcher factories (app activation, mouse events)
 ├── globalHotkeys.lua    # System-wide hotkey definitions
+├── windowManagement.lua # Native menu placement, geometry, resizing and Spaces navigation
 ├── appBasedHotkeys.lua  # Context-aware hotkeys (active only in specific apps)
 ├── scripts/             # Shell scripts invoked by hotkeys
 ├── Spoons/              # Vendored spoons, ALL committed (installed software
@@ -197,14 +198,24 @@ The "Hyper" modifier (`Cmd+Alt+Ctrl+Shift`) is defined in `constants.hyperKeyMod
 
 ### Window Management
 
-Window centering uses Hammerspoon directly. Grid, ratio, and Space actions use
-asynchronous yabai CLI calls after checking its executable path. Positioning
-actions try native macOS menu items first. Nix owns the yabai launchd service;
-Hammerspoon does not start or install it.
+`windowManagement.lua` owns window controls for both profiles. Placement tries
+native Window menu items, then uses Hammerspoon geometry for halves, quarters,
+and maximize. Resize changes both dimensions in 5% screen increments, centered
+and bounded by the usable screen. Native Control-arrow handles adjacent Spaces;
+generated arrow events include the Function flag, matching macOS defaults.
+Nix's exported `macos-window-management` module declares those native shortcuts.
+
+The same interface is available through the installed CLI:
+`hs -c 'require("windowManagement").place("left")'` or
+`hs -c 'require("windowManagement").resize(0.05)'`.
+Run `scripts/test-window-management.lua` through the hs CLI for isolated tests.
+
+**Contacts**: Cmd+E selects its native Edit > Edit Card menu. Cmd+S remains
+the native save shortcut. The edit alias is scoped to Contacts and never
+launches it. Verify with `scripts/test-contacts-hotkey.lua`.
 
 ## External Dependencies
 
-- **yabai**: Window manager, nix-installed (`services.yabai` in nix-config) - path in `constants.paths.yabai` (`/run/current-system/sw/bin/yabai`)
 - **Karabiner-Elements**: For Caps Lock → Hyper key mapping (optional)
 - **Raycast**: Profile uses Raycast deep links for clipboard history, emoji search, file search, bluetooth management
 - **Full Disk Access** (personal profile only): the OTP hotkey reads `~/Library/Messages/chat.db` in-process; without the grant it logs an error and does nothing

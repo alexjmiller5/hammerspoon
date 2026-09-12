@@ -17,6 +17,7 @@ local fakeHs = {
     return { selectMenuItem = function(_, path) calls.menu = path; return menuWorks end }
   end },
   window = { focusedWindow = function() return window end },
+  eventtap = { keyStroke = function(mods, key) calls.stroke = { mods = mods, key = key } end },
   execute = function() error("blocking shell execution") end,
 }
 local env = setmetatable({
@@ -95,20 +96,19 @@ check("centering calls the native window operation and tolerates no window", fun
   window = nil
   action("cmd+shift", "/")()
 end)
-check("native window menu prevents yabai fallback", function()
+check("native window menu prevents geometry fallback", function()
+  window = { moveToUnit = function() error("native menu should handle placement") end }
   menuWorks = true
   action(table.concat(constants.hyperKeyMods, "+"), "left")()
   assert(calls.menu and not calls.task)
 end)
-check("yabai fallback is asynchronous argv and validates its executable", function()
+check("window and desktop bindings use native APIs without external tools", function()
   menuWorks = false
+  window = { moveToUnit = function(_, rect) calls.unit = rect end }
   action(table.concat(constants.hyperKeyMods, "+"), "left")()
-  assert(not calls.task and #errors == 1)
-  reset(); executable(constants.paths.yabai)
-  action(table.concat(constants.hyperKeyMods, "+"), "left")()
-  assert(calls.task.path == constants.paths.yabai and table.concat(calls.task.args, "|") == "-m|window|--grid|1:2:0:0:1:1")
+  assert(not calls.task and calls.unit.x == 0 and calls.unit.w == 0.5)
   reset(); action("ctrl+alt+shift", "right")()
-  assert(table.concat(calls.task.args, "|") == "-m|space|--focus|next")
+  assert(not calls.task and table.concat(calls.stroke.mods, "+") == "ctrl+fn" and calls.stroke.key == "right")
 end)
 assert(failed == 0, failed .. " global action checks failed")
 print("global-actions: all checks passed")

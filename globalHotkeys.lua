@@ -1,6 +1,7 @@
 local constants = require("constants")
 local profileConstants = require("activeProfile").require("constants")
 local helpers = require("helperFunctions")
+local windows = require("windowManagement")
 
 local M = {}
 
@@ -89,84 +90,19 @@ local actions = {
   end,
 
   -- Window Management
-  windowCenter = function()
-    local window = hs.window.focusedWindow()
-    if window then window:centerOnScreen() end
-  end,
-
-  windowLeft = function()
-    if not helpers.tryMenuItem({ "Window", "Move & Resize", "Left" }) then
-      -- Grid 1:2, start at 0, span 1 (Left Half)
-      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "1:2:0:0:1:1" })
-    end
-  end,
-
-  windowRight = function()
-    if not helpers.tryMenuItem({ "Window", "Move & Resize", "Right" }) then
-      -- Grid 1:2, start at 1, span 1 (Right Half)
-      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "1:2:1:0:1:1" })
-    end
-  end,
-
-  windowMaximize = function()
-    if not helpers.tryMenuItem({ "Window", "Fill" }) then
-      -- Grid 1:1, full span (Maximize)
-      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "1:1:0:0:1:1" })
-    end
-  end,
-
-  windowBottomHalf = function()
-    if not helpers.tryMenuItem({ "Window", "Move & Resize", "Bottom" }) then
-      -- Grid 2:1 (2 rows, 1 col), start at x:0 y:1, span 1x1
-      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "2:1:0:1:1:1" })
-    end
-  end,
-
-  windowTopLeft = function()
-    if not helpers.tryMenuItem({ "Window", "Move & Resize", "Top Left" }) then
-      -- Grid 2:2, start 0,0 (Top Left Quarter)
-      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "2:2:0:0:1:1" })
-    end
-  end,
-
-  windowBottomLeft = function()
-    if not helpers.tryMenuItem({ "Window", "Move & Resize", "Bottom Left" }) then
-      -- Grid 2:2, start 0,1 (Bottom Left Quarter)
-      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "2:2:0:1:1:1" })
-    end
-  end,
-
-  windowTopRight = function()
-    if not helpers.tryMenuItem({ "Window", "Move & Resize", "Top Right" }) then
-      -- Grid 2:2, start 1,0 (Top Right Quarter)
-      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "2:2:1:0:1:1" })
-    end
-  end,
-
-  windowBottomRight = function()
-    if not helpers.tryMenuItem({ "Window", "Move & Resize", "Bottom Right" }) then
-      -- Grid 2:2, start 1,1 (Bottom Right Quarter)
-      helpers.runTask(constants.paths.yabai, { "-m", "window", "--grid", "2:2:1:1:1:1" })
-    end
-  end,
-
-  windowMakeLarger = function()
-    -- Increase window size ratio by 5%
-    helpers.runTask(constants.paths.yabai, { "-m", "window", "--ratio", "rel:0.05" })
-  end,
-
-  windowMakeSmaller = function()
-    -- Decrease window size ratio by 5%
-    helpers.runTask(constants.paths.yabai, { "-m", "window", "--ratio", "rel:-0.05" })
-  end,
-
-  nextDesktop = function()
-    helpers.runTask(constants.paths.yabai, { "-m", "space", "--focus", "next" })
-  end,
-
-  prevDesktop = function()
-    helpers.runTask(constants.paths.yabai, { "-m", "space", "--focus", "prev" })
-  end,
+  windowCenter = windows.center,
+  windowLeft = function() windows.place("left") end,
+  windowRight = function() windows.place("right") end,
+  windowMaximize = function() windows.place("maximize") end,
+  windowBottomHalf = function() windows.place("bottom") end,
+  windowTopLeft = function() windows.place("topLeft") end,
+  windowBottomLeft = function() windows.place("bottomLeft") end,
+  windowTopRight = function() windows.place("topRight") end,
+  windowBottomRight = function() windows.place("bottomRight") end,
+  windowMakeLarger = function() windows.resize(0.05) end,
+  windowMakeSmaller = function() windows.resize(-0.05) end,
+  nextDesktop = function() windows.desktop("right") end,
+  prevDesktop = function() windows.desktop("left") end,
 
   -- Native Hammerspoon
   reloadConfig = function()
