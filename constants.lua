@@ -7,6 +7,7 @@ M.appBundleIds = {
   ghostty        = "com.mitchellh.ghostty",
   notes          = "com.apple.Notes",
   contacts       = "com.apple.AddressBook",
+  finder         = "com.apple.finder",
   vscode         = "com.microsoft.VSCode",
   spotify        = "com.spotify.client",
   hammerspoon    = "org.hammerspoon.Hammerspoon",

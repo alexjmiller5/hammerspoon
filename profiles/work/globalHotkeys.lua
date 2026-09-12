@@ -8,7 +8,6 @@ local actions = {
   launchGemini = function() hs.application.launchOrFocusByBundleID(constants.appBundleIds.gemini) end,
   windowMaximize = function() windows.place("maximize") end,
   windowLeft = function() windows.place("left") end,
-  windowRight = function() windows.place("right") end,
 
   -- Tab-group jumps (Chrome tabs, not PWAs — see chrome.lua)
   focusGmail    = function() chrome.focusTab(constants.tabs.gmail) end,
@@ -36,7 +35,6 @@ M.definitions = {
   { mods = { "alt" },          key = "g", action = actions.launchGemini },
   { mods = { "cmd", "shift" }, key = "m", action = actions.windowMaximize },
   { mods = { "cmd", "shift" }, key = ",", action = actions.windowLeft },
-  { mods = { "cmd", "shift" }, key = ".", action = actions.windowRight },
   { mods = { "alt" },          key = "m", action = actions.focusGmail },
   { mods = { "alt" },          key = "c", action = actions.focusCalendar },
   { mods = { "alt" },          key = "n", action = actions.focusDrive },

@@ -205,6 +205,11 @@ and bounded by the usable screen. Native Control-arrow handles adjacent Spaces;
 generated arrow events include the Function flag, matching macOS defaults.
 Nix's exported `macos-window-management` module declares those native shortcuts.
 
+Finder keeps its native Cmd+Plus/Minus icon sizing and Cmd+Shift+Period hidden
+files toggle. Window resize bindings and the work profile's right-placement
+alias are disabled in Finder. Verify those exclusions with
+`scripts/test-finder-shortcuts.lua`.
+
 The same interface is available through the installed CLI:
 `hs -c 'require("windowManagement").place("left")'` or
 `hs -c 'require("windowManagement").resize(0.05)'`.

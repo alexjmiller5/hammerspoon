@@ -99,8 +99,6 @@ local actions = {
   windowBottomLeft = function() windows.place("bottomLeft") end,
   windowTopRight = function() windows.place("topRight") end,
   windowBottomRight = function() windows.place("bottomRight") end,
-  windowMakeLarger = function() windows.resize(0.05) end,
-  windowMakeSmaller = function() windows.resize(-0.05) end,
   nextDesktop = function() windows.desktop("right") end,
   prevDesktop = function() windows.desktop("left") end,
 
@@ -251,16 +249,6 @@ M.definitions = {
     mods = { "cmd", "shift" },
     key = "/",
     action = actions.windowCenter
-  },
-  {
-    mods = { "cmd", "shift" },
-    key = "=",
-    action = actions.windowMakeLarger
-  },
-  {
-    mods = { "cmd", "shift" },
-    key = "-",
-    action = actions.windowMakeSmaller
   },
   {
     mods = { "ctrl", "alt", "shift" },
