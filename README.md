@@ -59,7 +59,9 @@ On the personal profile, Hyper+T toggles the existing Tailscale connection
 without changing its settings. A 30-second deadline bounds the whole toggle,
 including the initial status query. Sign in to the native app first on each machine;
 `HAMMERSPOON_TAILSCALE_BIN` can override the executable location. Cmd+Shift+F7/F8/F9
-control Spotify through its native AppleScript interface.
+control Spotify through its native AppleScript interface. Cmd+Shift with the
+top-row previous/play/next media keys also works without Fn/Globe. Plain media
+keys retain their normal system behavior.
 
 Regression checks run through `hs -c` using `scripts/test-*.lua`; they substitute
 UI and process effects so they do not operate on your current app. Run the

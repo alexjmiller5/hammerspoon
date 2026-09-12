@@ -73,7 +73,12 @@ by the installed Hammerspoon API and must not be used in definitions.
 **Personal actions**: Hyper+B focuses a Chrome window on the current Space,
 or creates one when none exists. Cmd+Shift+S queues its current tab URL in
 Receptor via the installed Shortcut. Hyper+T toggles an already enrolled
-Tailscale connection. Cmd+Shift+F7/F8/F9 control Spotify directly.
+Tailscale connection. Cmd+Shift+F7/F8/F9 control Spotify directly. The personal
+profile's `ProfileSpotifyMediaKeyWatcher` also handles Cmd+Shift with the
+physical previous/play/next media keys, so Fn is unnecessary in media-key
+mode. Plain media keys pass through. Claimed presses consume their repeats
+and releases to prevent a second system action. Check with
+`scripts/test-spotify-media-keys.lua` using native unposted events.
 
 **Hotkey Definition Format**: All hotkeys use a consistent table structure. Each hotkey module has a local `actions` table (action functions) and an exported `M.definitions` list (keybinding specs):
 ```lua
