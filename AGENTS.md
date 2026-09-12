@@ -70,8 +70,9 @@ synchronous `defaults export` so its live preferences are read through cfprefsd.
 Use `alt`, `option`, or `⌥` for the Option modifier. `opt` is silently ignored
 by the installed Hammerspoon API and must not be used in definitions.
 
-**Personal actions**: Hyper+B focuses a Chrome window on the current Space,
-or creates one when none exists. Cmd+Shift+S queues its current tab URL in
+**Personal actions**: Hyper+B is global, including while Chrome is focused
+with no windows. It focuses a Chrome window on the current Space, or creates
+one when none exists. Cmd+Shift+S queues its current tab URL in
 Receptor via the installed Shortcut. Hyper+T toggles an already enrolled
 Tailscale connection. Cmd+F7/F8/F9 control Spotify directly. The personal
 profile's `ProfileSpotifyMediaKeyWatcher` also handles Cmd with the
