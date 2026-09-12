@@ -132,6 +132,31 @@ Hammerspoon are explicitly exempt. It quits with `app:kill()` (Quit AppleEvent,
 save prompts intact). Run its behavior check with
 `hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-windowless-app-reaper.lua"))'`.
 
+**Herdr shortcuts**: `herdrHotkeys.lua` gives Herdr the macOS shortcuts
+(Cmd+T, Cmd+Shift+[/], Cmd+1..9, splits, sidebar, detach, ...) by typing its
+ctrl+b prefix plus the matching key. Ghostty's own key table could do this, but
+an active key table paints an indicator pill Ghostty has no option to hide.
+
+- **Scoped per window, not per app.** The hotkeys are enabled only while a
+  marked window is focused, so ordinary Ghostty windows keep Cmd+T, Cmd+W and
+  the rest of their native shortcuts.
+- **`herdr-window` claims its window with a sentinel file**
+  (`$XDG_STATE_HOME/herdr-window/pending`, consumed by the `windowCreated`
+  subscription) rather than an `hs -c` call, so opening a terminal never waits
+  on - or fails with - the IPC port. A sentinel older than 30s is ignored.
+- **Marked ids persist in `hs.settings`** and are pruned at load; a window
+  closed while Hammerspoon was off can leave a stale id, which only matters if
+  macOS hands that id to a new Ghostty window.
+- **Adopt a herdr window that predates the marks** (or one opened another way)
+  by focusing it and running
+  `hs -c 'require("herdrHotkeys").markFocusedWindow()'`.
+- **The prefix keys it types are pinned in nix-config's `home/herdr.nix`**, so
+  a changed Herdr default cannot silently move a shortcut; `herdr config check`
+  validates the pairs. Change one side, change the other.
+
+Run its behavior check with
+`hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-herdr-hotkeys.lua"))'`.
+
 **Ghostty links**: `GhosttyCommandClickWatcher` adds Shift to Command-only
 left-click and hover events in Ghostty so native link opening bypasses Herdr's
 mouse capture. Keyboard events and other modifier combinations pass through.
