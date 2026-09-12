@@ -8,6 +8,7 @@ require("hs.ipc")
 
 local helperFunctions = require("helperFunctions")
 local watcherFunctions = require("watcherFunctions")
+local herdrHotkeys = require("herdrHotkeys")
 local globalDefHotkeyDefinitions = require("globalHotkeys").definitions
 local AppBasedHotkeyDefintions = require("appBasedHotkeys").definitions
 
@@ -33,6 +34,9 @@ end
 helperFunctions.updateActiveAppHotkeys(hs.application.frontmostApplication(), AppBasedHotkeyRegistry, nil)
 MainAppWatcher = watcherFunctions.createAppBasedHotkeyWatcher(AppBasedHotkeyRegistry)
 MainAppWatcher:start()
+
+-- Herdr's macOS-style shortcuts, live only in windows opened by hdr/herdr
+HerdrWindowFilter = herdrHotkeys.start()
 
 CopyConfirmationWatcher = watcherFunctions.createCopyConfirmationWatcher()
 GhosttyCommandClickWatcher = watcherFunctions.createGhosttyCommandClickWatcher():start()
