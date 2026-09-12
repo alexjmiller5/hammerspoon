@@ -20,7 +20,7 @@ local fakeHs = {
 local env = setmetatable({ hs = fakeHs }, { __index = _G })
 local watchers = assert(loadfile(hs.configdir .. "/profiles/personal/watcherFunctions.lua", "t", env))()
 assert(type(watchers.createSpotifyMediaKeyWatcher) == "function",
-  "Cmd+Shift media events have no Spotify handler")
+  "Cmd media events have no Spotify handler")
 watchers.createSpotifyMediaKeyWatcher()
 local function event(key, down, flags, repeated)
   local native = hs.eventtap.event.newSystemKeyEvent(key, down):setFlags(flags or {})
@@ -34,7 +34,7 @@ local function event(key, down, flags, repeated)
     end,
   }
 end
-local mods = { cmd = true, shift = true }
+local mods = { cmd = true }
 for _, key in ipairs({ "PLAY", "FAST", "REWIND", "NEXT", "PREVIOUS" }) do
   local before = #played
   assert(callback(event(key, true, mods)), "media press must be consumed: " .. key)
@@ -45,8 +45,8 @@ for _, key in ipairs({ "PLAY", "FAST", "REWIND", "NEXT", "PREVIOUS" }) do
 end
 assert(table.concat(played, " ") == "playpause next previous next previous")
 local before = #played
-for _, flags in ipairs({ {}, { cmd = true }, { shift = true },
-  { cmd = true, shift = true, alt = true }, { cmd = true, shift = true, ctrl = true } }) do
+for _, flags in ipairs({ {}, { cmd = true, shift = true }, { shift = true },
+  { cmd = true, alt = true }, { cmd = true, ctrl = true } }) do
   assert(not callback(event("PLAY", true, flags)), "unrelated shortcuts must pass through")
   assert(not callback(event("PLAY", false, flags)), "unhandled releases must pass through")
 end
@@ -55,7 +55,7 @@ assert(not callback(event("PLAY", true, mods, true)), "do not claim a key held b
 assert(not callback(hs.eventtap.event.newKeyEvent(mods, "f8", true)),
   "ordinary F8 stays with its existing hotkey")
 assert(#played == before, "unrelated events must not control Spotify")
-assert(callback(event("PLAY", true, { cmd = true, shift = true, fn = true })))
+assert(callback(event("PLAY", true, { cmd = true, fn = true })))
 assert(callback(event("PLAY", false)))
 assert(#played == before + 1, "Fn mode must not prevent a media event from working")
 print("spotify-media-keys: native media events, repeat/release handling and pass-through passed")
