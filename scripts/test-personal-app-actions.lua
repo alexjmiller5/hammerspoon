@@ -9,7 +9,7 @@ local helpers = {
   end,
 }
 local fakeHs = {
-  configdir = hs.configdir, logger = hs.logger,
+  configdir = hs.configdir, logger = hs.logger, fs = hs.fs, -- hyperKey reads hs.fs at load
   application = {
     get = function(id) assert(id == "com.google.Chrome"); return app end,
     frontmostApplication = function() error("test must not depend on the frontmost app") end,
@@ -97,6 +97,7 @@ assert(calls.error and not calls.script, "unknown Space must not jump to an arbi
 calls, appleOK, appleResult = {}, true, "https://example.com/?a=1&b=2"
 send()
 assert(calls.task and calls.task.path == "/usr/bin/shortcuts" and calls.task.input == appleResult)
+assert(calls.task.args[2] == "Receptor 🔨", "hotkey captures must go through the source-stamping shortcut")
 assert(not calls.alert, "success must wait for the Shortcut to finish")
 calls.task.callback(0)
 assert(calls.alert == "Queued in Receptor")
