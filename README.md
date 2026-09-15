@@ -41,8 +41,8 @@ text fields, when the page lacks focus, or when no Undo is available.
 ## Optional dependencies
 
 File-backed actions report missing dependencies or execution failures: yabai (window
-management), Raycast (clipboard/emoji/file search). Caps Lock → Hyper is the
-native Caps-to-Right-Control mapping plus `hyperKey.lua`, no extra app. Chrome's View > Developer > "Allow
+management), Raycast (clipboard/emoji/file search). Caps Lock → Hyper is a
+hidutil Caps-to-F19 mapping plus `hyperKey.lua`, no extra app. Chrome's View > Developer > "Allow
 JavaScript from Apple Events" is needed for the work profile's in-page JS
 hotkeys.
 
