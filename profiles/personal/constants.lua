@@ -29,8 +29,4 @@ M.paths = {
   marioWaowAudioFilePath = hs.configdir .. "/assets/mario-waow.mp3"
 }
 
-M.shortcutIds = {
-  receptor_outbox = "F260718B-F555-4052-8432-F6098375AB56",
-}
-
 return M
