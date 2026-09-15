@@ -24,8 +24,7 @@ local actions = {
   windowMakeLarger = function() windows.resize(0.05) end,
   windowMakeSmaller = function() windows.resize(-0.05) end,
   contactsEdit = function()
-    local app = hs.application.get(constants.appBundleIds.contacts)
-    if app and not app:selectMenuItem({ "Edit", "Edit Card" }) then
+    if not helperFunctions.tryMenuItem({ "Edit", "Edit Card" }) then
       helperFunctions.reportError("Select an editable contact in Contacts first.")
     end
   end,
