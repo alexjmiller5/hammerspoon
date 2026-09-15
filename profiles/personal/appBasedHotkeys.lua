@@ -40,7 +40,8 @@ local actions          = {
       helperFunctions.reportError("Could not read the current Chrome tab URL")
       return
     end
-    helperFunctions.runTask("/usr/bin/shortcuts", { "run", profileConstants.shortcutIds.receptor_outbox },
+    -- "Receptor 🔨" = the stdin shortcut that stamps source=hammerspoon (ios-shortcuts/notion)
+    helperFunctions.runTask("/usr/bin/shortcuts", { "run", "Receptor 🔨" },
       function(code) if code == 0 then hs.alert.show("Queued in Receptor") end end, url)
   end,
 
