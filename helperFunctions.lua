@@ -26,6 +26,15 @@ function M.requirePath(path, kind)
   M.reportError("Missing or inaccessible " .. kind .. ": " .. tostring(path))
 end
 
+-- receptor://recept?text=...&source=... - Receptor.app's deep link (see the
+-- receptor repo's Shared/DeepLink.swift). Percent-encodes per RFC 3986.
+function M.receptorURL(text, source)
+  local function enc(s)
+    return (s:gsub("[^%w%-%._~]", function(c) return string.format("%%%02X", string.byte(c)) end))
+  end
+  return "receptor://recept?text=" .. enc(text) .. "&source=" .. enc(source)
+end
+
 function M.runTask(path, args, callback, input)
   if not M.requirePath(path, "executable") then
     if callback then callback(-1, "", "Executable unavailable") end

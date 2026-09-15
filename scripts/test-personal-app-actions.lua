@@ -7,6 +7,8 @@ local helpers = {
   runTask = function(path, args, callback, input)
     calls.task = { path = path, args = args, callback = callback, input = input }
   end,
+  -- pure helper, use the real one so the encoded deep link is what ships
+  receptorURL = require("helperFunctions").receptorURL,
 }
 local fakeHs = {
   configdir = hs.configdir, logger = hs.logger, fs = hs.fs, -- hyperKey reads hs.fs at load
@@ -96,8 +98,9 @@ focus()
 assert(calls.error and not calls.script, "unknown Space must not jump to an arbitrary window")
 calls, appleOK, appleResult = {}, true, "https://example.com/?a=1&b=2"
 send()
-assert(calls.task and calls.task.path == "/usr/bin/shortcuts" and calls.task.input == appleResult)
-assert(calls.task.args[2] == "Receptor 🔨", "hotkey captures must go through the source-stamping shortcut")
+assert(calls.task and calls.task.path == "/usr/bin/open" and calls.task.args[1] == "-g")
+assert(calls.task.args[2] == "receptor://recept?text=https%3A%2F%2Fexample.com%2F%3Fa%3D1%26b%3D2&source=hammerspoon",
+  "hotkey captures go through the receptor:// deep link, percent-encoded: " .. tostring(calls.task.args[2]))
 assert(not calls.alert, "success must wait for the Shortcut to finish")
 calls.task.callback(0)
 assert(calls.alert == "Queued in Receptor")
