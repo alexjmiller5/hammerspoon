@@ -3,8 +3,9 @@
 -- Runs the gog CLI (1Password-backed wrapper, so expect a Touch ID prompt)
 -- to search the last hour of mail for a 2FA-looking message, picks the code
 -- with otp.pickOtp from the subject (or the body when the subject has none),
--- types it into the focused field and presses Return. One shot, no polling:
--- every retry would be another Touch ID prompt.
+-- types it into the focused field and presses Return. Two shots at most,
+-- retryDelay apart (the mail usually lands on the second): every extra
+-- attempt would be another Touch ID prompt.
 local otp = require("profiles.personal.otp")
 local helpers = require("helperFunctions")
 
@@ -13,6 +14,7 @@ local M = {}
 M.gogPath = "/etc/profiles/per-user/" .. os.getenv("USER") .. "/bin/gog"
 M.query   = "newer_than:1h (code OR passcode OR verification OR OTP)"
 M.maxThreads = 5
+M.retryDelay = 3
 
 local function gog(args, cb)
   table.insert(args, "--gmail-no-send")
@@ -66,12 +68,16 @@ function M.findRecentCode(cb)
     end)
 end
 
-function M.pasteLatest()
+function M.pasteLatest(attempt)
+  attempt = attempt or 1
   M.findRecentCode(function(code, err)
     if err then return end
     if code then
       hs.eventtap.keyStrokes(code)
       hs.eventtap.keyStroke({}, "return")
+    elseif attempt == 1 then
+      hs.alert.show("No OTP code found in mail - trying once more")
+      hs.timer.doAfter(M.retryDelay, function() M.pasteLatest(2) end)
     else
       hs.alert.show("No OTP code found in mail")
     end

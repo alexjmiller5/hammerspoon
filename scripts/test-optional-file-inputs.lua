@@ -31,6 +31,7 @@ local fakeHs = {
       timerCallback = callback
       return { stop = function() stopped = stopped + 1 end }
     end,
+    doAfter = function(_, callback) timerCallback = callback end,
   },
   eventtap = {
     keyStrokes = function() error("a failure must never type into an app") end,
@@ -163,6 +164,11 @@ response = { decoded = { { subject = "Your code is 123456" } } }; reset()
 mail.findRecentCode(function(found, reason) assert(found == "123456" and not reason) end)
 response = { decoded = {} }; reset()
 mail.findRecentCode(function(found, reason) assert(not found and not reason) end)
+reset(); timerCallback = nil; local before = #tasks
+mail.pasteLatest()
+assert(#errors == 1 and errors[1]:find("trying once more") and timerCallback, "first miss must announce the retry")
+timerCallback()
+assert(#errors == 2 and errors[2] == "No OTP code found in mail" and #tasks == before + 2, "second miss must give up")
 for _, task in ipairs(tasks) do
   assert(table.concat(task.args, " "):find("%-%-gmail%-no%-send"), "gog must be read-only")
 end
