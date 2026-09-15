@@ -1,23 +1,19 @@
 -- Isolated registration and menu dispatch; no app launch, keys, or contact edits.
-local calls, available, selected = {}, true, true
-local app = { selectMenuItem = function(_, path)
-  calls[#calls + 1] = table.concat(path, "/")
-  return selected
-end }
+local calls, selected = {}, true
 local fakeHs = {
   configdir = hs.configdir,
   logger = hs.logger,
-  application = {
-    get = function(id)
-      assert(id == "com.apple.AddressBook", "edit must target Contacts by bundle ID")
-      return available and app or nil
-    end,
-    frontmostApplication = function() error("must not depend on the live frontmost app") end,
-  },
+  application = { get = function() error("must go through the shared tryMenuItem helper") end },
   eventtap = { keyStroke = function() error("must use Contacts' native menu action") end },
 }
 local reported
-local helpers = { reportError = function(message) reported = message end }
+local helpers = {
+  reportError = function(message) reported = message end,
+  tryMenuItem = function(path)
+    calls[#calls + 1] = table.concat(path, "/")
+    return selected
+  end,
+}
 local env = setmetatable({ hs = fakeHs }, { __index = _G })
 env.require = function(name)
   if name == "helperFunctions" then return helpers end
@@ -34,10 +30,8 @@ end
 assert(edit, "Contacts Cmd+E must be registered only for Contacts")
 edit()
 assert(#calls == 1 and calls[1] == "Edit/Edit Card", "edit must select the native Edit Card menu item")
-available = false
-edit()
-assert(#calls == 1, "missing Contacts must not launch an app or act elsewhere")
-available, selected = true, false
+assert(not reported, "a successful edit must not report an error")
+selected = false
 edit()
 assert(reported, "unavailable menu action must report failure")
 print("contacts-hotkey: all checks passed")
