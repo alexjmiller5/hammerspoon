@@ -196,21 +196,23 @@ Run `scripts/test-ghostty-command-click.lua` through the hs CLI.
 
 The "Hyper" modifier (`Cmd+Alt+Ctrl+Shift`) is defined in
 `constants.hyperKeyMods`. Nix's exported `macos-hyper-key` module maps Caps
-Lock to Right Control through macOS and creates
-`~/.config/hammerspoon/native-hyper`. When that marker exists,
-`helperFunctions.bindGlobalHotkeys` routes every definition whose `mods` is
-`constants.hyperKeyMods` into `hyperKey.lua`, which holds them as
-`Ctrl+<key>` bindings in an `hs.hotkey.modal` entered while physical Right
-Control is down and exited on release. Right Control is reserved for Hyper.
-Injecting modifier flags from an event tap cannot work here: Carbon hotkeys
-(`hs.hotkey`) match in the window server before Hammerspoon's taps see the
-event. A quick unused tap toggles Caps Lock; a chord or long hold does not.
+Lock to F19 with hidutil and creates `~/.config/hammerspoon/native-hyper`.
+When that marker exists, `helperFunctions.bindGlobalHotkeys` routes every
+definition whose `mods` is `constants.hyperKeyMods` into `hyperKey.lua`,
+which holds them as bare-key bindings in an `hs.hotkey.modal` entered while
+F19 is down and exited on release. A bare key carries no modifier, so Hyper
+chords cannot collide with system shortcuts (Ctrl+Up is Mission Control) or
+app shortcuts. Injecting modifier flags from an event tap cannot work here:
+Carbon hotkeys (`hs.hotkey`) match in the window server before Hammerspoon's
+taps see the event. A quick unused tap toggles Caps Lock; a chord or long
+hold does not. Without the marker (a profile whose Hyper comes from another
+remapper) the definitions bind as ordinary four-modifier hotkeys.
 
-Secure Input hides the modifier events, so Caps behaves as plain Right
-Control there. It requires Hammerspoon's Accessibility grant and does not
-operate before login. `scripts/test-hyper-key.lua` uses native unposted
-events; posted synthetic events never reach `hs.hotkey`, so the only real
-check is a physical Caps chord.
+Secure Input hides key events from Hammerspoon, so Hyper is unavailable
+there. It requires Hammerspoon's Accessibility grant and does not operate
+before login. `scripts/test-hyper-key.lua` fakes `hs.hotkey`; posted
+synthetic events never reach `hs.hotkey`, so the only real check is a
+physical Caps chord.
 
 The personal `ProfileAppInputRemapWatcher` prepends Cmd+K to Mail Escape and
 adds Shift to WhatsApp Cmd+U. It preserves optional modifiers, ignores its

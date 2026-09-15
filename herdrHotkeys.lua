@@ -20,7 +20,8 @@ local PENDING = (os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/s
   .. "/herdr-window/pending"
 local PENDING_MAX_AGE = 30 -- seconds; older means herdr-window failed, ignore it
 
--- key = literal text to type after the prefix, or { mods, key } for a keystroke
+-- key = literal text to type after the prefix, or { mods, key } for a keystroke;
+-- a fourth `true` sends the keystroke directly, without the prefix
 local bindings = {
   { { "cmd" }, "t", "c" },                             -- new tab
   { { "cmd", "shift" }, "t", "t" },                    -- reopen closed tab
@@ -39,15 +40,18 @@ local bindings = {
   { { "cmd", "alt" }, "]", { { "ctrl" }, "n" } },      -- next agent
   { { "cmd", "shift" }, "w", "q" },                    -- detach, agents keep running
   { { "cmd" }, ",", "s" },                             -- settings
+  -- Ghostty's clear_screen is a no-op on Herdr's alternate screen; Ctrl+L
+  -- reaches the pane and clears zsh and Claude Code alike (no prefix).
+  { { "cmd" }, "k", { { "ctrl" }, "l" }, true },
 }
 
 for n = 1, 9 do
   table.insert(bindings, { { "cmd" }, tostring(n), tostring(n) })
 end
 
-local function sendPrefixed(key)
+local function sendPrefixed(key, direct)
   return function()
-    hs.eventtap.keyStroke({ "ctrl" }, "b", 0)
+    if not direct then hs.eventtap.keyStroke({ "ctrl" }, "b", 0) end
     if type(key) == "string" then
       hs.eventtap.keyStrokes(key)
     else
@@ -58,7 +62,7 @@ end
 
 local hotkeys = {}
 for _, def in ipairs(bindings) do
-  table.insert(hotkeys, hs.hotkey.new(def[1], def[2], sendPrefixed(def[3])))
+  table.insert(hotkeys, hs.hotkey.new(def[1], def[2], sendPrefixed(def[3], def[4])))
 end
 
 -- Marked window ids, loaded from settings and pruned of windows that are gone.

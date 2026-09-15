@@ -67,7 +67,7 @@ local M = assert(loadfile(hs.configdir .. "/herdrHotkeys.lua", "t", env))()
 assert(#hotkeys == #M._bindings, "every binding must produce a hotkey")
 local mine = {}                      -- later module loads append to `hotkeys`
 for i, hk in ipairs(hotkeys) do mine[i] = hk end
-assert(#M._bindings == 26, "expected 17 shortcuts plus cmd+1..9, got " .. #M._bindings)
+assert(#M._bindings == 27, "expected 18 shortcuts plus cmd+1..9, got " .. #M._bindings)
 for _, hk in ipairs(mine) do assert(not hk.enabled, "hotkeys must start disabled") end
 
 -- The id restored from settings survives; an id whose window is gone is pruned
@@ -177,5 +177,10 @@ assert(strokes[2].key == "p" and strokes[2].mods[1] == "ctrl",
 strokes = {}
 findAction({ "cmd" }, "w").fn()
 assert(strokes[2].text == "X", "close tab must type X so agent sessions are saved")
+
+strokes = {}
+findAction({ "cmd" }, "k").fn()
+assert(#strokes == 1 and strokes[1].key == "l" and strokes[1].mods[1] == "ctrl",
+  "clear must be a bare ctrl+l with no prefix")
 
 print("herdr-hotkeys: all checks passed")
