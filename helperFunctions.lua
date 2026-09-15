@@ -1,6 +1,7 @@
 local log = hs.logger.new("HelperFunctions", "debug")
 
 local constants = require("constants")
+local hyperKey = require("hyperKey")
 
 local M = {}
 
@@ -80,7 +81,11 @@ end
 function M.bindGlobalHotkeys(definitions)
     if not definitions then return end
     for _, hk in ipairs(definitions) do
-        hs.hotkey.bind(hk.mods, hk.key, hk.action)
+        if hyperKey.enabled and hk.mods == constants.hyperKeyMods then
+            hyperKey.bind(hk.key, hk.action)
+        else
+            hs.hotkey.bind(hk.mods, hk.key, hk.action)
+        end
     end
 end
 
