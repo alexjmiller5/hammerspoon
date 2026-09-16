@@ -70,12 +70,7 @@ for _, profile in ipairs({ "personal", "work" }) do
       hotkeys[1].action()
       assert(calls.resize == delta, "window sizing must preserve its direction and step")
     end
-    if profile == "work" then
-      local hotkeys = matching(".")
-      assert(#hotkeys == 1, "work right-half shortcut must stay enabled outside Finder")
-      hotkeys[1].action()
-      assert(calls.place == "right", "work shortcut must still place the window on the right")
-    end
+    assert(#matching(".") == 0, "no profile may bind Cmd+Shift+. (Finder's hidden-files shortcut)")
   end
 end
 assert(failures == 0, failures .. " Finder shortcut scope checks failed")
