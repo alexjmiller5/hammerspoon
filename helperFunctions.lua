@@ -90,7 +90,7 @@ end
 function M.bindGlobalHotkeys(definitions)
     if not definitions then return end
     for _, hk in ipairs(definitions) do
-        if hyperKey.enabled and hk.mods == constants.hyperKeyMods then
+        if hk.mods == constants.hyperKeyMods and hyperKey.enabled() then
             hyperKey.bind(hk.key, hk.action)
         else
             hs.hotkey.bind(hk.mods, hk.key, hk.action)

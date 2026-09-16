@@ -19,7 +19,7 @@ local fakeHs = {
 }
 local env = setmetatable({ hs = fakeHs }, { __index = _G })
 local module = assert(loadfile(hs.configdir .. "/hyperKey.lua", "t", env))()
-assert(module.enabled, "the Nix marker enables Hyper")
+assert(module.enabled(), "the Nix marker enables Hyper")
 
 local fired = 0
 module.bind("b", function() fired = fired + 1 end)

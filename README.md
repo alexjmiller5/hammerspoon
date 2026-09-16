@@ -40,11 +40,35 @@ text fields, when the page lacks focus, or when no Undo is available.
 
 ## Optional dependencies
 
-File-backed actions report missing dependencies or execution failures: yabai (window
-management), Raycast (clipboard/emoji/file search). Caps Lock → Hyper is a
-hidutil Caps-to-F19 mapping plus `hyperKey.lua`, no extra app. Chrome's View > Developer > "Allow
+File-backed actions report missing dependencies or execution failures:
+Raycast (clipboard/emoji/file search). Chrome's View > Developer > "Allow
 JavaScript from Apple Events" is needed for the work profile's in-page JS
 hotkeys.
+
+## Hyper key (Caps Lock)
+
+Hyper (`Cmd+Alt+Ctrl+Shift` in the definitions) needs no remapping app. Caps
+Lock is mapped to F19 at the HID level, and `hyperKey.lua` holds every Hyper
+binding in a hotkey modal while F19 is down; a quick tap still toggles Caps
+Lock. Window placement (Hyper+Up/Left/Right/Down and the corners) is shared by
+every profile, so a machine only needs the key itself:
+
+1. Map Caps Lock to F19, now and at every login (hidutil mappings do not
+   survive a reboot):
+   ```sh
+   hidutil property --matching '{"PrimaryUsagePage":1,"PrimaryUsage":6}' \
+     --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":30064771129,"HIDKeyboardModifierMappingDst":30064771182}]}'
+   ```
+   The Nix-managed machines declare this through nix-config's exported
+   `macos-hyper-key` module (`macos.hyperKey.enable = true`), which also
+   installs the login job. Elsewhere, put the same command in a LaunchAgent.
+2. Create the marker `~/.config/hammerspoon/native-hyper` (any content). With
+   the marker, Hyper definitions bind inside the F19 modal; without it they
+   bind as plain four-modifier hotkeys for a machine whose Hyper comes from
+   another remapper. The Nix module writes the marker.
+3. Remove any other Caps Lock remap (Karabiner, System Settings > Modifier
+   Keys) and log out once: macOS caches its native modifier remap until the
+   next login, so Caps keeps arriving as the old key until then.
 
 Architecture, hotkey table format, and conventions: see [AGENTS.md](AGENTS.md).
 

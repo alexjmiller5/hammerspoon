@@ -1,13 +1,10 @@
 local constants = require("profiles.work.constants")
 local chrome = require("profiles.work.chrome")
-local windows = require("windowManagement")
 
 local M = {}
 
 local actions = {
   launchGemini = function() hs.application.launchOrFocusByBundleID(constants.appBundleIds.gemini) end,
-  windowMaximize = function() windows.place("maximize") end,
-  windowLeft = function() windows.place("left") end,
 
   -- Tab-group jumps (Chrome tabs, not PWAs — see chrome.lua)
   focusGmail    = function() chrome.focusTab(constants.tabs.gmail) end,
@@ -33,8 +30,6 @@ local actions = {
 
 M.definitions = {
   { mods = { "alt" },          key = "g", action = actions.launchGemini },
-  { mods = { "cmd", "shift" }, key = "m", action = actions.windowMaximize },
-  { mods = { "cmd", "shift" }, key = ",", action = actions.windowLeft },
   { mods = { "alt" },          key = "m", action = actions.focusGmail },
   { mods = { "alt" },          key = "c", action = actions.focusCalendar },
   { mods = { "alt" },          key = "n", action = actions.focusDrive },

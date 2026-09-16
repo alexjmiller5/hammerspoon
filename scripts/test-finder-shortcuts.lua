@@ -3,6 +3,7 @@ local bound, calls = {}, {}
 local fakeHs = {
   configdir = hs.configdir,
   logger = hs.logger,
+  fs = { attributes = function() return nil end },
   application = { frontmostApplication = function() error("must use fixture app focus") end },
   eventtap = { keyStroke = function() error("must not post keyboard events") end },
   hotkey = { new = function(mods, key, action)
