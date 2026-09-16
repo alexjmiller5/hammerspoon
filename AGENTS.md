@@ -208,6 +208,14 @@ taps see the event. A quick unused tap toggles Caps Lock; a chord or long
 hold does not. Without the marker (a profile whose Hyper comes from another
 remapper) the definitions bind as ordinary four-modifier hotkeys.
 
+macOS applies its native modifier remap (System Settings > Modifier Keys,
+stored per keyboard as `com.apple.keyboard.modifiermapping.<vid>-<pid>-0`;
+the built-in keyboard is `0-0-0`) BEFORE hidutil's key map, and caches it
+until the next login: after any change to that preference or to what Caps
+maps to, `hidutil --get` shows the new map while presses still arrive as the
+old key until a logout or restart. Check what actually arrives with a
+temporary `hs.eventtap` logging `flagsChanged`/`keyDown` keycodes.
+
 Secure Input hides key events from Hammerspoon, so Hyper is unavailable
 there. It requires Hammerspoon's Accessibility grant and does not operate
 before login. `scripts/test-hyper-key.lua` fakes `hs.hotkey`; posted
