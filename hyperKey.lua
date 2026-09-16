@@ -5,7 +5,11 @@
 -- hs.hotkey.modal holds every Hyper binding as a bare key while F19 is down.
 local M = {}
 
-M.enabled = hs.fs.attributes(os.getenv("HOME") .. "/.config/hammerspoon/native-hyper", "mode") == "file"
+-- Nix writes the marker; checked when binding so test doubles need no filesystem.
+function M.enabled()
+  local home = os.getenv("HOME")
+  return home ~= nil and hs.fs.attributes(home .. "/.config/hammerspoon/native-hyper", "mode") == "file"
+end
 
 local modal, pressedAt, used
 
@@ -18,7 +22,7 @@ function M.bind(key, action)
 end
 
 function M.start()
-  if not M.enabled then return nil end
+  if not M.enabled() then return nil end
   modal = modal or hs.hotkey.modal.new()
   M.hotkey = hs.hotkey.bind({}, "f19", function()
     pressedAt, used = hs.timer.secondsSinceEpoch(), false
