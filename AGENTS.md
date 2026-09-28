@@ -15,7 +15,9 @@ After making changes, reload Hammerspoon config:
 
 Ad-hoc `hs -c` chunks: keep `hs.timer` objects in globals (locals are GC'd
 before they fire) and wrap calls in `pcall` (an uncaught error hangs the CLI
-instead of printing).
+instead of printing). An `hs -c` sent while Hammerspoon is (re)starting can
+wait forever; never kill a client mid-command (Hammerspoon keeps printing to
+its dead port and the IPC wedges) - restart Hammerspoon to recover.
 
 ## Architecture
 
@@ -111,6 +113,8 @@ profile's `appBundleIds.browser` - Chrome on personal, Island on work - with
 Chromium's `--new-window`/`--incognito` switches; `helpers.appExecutable`
 finds the binary from the bundle ID. Option+G and Option+Y jump to the Gemini
 and YouTube tabs only in the work profile (personal leaves Option+G unbound).
+Option+Shift+W opens `paths.downloadsFolder` on work and Raycast's Downloads
+Manager on personal.
 The shared Chromium hotkeys (Cmd+\ sidebar, Cmd+D, Cmd+Shift+D DevTools,
 Cmd+Alt+Shift+[) are scoped to both Chrome and Island.
 

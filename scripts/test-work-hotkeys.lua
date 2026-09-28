@@ -7,7 +7,10 @@ local frontmost = browserApp
 local fakeHs = {
   configdir = hs.configdir,
   logger = hs.logger,
-  fs = { attributes = function() return { mode = "file", permissions = "rwxr-xr-x" } end },
+  fs = { attributes = function(path)
+    local folder = path == os.getenv("HOME") .. "/Downloads"
+    return { mode = folder and "directory" or "file", permissions = "rwxr-xr-x" }
+  end },
   alert = { show = function() end },
   application = {
     get = function() return browserApp end,
@@ -81,6 +84,12 @@ check("Option+G and Option+Y focus Island tabs, not PWAs", function()
     bindings["alt:" .. key]()
     assert(calls.tab == constants.tabs[tab] and not calls.launch, "Option+" .. key)
   end
+end)
+check("Option+Shift+W opens the Downloads folder in Finder on work", function()
+  assert(bindings["alt+shift:w"], "missing Option+Shift+W")()
+  assert(calls.task and calls.task.path == "/usr/bin/open")
+  assert(#calls.task.args == 1 and calls.task.args[1] == constants.paths.downloadsFolder)
+  assert(constants.paths.downloadsFolder == os.getenv("HOME") .. "/Downloads")
 end)
 check("Option+L opens the password manager in an Island window", function()
   bindings["alt:l"]()

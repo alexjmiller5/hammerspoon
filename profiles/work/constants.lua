@@ -13,9 +13,11 @@ M.appBundleIds = {
   browser = baseConstants.appBundleIds.island,
 }
 
--- Required by the base config's folder-opening hotkeys (alt+shift+D/E/A).
+-- Required by the base config's folder-opening hotkeys (alt+shift+D/E/A) and
+-- the work alt+shift+W; override any of them in work-local.lua.
 M.paths = {
   desktopFolder      = home .. "/Desktop",
+  downloadsFolder    = home .. "/Downloads",
   documentsFolder    = home .. "/Documents",
   applicationsFolder = "/Applications",
 }

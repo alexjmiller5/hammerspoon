@@ -45,6 +45,12 @@ function M.appExecutable(bundleID)
   return executable and (bundle .. "/Contents/MacOS/" .. executable) or bundleID
 end
 
+function M.openFolder(path)
+  if M.requirePath(path, "directory") then
+    M.runTask("/usr/bin/open", { path })
+  end
+end
+
 function M.runTask(path, args, callback, input)
   if not M.requirePath(path, "executable") then
     if callback then callback(-1, "", "Executable unavailable") end

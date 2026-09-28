@@ -1,5 +1,6 @@
 local constants = require("profiles.work.constants")
 local browser = require("profiles.work.browser")
+local helpers = require("helperFunctions")
 
 local M = {}
 
@@ -20,6 +21,8 @@ local actions = {
   end,
 
   openPasswords = function() browser.openWindow("chrome://password-manager/passwords") end,
+  -- Personal binds alt+shift+W to Raycast's Downloads Manager instead
+  openDownloadsFolder = function() helpers.openFolder(constants.paths.downloadsFolder) end,
 }
 
 -- Option+Y overrides the shared YouTube PWA launcher (profile bindings win).
@@ -33,6 +36,7 @@ M.definitions = {
   { mods = { "alt" },          key = "l", action = actions.openPasswords },
   { mods = { "alt", "shift" }, key = "n", action = actions.focusTasks },
   { mods = { "alt", "shift" }, key = "m", action = actions.focusSlack },
+  { mods = { "alt", "shift" }, key = "w", action = actions.openDownloadsFolder },
 }
 
 return M

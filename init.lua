@@ -4,6 +4,12 @@ local log = hs.logger.new("Init", "debug")
 
 require("hs.ipc")
 
+-- hs.hotkey logs every enable/disable at info level. The app-based hotkey
+-- watcher toggles dozens per app switch, and each line is mirrored to
+-- connected hs CLI clients: one stalled client then blocks the main thread
+-- inside the watcher callback and wedges the IPC.
+hs.hotkey.setLogLevel("warning")
+
 -- Require modules
 
 local helperFunctions = require("helperFunctions")

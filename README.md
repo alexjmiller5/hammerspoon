@@ -35,8 +35,9 @@ Island on work (any Chromium browser that keeps Chrome's AppleScript
 dictionary works; override it in the machine-local file). Option+B opens a
 new window in it and Option+I an incognito one; Option+Shift+B/I search the
 clipboard there. Both profiles use Option+A for Apple Notes. On work,
-Option+G and Option+Y jump to the Gemini and YouTube tabs; personal leaves
-Option+G unbound. Cmd+\, Cmd+D and Cmd+Shift+D work in both Chrome and
+Option+G and Option+Y jump to the Gemini and YouTube tabs and Option+Shift+W
+opens the Downloads folder (Raycast's Downloads Manager on personal); personal
+leaves Option+G unbound. Cmd+\, Cmd+D and Cmd+Shift+D work in both Chrome and
 Island.
 
 The work profile uses Cmd+Shift+\ for site panels in Docs, Confluence, and

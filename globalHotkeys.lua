@@ -21,12 +21,6 @@ local function searchClipboard(mode)
   helpers.runTask(constants.paths.python, { script, "--mode", mode, "--browser", browser }, nil, text)
 end
 
-local function openFolder(path)
-  if helpers.requirePath(path, "directory") then
-    helpers.runTask("/usr/bin/open", { path })
-  end
-end
-
 local actions = {
   -- App Launchers
   launchGhostty = function()
@@ -73,13 +67,13 @@ local actions = {
     searchClipboard("incognito")
   end,
   openDesktopFolder = function()
-    openFolder(profileConstants.paths.desktopFolder)
+    helpers.openFolder(profileConstants.paths.desktopFolder)
   end,
   openDocumentsFolder = function()
-    openFolder(profileConstants.paths.documentsFolder)
+    helpers.openFolder(profileConstants.paths.documentsFolder)
   end,
   openApplicationsFolder = function()
-    openFolder(profileConstants.paths.applicationsFolder)
+    helpers.openFolder(profileConstants.paths.applicationsFolder)
   end,
   newIncognitoWindow = function()
     helpers.runTask(browserExecutable(), { "--incognito", "--new-window" })
