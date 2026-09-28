@@ -4,6 +4,9 @@ local log = hs.logger.new("Init", "debug")
 
 require("hs.ipc")
 
+-- Global on purpose: the mini calls it as `hs -c 'opUnlock.request("...")'`.
+opUnlock = require("opUnlock")
+
 -- hs.hotkey logs every enable/disable at info level. The app-based hotkey
 -- watcher toggles dozens per app switch, and each line is mirrored to
 -- connected hs CLI clients: one stalled client then blocks the main thread
