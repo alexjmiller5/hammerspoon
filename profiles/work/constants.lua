@@ -1,16 +1,16 @@
 local M = {}
 local helpers = require("helperFunctions")
+local baseConstants = require("constants")
 
 M.profileName = "Work"
 
 local home = os.getenv("HOME")
 
--- Application Bundle IDs for the work alt+G and shared alt+Y launchers.
--- PWA ids are machine-specific, so override them in
--- work-local.lua (below) if those PWAs exist on the work machine.
+-- The work browser: every browser hotkey, tab jump, and shared new-window
+-- launcher targets it. Any Chromium browser with Chrome's AppleScript
+-- dictionary works; set appBundleIds.browser in work-local.lua to change it.
 M.appBundleIds = {
-  gemini  = "com.google.Chrome.app.caidcmannjgahlnhpmdmihecjcoiigg",
-  youtube = "com.google.Chrome.app.agimnkijcaahngcdmfeangaknmldooml",
+  browser = baseConstants.appBundleIds.island,
 }
 
 -- Required by the base config's folder-opening hotkeys (alt+shift+D/E/A).
@@ -20,9 +20,11 @@ M.paths = {
   applicationsFolder = "/Applications",
 }
 
--- The always-alive Chrome tab group. match = plain substring of the tab URL;
+-- The always-alive browser tab group. match = plain substring of the tab URL;
 -- url = what to open when no tab matches (empty = never auto-open).
 M.tabs = {
+  gemini   = { match = "gemini.google.com", url = "https://gemini.google.com/app" },
+  youtube  = { match = "www.youtube.com", url = "https://www.youtube.com" },
   gmail    = { match = "mail.google.com", url = "https://mail.google.com" },
   calendar = { match = "calendar.google.com", url = "https://calendar.google.com" },
   tasks    = { match = "tasks.google.com", url = "https://tasks.google.com" },

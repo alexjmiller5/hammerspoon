@@ -1,40 +1,36 @@
 local constants = require("profiles.work.constants")
-local chrome = require("profiles.work.chrome")
+local browser = require("profiles.work.browser")
 
 local M = {}
 
 local actions = {
-  launchGemini = function() hs.application.launchOrFocusByBundleID(constants.appBundleIds.gemini) end,
-
-  -- Tab-group jumps (Chrome tabs, not PWAs — see chrome.lua)
-  focusGmail    = function() chrome.focusTab(constants.tabs.gmail) end,
-  focusCalendar = function() chrome.focusTab(constants.tabs.calendar) end,
-  focusTasks    = function() chrome.focusTab(constants.tabs.tasks) end,
-  focusDrive    = function() chrome.focusTab(constants.tabs.drive) end,
-  focusSlack    = function() chrome.focusTab(constants.tabs.slack) end,
+  -- Tab-group jumps (browser tabs, not PWAs — see browser.lua)
+  focusGemini   = function() browser.focusTab(constants.tabs.gemini) end,
+  focusYouTube  = function() browser.focusTab(constants.tabs.youtube) end,
+  focusGmail    = function() browser.focusTab(constants.tabs.gmail) end,
+  focusCalendar = function() browser.focusTab(constants.tabs.calendar) end,
+  focusTasks    = function() browser.focusTab(constants.tabs.tasks) end,
+  focusDrive    = function() browser.focusTab(constants.tabs.drive) end,
+  focusSlack    = function() browser.focusTab(constants.tabs.slack) end,
   focusJira     = function()
     if constants.tabs.jira.url == "" then
       hs.alert.show("Set tabs.jira in ~/.config/hammerspoon/work-local.lua")
     end
-    chrome.focusTab(constants.tabs.jira)
+    browser.focusTab(constants.tabs.jira)
   end,
 
-  openChromePasswords = function()
-    hs.osascript.applescript([[
-      tell application "Google Chrome" to make new window
-      tell application "Google Chrome" to set URL of active tab of front window to "chrome://password-manager/passwords"
-      tell application "Google Chrome" to activate
-    ]])
-  end,
+  openPasswords = function() browser.openWindow("chrome://password-manager/passwords") end,
 }
 
+-- Option+Y overrides the shared YouTube PWA launcher (profile bindings win).
 M.definitions = {
-  { mods = { "alt" },          key = "g", action = actions.launchGemini },
+  { mods = { "alt" },          key = "g", action = actions.focusGemini },
+  { mods = { "alt" },          key = "y", action = actions.focusYouTube },
   { mods = { "alt" },          key = "m", action = actions.focusGmail },
   { mods = { "alt" },          key = "c", action = actions.focusCalendar },
   { mods = { "alt" },          key = "n", action = actions.focusDrive },
   { mods = { "alt" },          key = "j", action = actions.focusJira },
-  { mods = { "alt" },          key = "l", action = actions.openChromePasswords },
+  { mods = { "alt" },          key = "l", action = actions.openPasswords },
   { mods = { "alt", "shift" }, key = "n", action = actions.focusTasks },
   { mods = { "alt", "shift" }, key = "m", action = actions.focusSlack },
 }

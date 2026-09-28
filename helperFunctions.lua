@@ -35,6 +35,16 @@ function M.receptorURL(text, source)
   return "receptor://recept?text=" .. enc(text) .. "&source=" .. enc(source)
 end
 
+-- An installed app's main executable, located through its bundle ID so no
+-- install path is assumed. Returns the bundle ID itself when the app is
+-- missing, which requirePath then reports by name.
+function M.appExecutable(bundleID)
+  local bundle = hs.application.pathForBundleID(bundleID)
+  local info = bundle and hs.application.infoForBundleID(bundleID)
+  local executable = info and info.CFBundleExecutable
+  return executable and (bundle .. "/Contents/MacOS/" .. executable) or bundleID
+end
+
 function M.runTask(path, args, callback, input)
   if not M.requirePath(path, "executable") then
     if callback then callback(-1, "", "Executable unavailable") end

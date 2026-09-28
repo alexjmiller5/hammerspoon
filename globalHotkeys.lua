@@ -5,10 +5,16 @@ local windows = require("windowManagement")
 
 local M = {}
 
+-- The active profile's Chromium browser (Chrome on personal, Island on work);
+-- every Chromium build takes the same --new-window/--incognito switches.
+local function browserExecutable()
+  return helpers.appExecutable(profileConstants.appBundleIds.browser)
+end
+
 local function searchClipboard(mode)
   local script = helpers.requirePath(constants.paths.searchClipboard)
   if not script then return end
-  local browser = helpers.requirePath(constants.paths.chrome, "executable")
+  local browser = helpers.requirePath(browserExecutable(), "executable")
   if not browser then return end
   local text = hs.pasteboard.getContents()
   if not text or text == "" then return end
@@ -32,8 +38,8 @@ local actions = {
   launchNotes = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.notes)
   end,
-  launchChromeNewWindow = function()
-    helpers.runTask(constants.paths.chrome, { "--new-window" })
+  launchBrowserNewWindow = function()
+    helpers.runTask(browserExecutable(), { "--new-window" })
   end,
   launchZoom = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.zoom)
@@ -76,10 +82,7 @@ local actions = {
     openFolder(profileConstants.paths.applicationsFolder)
   end,
   newIncognitoWindow = function()
-    hs.osascript.applescript(
-      'tell application "Google Chrome" to make new window with properties {mode:"incognito"} \n activate'
-    )
-    hs.application.launchOrFocusByBundleID(constants.appBundleIds.chrome)
+    helpers.runTask(browserExecutable(), { "--incognito", "--new-window" })
   end,
   forceQuitApp = function()
     -- Native force-quit: SIGKILL (signal 9) the frontmost app directly via
@@ -118,7 +121,7 @@ M.definitions = {
     action = actions.launchGhostty
   },
   { mods = { "alt" }, key = "a", action = actions.launchNotes },
-  { mods = { "alt" }, key = "b", action = actions.launchChromeNewWindow },
+  { mods = { "alt" }, key = "b", action = actions.launchBrowserNewWindow },
   -- NOTE: alt+n / alt+shift+m / alt+shift+t deliberately have NO base
   -- bindings: the profiles own them. Profile bindings load after base ones and silently
   -- win any same-combo conflict, so a base binding here would be dead code.

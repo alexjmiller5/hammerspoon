@@ -25,14 +25,19 @@ The base config (`init.lua` + top-level modules) loads everywhere; then
 `personal`) - the repo itself carries no machine identity.
 
 - **personal** - native apps + Chrome PWAs
-- **work** - drives a Chrome tab group (Gmail/Calendar/Tasks/Jira/Slack web)
-  via in-process AppleScript; machine/company-specific values come from
+- **work** - drives a tab group in the Island browser (Gmail/Calendar/Tasks/
+  Drive/Jira/Slack/Gemini/YouTube web) via in-process AppleScript;
+  machine/company-specific values come from
   `~/.config/hammerspoon/work-local.lua`, never from the repo
 
-Both profiles use Option+A for Apple Notes and Option+B for a new Chrome
-window. Option+G opens the configured Gemini Chrome PWA on work and is
-unbound on personal. If the work PWA has a different bundle ID, set
-`appBundleIds.gemini` in the machine-local override file.
+Each profile names its browser in `appBundleIds.browser`: Chrome on personal,
+Island on work (any Chromium browser that keeps Chrome's AppleScript
+dictionary works; override it in the machine-local file). Option+B opens a
+new window in it and Option+I an incognito one; Option+Shift+B/I search the
+clipboard there. Both profiles use Option+A for Apple Notes. On work,
+Option+G and Option+Y jump to the Gemini and YouTube tabs; personal leaves
+Option+G unbound. Cmd+\, Cmd+D and Cmd+Shift+D work in both Chrome and
+Island.
 
 The work profile uses Cmd+Shift+\ for site panels in Docs, Confluence, and
 Slack. In Gmail, U clicks a visible Undo notification; it types normally in
@@ -41,9 +46,9 @@ text fields, when the page lacks focus, or when no Undo is available.
 ## Optional dependencies
 
 File-backed actions report missing dependencies or execution failures:
-Raycast (clipboard/emoji/file search). Chrome's View > Developer > "Allow
-JavaScript from Apple Events" is needed for the work profile's in-page JS
-hotkeys.
+Raycast (clipboard/emoji/file search). The work browser's View > Developer >
+"Allow JavaScript from Apple Events" is needed for the work profile's in-page
+JS hotkeys.
 
 ## Hyper key (Caps Lock)
 

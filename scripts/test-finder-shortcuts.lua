@@ -18,8 +18,8 @@ fakeHs.hotkey.bind = function(...) return fakeHs.hotkey.new(...):enable() end
 local env = setmetatable({ hs = fakeHs }, { __index = _G })
 local cache = {
   activeProfile = { require = function() return {} end },
-  ["profiles.work.constants"] = { appBundleIds = { gemini = "fixture.gemini" }, tabs = {} },
-  ["profiles.work.chrome"] = {},
+  ["profiles.work.constants"] = { appBundleIds = { browser = "fixture.browser" }, tabs = {} },
+  ["profiles.work.browser"] = {},
   ["profiles.personal.otp"] = {},
   ["profiles.personal.otpMail"] = {},
   ["profiles.personal.tailscale"] = {},

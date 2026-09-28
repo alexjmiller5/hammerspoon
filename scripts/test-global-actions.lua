@@ -2,7 +2,12 @@
 -- Real actions/helpers; only filesystem, clipboard, process and window APIs are fake.
 local calls, errors, files, menuWorks, window = {}, {}, {}, false, nil
 local configdir = "/fixture config"
-local profile = { paths = { desktopFolder = "/desktop", documentsFolder = "/documents", applicationsFolder = "/applications" } }
+local profile = {
+  appBundleIds = { browser = "fixture.browser" },
+  paths = { desktopFolder = "/desktop", documentsFolder = "/documents", applicationsFolder = "/applications" },
+}
+local browser = "/Apps/Fixture.app/Contents/MacOS/Fixture Browser"
+local installed = true
 local fakeHs = {
   configdir = configdir,
   logger = { new = function() return { e = function(message) errors[#errors + 1] = message end } end },
@@ -13,9 +18,16 @@ local fakeHs = {
     calls.task = { path = path, args = args, callback = callback }
     return { setInput = function(_, text) calls.input = text end, start = function(self) return self end }
   end },
-  application = { frontmostApplication = function()
-    return { selectMenuItem = function(_, path) calls.menu = path; return menuWorks end }
-  end },
+  application = {
+    frontmostApplication = function()
+      return { selectMenuItem = function(_, path) calls.menu = path; return menuWorks end }
+    end,
+    pathForBundleID = function(id)
+      assert(id == "fixture.browser", "must use the profile's browser")
+      return installed and "/Apps/Fixture.app" or nil
+    end,
+    infoForBundleID = function() return { CFBundleExecutable = "Fixture Browser" } end,
+  },
   window = { focusedWindow = function() return window end },
   eventtap = { keyStroke = function(mods, key) calls.stroke = { mods = mods, key = key } end },
   execute = function() error("blocking shell execution") end,
@@ -49,14 +61,32 @@ local function check(name, fn)
   if not ok then failed = failed + 1 end
 end
 check("missing script cannot read clipboard or start a process", function()
-  executable(constants.paths.chrome)
+  executable(browser)
   action("alt+shift", "b")()
   assert(not calls.clipboard and not calls.task and #errors > 0)
-  files[constants.paths.chrome] = nil
+  files[browser] = nil
 end)
-check("Chrome launcher rejects a missing executable", function()
+check("browser launchers reject a missing executable", function()
+  for _, mods in ipairs({ "alt", "alt+shift" }) do
+    for _, key in ipairs({ "b", "i" }) do
+      reset(); action(mods, key)()
+      assert(not calls.task and #errors == 1, mods .. "+" .. key)
+    end
+  end
+end)
+check("browser launchers name an uninstalled browser by bundle id", function()
+  installed = false
   action("alt", "b")()
-  assert(not calls.task and #errors == 1)
+  assert(not calls.task and #errors == 1 and errors[1]:find("fixture.browser", 1, true))
+  installed = true
+end)
+check("new and incognito windows run the profile's browser with Chromium flags", function()
+  executable(browser)
+  for key, args in pairs({ b = "--new-window", i = "--incognito --new-window" }) do
+    reset(); action("alt", key)()
+    assert(calls.task.path == browser and table.concat(calls.task.args, " ") == args, "alt+" .. key)
+  end
+  files[browser] = nil
 end)
 check("folder launch rejects missing directories", function()
   executable("/usr/bin/open")
@@ -73,14 +103,14 @@ check("existing folder is passed as one argument", function()
   assert(calls.task.path == "/usr/bin/open" and #calls.task.args == 1 and calls.task.args[1] == profile.paths.desktopFolder)
 end)
 check("clipboard content goes through stdin with explicit mode and browser", function()
-  assert(constants.paths.searchClipboard and constants.paths.chrome and constants.paths.python)
+  assert(constants.paths.searchClipboard and constants.paths.python)
   assert(constants.paths.searchClipboard:sub(1, #configdir) == configdir, "script must follow hs.configdir")
   files[constants.paths.searchClipboard] = { mode = "file", permissions = "rw-r--r--" }
-  executable(constants.paths.chrome); executable(constants.paths.python)
+  executable(browser); executable(constants.paths.python)
   for key, mode in pairs({ b = "window", i = "incognito" }) do
     reset(); action("alt+shift", key)()
     assert(calls.task.path == constants.paths.python and calls.input == "-n café")
-    assert(table.concat(calls.task.args, "|") == table.concat({constants.paths.searchClipboard, "--mode", mode, "--browser", constants.paths.chrome}, "|"))
+    assert(table.concat(calls.task.args, "|") == table.concat({constants.paths.searchClipboard, "--mode", mode, "--browser", browser}, "|"))
   end
 end)
 check("missing Python does not start a process", function()

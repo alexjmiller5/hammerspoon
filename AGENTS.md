@@ -41,9 +41,12 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
     │                    # Hammerspoon needs Full Disk Access), otpMail.lua
     │                    # (Alt+Shift+O: same from Gmail via the gog CLI -
     │                    # 1Password-backed, so it prompts Touch ID)
-    └── work/            # same shape (+ chrome.lua). Targets Chrome TABS (one
-                         # always-alive tab group: Gmail/Calendar/Tasks/Jira/
-                         # Slack web), not PWAs, via in-process AppleScript
+    └── work/            # same shape (+ browser.lua). Targets TABS in the
+                         # work browser (appBundleIds.browser, Island by
+                         # default; one always-alive tab group: Gmail/
+                         # Calendar/Tasks/Drive/Jira/Slack/Gemini/YouTube
+                         # web), not PWAs, via in-process AppleScript
+                         # addressed by bundle ID
                          # (hs.osascript - never shell out per keypress; a
                          # spawned chrome-cli/osascript cost seconds, this
                          # costs ~100ms).
@@ -102,14 +105,18 @@ and releases to prevent a second system action. Check with
 
 **Profile System**: `profiles/<name>/` dirs extend the base config; the active one is chosen at runtime by `activeProfile.lua`, which reads `~/.config/hammerspoon-profile` (one line: `personal` or `work` - written per machine by nix-config; defaults to `personal` if absent). The selected `profiles/<name>/init.lua` loads after the main init and adds hotkeys to the same global `AppBasedHotkeyRegistry`, via `pcall` so a broken profile doesn't crash the config. Main-config modules that need the active profile's constants use `require("activeProfile").require("constants")`. Everything the main `init.lua` starts before the profile loads - the app-based hotkey watcher, the "Text Copied" badge, Ghostty Command-click, the windowless app reaper, Herdr shortcuts and Hyper - runs in every profile; a profile only adds to it.
 
-**Shared launchers**: Option+A opens Apple Notes; Option+B creates a Chrome
-window. Option+G launches the configured Gemini PWA only in the work profile;
-the personal profile leaves it unbound. Gemini's Cmd+Shift+D DevTools binding
-also belongs to the work profile.
+**Shared launchers**: Option+A opens Apple Notes. Option+B (new window),
+Option+I (incognito) and Option+Shift+B/I (clipboard search) run the active
+profile's `appBundleIds.browser` - Chrome on personal, Island on work - with
+Chromium's `--new-window`/`--incognito` switches; `helpers.appExecutable`
+finds the binary from the bundle ID. Option+G and Option+Y jump to the Gemini
+and YouTube tabs only in the work profile (personal leaves Option+G unbound).
+The shared Chromium hotkeys (Cmd+\ sidebar, Cmd+D, Cmd+Shift+D DevTools,
+Cmd+Alt+Shift+[) are scoped to both Chrome and Island.
 
 **Work web hotkeys**: Cmd+Shift+\ toggles the active site's panel in Docs,
 Confluence, or Slack. Slack's web button owns its toggle; sending Cmd+Shift+D
-would collide with Chrome hotkeys. Unmodified U clicks Gmail's visible Undo
+would collide with browser hotkeys. Unmodified U clicks Gmail's visible Undo
 notification only while the page has focus and no editor/search field does.
 Otherwise U passes through. Test dispatch and personal-profile compatibility
 with `scripts/test-work-hotkeys.lua` through the hs CLI. Run
@@ -254,6 +261,6 @@ launches it. Verify with `scripts/test-contacts-hotkey.lua`.
 
 - **Raycast**: Profile uses Raycast deep links for clipboard history, emoji search, file search, bluetooth management
 - **Full Disk Access** (personal profile only): the OTP hotkey reads `~/Library/Messages/chat.db` in-process; without the grant it logs an error and does nothing
-- **Chrome**: Several scripts target Chrome specifically; the personal profile uses Chrome PWAs (identified by `com.google.Chrome.app.*` bundle IDs)
-- **"Allow JavaScript from Apple Events"** (work profile only): the work profile's in-page JS hotkeys (`chrome.js`) require Chrome's View > Developer > "Allow JavaScript from Apple Events"; no external binaries needed
+- **Chrome** (personal) / **Island** (work): each profile's `appBundleIds.browser`; the personal profile also uses Chrome PWAs (identified by `com.google.Chrome.app.*` bundle IDs)
+- **"Allow JavaScript from Apple Events"** (work profile only): the work profile's in-page JS hotkeys (`browser.js`) require the work browser's View > Developer > "Allow JavaScript from Apple Events"; no external binaries needed
 - **hs CLI**: Enabled via `require("hs.ipc")` for terminal commands like `hs -c "..."`

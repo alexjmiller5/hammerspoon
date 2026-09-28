@@ -6,6 +6,7 @@ local home = os.getenv("HOME")
 
 -- Application Bundle IDs
 M.appBundleIds = {
+  browser        = "com.google.Chrome",
   googleMaps     = "com.google.Chrome.app.mnhkaebcjjhencmpkapnbdaogjamfbcj",
   t3Chat         = "com.google.Chrome.app.dbocekhhejgjkfgihlgonbpbikbcbdbd",
   youtube        = "com.google.Chrome.app.agimnkijcaahngcdmfeangaknmldooml",

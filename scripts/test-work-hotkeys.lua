@@ -1,17 +1,20 @@
 -- Run: hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-work-hotkeys.lua"))'
 -- Load the real definitions in isolation; fake only macOS side effects.
 local calls, bindings, title, jsResult, undoCode, slackCode = {}, {}, "", nil, nil, nil
-local chromeApp = {}
-local frontmost = chromeApp
+local island = "io.island.Island"
+local browserApp = {}
+local frontmost = browserApp
 local fakeHs = {
   configdir = hs.configdir,
   logger = hs.logger,
   fs = { attributes = function() return { mode = "file", permissions = "rwxr-xr-x" } end },
   alert = { show = function() end },
   application = {
-    get = function() return chromeApp end,
+    get = function() return browserApp end,
     frontmostApplication = function() return frontmost end,
     launchOrFocusByBundleID = function(id) calls.launch = id end,
+    pathForBundleID = function(id) return "/Apps/" .. id .. ".app" end,
+    infoForBundleID = function(id) return { CFBundleExecutable = "exe-" .. id } end,
   },
   urlevent = { openURL = function(url) calls.url = url end },
   task = { new = function(path, _, args)
@@ -25,15 +28,16 @@ local fakeHs = {
     bindings[table.concat(sorted, "+") .. ":" .. key] = action
   end },
 }
-function chromeApp:allWindows() return {} end
-function chromeApp:bundleID() return "com.google.Chrome" end
+function browserApp:allWindows() return {} end
+function browserApp:bundleID() return island end
+local constants -- the real work constants, loaded below
 local cache = {
-  ["activeProfile"] = { require = function()
-    return { appBundleIds = { gemini = "com.example.gemini-pwa" }, paths = {} }
-  end },
-  ["profiles.work.chrome"] = {
+  ["activeProfile"] = { require = function() return constants end },
+  ["profiles.work.browser"] = {
     frontTitle = function() return title end,
     js = function(code) calls.js = code; return jsResult end,
+    focusTab = function(tab) calls.tab = tab end,
+    openWindow = function(url) calls.window = url end,
   },
 }
 local env = setmetatable({ hs = fakeHs, AppBasedHotkeyRegistry = {} }, { __index = _G })
@@ -44,7 +48,7 @@ env.require = function(name)
   return cache[name]
 end
 local helpers = env.require("helperFunctions")
-env.require("profiles.work.constants").appBundleIds.gemini = "com.example.gemini-pwa"
+constants = env.require("profiles.work.constants")
 helpers.bindGlobalHotkeys(env.require("globalHotkeys").definitions)
 helpers.bindGlobalHotkeys(env.require("profiles.work.globalHotkeys").definitions)
 local failed = 0
@@ -58,25 +62,48 @@ check("Option+A opens Apple Notes on work", function()
   assert(bindings["alt:a"], "missing Option+A")()
   assert(calls.launch == "com.apple.Notes")
 end)
-check("Option+B requests a new Chrome window on work", function()
-  assert(bindings["alt:b"], "missing Option+B")()
-  assert(calls.task and calls.task.args[1] == "--new-window")
+check("the work browser is Island", function()
+  assert(constants.appBundleIds.browser == island)
 end)
-check("Option+G launches the configured work PWA even with no windows", function()
-  bindings["alt:g"]()
-  assert(calls.launch == "com.example.gemini-pwa" and not calls.url,
-    "work Gemini must not use the personal desktop app's URL scheme")
+check("Option+B opens a new Island window on work", function()
+  assert(bindings["alt:b"], "missing Option+B")()
+  assert(calls.task and calls.task.path == "/Apps/" .. island .. ".app/Contents/MacOS/exe-" .. island)
+  assert(table.concat(calls.task.args, " ") == "--new-window")
+end)
+check("Option+I opens an Island incognito window on work", function()
+  bindings["alt:i"]()
+  assert(calls.task and calls.task.path:find(island, 1, true) and not calls.script)
+  assert(table.concat(calls.task.args, " ") == "--incognito --new-window")
+end)
+check("Option+G and Option+Y focus Island tabs, not PWAs", function()
+  for key, tab in pairs({ g = "gemini", y = "youtube" }) do
+    calls = {}
+    bindings["alt:" .. key]()
+    assert(calls.tab == constants.tabs[tab] and not calls.launch, "Option+" .. key)
+  end
+end)
+check("Option+L opens the password manager in an Island window", function()
+  bindings["alt:l"]()
+  assert(calls.window == "chrome://password-manager/passwords")
 end)
 
 local appDefs = env.require("profiles.work.appBasedHotkeys").definitions
 local function action(mods, key)
   for _, def in ipairs(appDefs) do
     if table.concat(def.mods, "+") == mods and def.key == key
-      and def.only[1] == "com.google.Chrome" then return def.action end
+      and def.only[1] == island then return def.action end
   end
-  error("missing Chrome binding " .. mods .. "+" .. key)
+  error("missing Island binding " .. mods .. "+" .. key)
 end
-check("Slack sidebar clicks its page control without triggering Chrome hotkeys", function()
+check("no work or shared browser hotkey is Chrome-only", function()
+  local defs = { table.unpack(appDefs) }
+  for _, def in ipairs(env.require("appBasedHotkeys").definitions) do defs[#defs + 1] = def end
+  for _, def in ipairs(defs) do
+    local only = table.concat(def.only or {}, ",")
+    assert(only ~= "com.google.Chrome", "Chrome-only binding " .. table.concat(def.mods, "+") .. "+" .. def.key)
+  end
+end)
+check("Slack sidebar clicks its page control without triggering browser hotkeys", function()
   title = "general - Example - Slack"
   action("cmd+shift", "\\")()
   assert(calls.js and not calls.stroke)
@@ -108,14 +135,14 @@ check("U on other websites passes through without injecting JS", function()
   action("", "u")()
   assert(not calls.js and calls.stroke and calls.stroke.key == "u")
 end)
-check("pass-through does not enable Chrome bindings after focus leaves Chrome", function()
+check("pass-through does not enable browser bindings after focus leaves Island", function()
   local enabled = false
-  env.AppBasedHotkeyRegistry["com.google.Chrome"] = {
+  env.AppBasedHotkeyRegistry[island] = {
     only = {{ disable = function() end, enable = function() enabled = true end }}, except = {},
   }
   frontmost = { bundleID = function() return "com.apple.Notes" end }
   action("", "u")()
-  assert(not enabled, "Chrome bindings leaked into another app")
+  assert(not enabled, "Island bindings leaked into another app")
 end)
 
 -- Each profile loads independently, including the shared definitions.
@@ -125,6 +152,11 @@ cache["activeProfile"] = { require = function() return env.require("profiles.per
 cache["globalHotkeys"] = nil
 helpers.bindGlobalHotkeys(env.require("globalHotkeys").definitions)
 helpers.bindGlobalHotkeys(env.require("profiles.personal.globalHotkeys").definitions)
+check("personal Option+B still opens Chrome", function()
+  calls = {}
+  bindings["alt:b"]()
+  assert(calls.task and calls.task.path:find("com.google.Chrome", 1, true))
+end)
 check("personal Option+G is unbound", function()
   assert(not bindings["alt:g"], "personal Option+G still launches Gemini")
 end)

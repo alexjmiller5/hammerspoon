@@ -24,7 +24,6 @@ M.appBundleIds = {
 M.paths = {
   searchClipboard = hs.configdir .. "/scripts/search-clipboard.py",
   python = os.getenv("HAMMERSPOON_PYTHON") or "/usr/bin/python3",
-  chrome = os.getenv("HAMMERSPOON_CHROME") or "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
 }
 
 return M

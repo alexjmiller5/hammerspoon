@@ -76,7 +76,7 @@ local fakeIo = {
     }
   end,
 }
-local modules = { helperFunctions = helpers }
+local modules = { helperFunctions = helpers, constants = { appBundleIds = {} } }
 local env = setmetatable({ hs = fakeHs, io = fakeIo,
   require = function(name) return assert(modules[name], "unexpected require: " .. name) end,
   dofile = function() error("optional config must be read through the fixture") end,

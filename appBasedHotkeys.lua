@@ -6,20 +6,6 @@ local windows = require("windowManagement")
 
 local M = {}
 
--- Chromium browsers have no keyboard shortcut for the tab-strip sidebar, so
--- press its AX button directly.
-local function chromiumSidebarToggler(bundleID)
-  return function()
-    local ax = require("hs.axuielement")
-    local app = hs.application.get(bundleID)
-    if not app then return end
-    local win = app:focusedWindow()
-    if not win then return end
-    local button = helperFunctions.findChromeSidebarButton(ax.windowElement(win), 0)
-    if button then button:performAction("AXPress") end
-  end
-end
-
 local actions = {
   windowMakeLarger = function() windows.resize(0.05) end,
   windowMakeSmaller = function() windows.resize(-0.05) end,
@@ -41,6 +27,7 @@ local actions = {
     hs.eventtap.keyStroke({ "alt", "shift" }, "l")
     hs.eventtap.keyStroke({ "alt", "shift" }, "r")
   end,
+  -- Chromium browsers (Chrome, Island) share these menus and AX tree.
   chromeDuplicateTab = function()
     helperFunctions.tryMenuItem({ "Tab", "Duplicate Tab" })
     helperFunctions.tryMenuItem({ "Tab", "Select Previous Tab" })
@@ -52,9 +39,16 @@ local actions = {
   chromeToggleDevTools = function()
     helperFunctions.tryMenuItem({ "View", "Developer", "Developer Tools" })
   end,
-  chromeToggleSidebar = chromiumSidebarToggler(constants.appBundleIds.chrome),
-  -- Island is a Chromium fork, so the same AX tab-strip button applies
-  islandToggleSidebar = chromiumSidebarToggler(constants.appBundleIds.island),
+  -- No keyboard shortcut exists for the tab-strip sidebar, so press its AX
+  -- button in the focused browser window.
+  chromeToggleSidebar = function()
+    local app = hs.application.frontmostApplication()
+    local win = app and app:focusedWindow()
+    if not win then return end
+    local ax = require("hs.axuielement")
+    local button = helperFunctions.findChromeSidebarButton(ax.windowElement(win), 0)
+    if button then button:performAction("AXPress") end
+  end,
 
   previewToggleSidebar = function()
     if PreviewSidebarVisible then
@@ -78,7 +72,7 @@ local actions = {
 }
 
 -- App bundle-ID lists for `only`/`except`, defined once and shared so a repeated
--- app (e.g. Chrome, used 4×) isn't spelled out on every definition. These lists
+-- app (e.g. the Chromium browsers, used 4×) isn't spelled out on every definition. These lists
 -- are only read (never mutated), so sharing one table across definitions is safe.
 local apps = {
   finder      = { constants.appBundleIds.finder },
@@ -87,8 +81,7 @@ local apps = {
   xcode       = { constants.appBundleIds.xcode },
   zoom        = { constants.appBundleIds.zoom },
   spotify     = { constants.appBundleIds.spotify },
-  chrome      = { constants.appBundleIds.chrome },
-  island      = { constants.appBundleIds.island },
+  chromium    = { constants.appBundleIds.chrome, constants.appBundleIds.island },
   hammerspoon = { constants.appBundleIds.hammerspoon },
   notes       = { constants.appBundleIds.notes },
   preview     = { constants.appBundleIds.preview },
@@ -121,19 +114,15 @@ M.definitions = {
   { mods = { "cmd" }, key = "\\", action = actions.spotifyToggleSidebars,
     only = apps.spotify },
 
-  -- Chrome
+  -- Chromium browsers
   { mods = { "cmd" },                 key = "\\", action = actions.chromeToggleSidebar,
-    only = apps.chrome },
+    only = apps.chromium },
   { mods = { "cmd" },                 key = "d", action = actions.chromeDuplicateTab,
-    only = apps.chrome },
+    only = apps.chromium },
   { mods = { "cmd", "alt", "shift" }, key = "[", action = actions.chromeDuplicateAndGoBack,
-    only = apps.chrome },
+    only = apps.chromium },
   { mods = { "cmd", "shift" },        key = "d", action = actions.chromeToggleDevTools,
-    only = apps.chrome },
-
-  -- Island
-  { mods = { "cmd" }, key = "\\", action = actions.islandToggleSidebar,
-    only = apps.island },
+    only = apps.chromium },
 
   -- Hammerspoon
   { mods = { "cmd" }, key = "r", action = actions.hammerspoonReload,
