@@ -1,8 +1,10 @@
--- Unlock 1Password on the mini from this laptop. The mini asks over ssh
--- (`hs -c 'opUnlock.request("<reason>")'`, from `op-unlock request`); this
--- shows a secure prompt, then runs `op-unlock --stdin <hours>` on the mini
--- with the password on stdin. The password lives in this process, the ssh
--- channel and the mini's `op signin`; it is never written anywhere.
+-- Unlock 1Password on the mini from this laptop. The mini asks over ssh by
+-- dropping the reason into ~/.local/state/op-unlock/request (`op-unlock
+-- request`; an `hs -c` call from an ssh session wedges Hammerspoon's IPC
+-- port, so a watched file is the transport); this shows a secure prompt,
+-- then runs `op-unlock --stdin <hours>` on the mini with the password on
+-- stdin. The password lives in this process, the ssh channel and the mini's
+-- `op signin`; it is never written anywhere.
 local M = {}
 local log = hs.logger.new("opUnlock", "info")
 M.host = "mac-mini-tailscale"
@@ -36,5 +38,18 @@ function M.request(reason)
   end)
   return "queued"
 end
+
+-- Transport: the mini writes the reason here over ssh; the file is consumed.
+local requestDir = os.getenv("HOME") .. "/.local/state/op-unlock"
+local requestFile = requestDir .. "/request"
+hs.fs.mkdir(requestDir)
+M.watcher = hs.pathwatcher.new(requestDir, function()
+  local f = io.open(requestFile, "r")
+  if not f then return end
+  local reason = f:read("*a")
+  f:close()
+  os.remove(requestFile)
+  if reason and reason ~= "" then M.request(reason) end
+end):start()
 
 return M
