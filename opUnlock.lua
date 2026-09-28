@@ -12,18 +12,26 @@ M.hours = 6
 
 local function trim(s) return (tostring(s or ""):gsub("%s+$", "")) end
 
+-- Run ssh with one line on stdin. For a non-streaming hs.task the input must
+-- be set BEFORE start (set afterwards, ssh receives nothing); stdin closes by
+-- itself once the data is written.
+function M.sshWithInput(args, input, callback)
+  local task = hs.task.new("/usr/bin/ssh", callback,
+    { "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", M.host, table.unpack(args) })
+  task:setInput(input)
+  task:start()
+  return task
+end
+
 local function unlock(password)
-  local task = hs.task.new("/usr/bin/ssh", function(code, out, err)
+  M.sshWithInput({ "op-unlock", "--stdin", tostring(M.hours) }, password .. "\n", function(code, out, err)
     if code == 0 then
       hs.alert.show("mini " .. trim(out))
     else
       hs.alert.show("mini unlock failed: " .. trim(err ~= "" and err or out), 4)
       log.e(trim(err))
     end
-  end, { "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", M.host, "op-unlock", "--stdin", tostring(M.hours) })
-  task:start()
-  task:setInput(password .. "\n")
-  task:closeInput()
+  end)
 end
 
 function M.request(reason)
