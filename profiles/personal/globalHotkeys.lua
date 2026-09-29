@@ -95,7 +95,7 @@ local actions = {
 
   -- Shortcuts
   shazamToSpotify = function() runShortcut("Shazam → Spotify") end,
-  receptor = function() helpers.runTask("/usr/bin/open", { "receptor://compose" }) end,
+  receptor = function() helpers.runTask("/usr/bin/open", { "-g", "receptor://compose" }) end,
 
   toggleTailscale = tailscale.toggle,
 
