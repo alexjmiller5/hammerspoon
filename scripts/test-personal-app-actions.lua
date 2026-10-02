@@ -99,7 +99,7 @@ assert(calls.error and not calls.script, "unknown Space must not jump to an arbi
 calls, appleOK, appleResult = {}, true, "https://example.com/?a=1&b=2"
 send()
 assert(calls.task and calls.task.path == "/usr/bin/open" and calls.task.args[1] == "-g")
-assert(calls.task.args[2] == "receptor://recept?text=https%3A%2F%2Fexample.com%2F%3Fa%3D1%26b%3D2&source=hammerspoon",
+assert(calls.task.args[2] == "receptor://recept?text=https%3A%2F%2Fexample.com%2F%3Fa%3D1%26b%3D2&source=hammerspoon-chrome-url",
   "hotkey captures go through the receptor:// deep link, percent-encoded: " .. tostring(calls.task.args[2]))
 assert(not calls.alert, "success must wait for the Shortcut to finish")
 calls.task.callback(0)

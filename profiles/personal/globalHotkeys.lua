@@ -95,7 +95,12 @@ local actions = {
 
   -- Shortcuts
   shazamToSpotify = function() runShortcut("Shazam → Spotify") end,
-  receptor = function() helpers.runTask("/usr/bin/open", { "-g", "receptor://compose" }) end,
+  -- Receptor's capture panel; source names the hotkey, logged on the Synapse execution
+  receptor = function(key)
+    return function()
+      helpers.runTask("/usr/bin/open", { "-g", "receptor://compose?source=hammerspoon-hyper-" .. key })
+    end
+  end,
 
   toggleTailscale = tailscale.toggle,
 
@@ -132,8 +137,8 @@ M.definitions = {
 
   -- Shortcuts
   { mods = constants.hyperKeyMods,    key = "s",  action = actions.shazamToSpotify },
-  { mods = constants.hyperKeyMods,    key = "r",  action = actions.receptor },
-  { mods = constants.hyperKeyMods,    key = "q",  action = actions.receptor },
+  { mods = constants.hyperKeyMods,    key = "r",  action = actions.receptor("r") },
+  { mods = constants.hyperKeyMods,    key = "q",  action = actions.receptor("q") },
 
   -- Media Remaps
   { mods = { "cmd" },                 key = "f9", action = actions.spotifyNext },
