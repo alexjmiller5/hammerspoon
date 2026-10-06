@@ -42,8 +42,7 @@ local actions          = {
     end
     -- receptor://recept deep link (Receptor.app handles it without a window);
     -- -g keeps Chrome focused. The source shows on the Synapse execution.
-    helperFunctions.runTask("/usr/bin/open", { "-g", helperFunctions.receptorURL(url, "hammerspoon-chrome-url") },
-      function(code) if code == 0 then hs.alert.show("Queued in Receptor") end end)
+    helperFunctions.runTask("/usr/bin/open", { "-g", helperFunctions.receptorURL(url, "hammerspoon-chrome-url") })
   end,
 
   -- iMessage
