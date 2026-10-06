@@ -115,6 +115,10 @@ profile's `appBundleIds.browser` - Chrome on personal, Island on work - with
 Chromium's `--new-window`/`--incognito` switches; `helpers.appExecutable`
 finds the binary from the bundle ID. Option+G and Option+Y jump to the Gemini
 and YouTube tabs only in the work profile (personal leaves Option+G unbound).
+Work Hyper+B launches or focuses `appBundleIds.browser` (Island by default)
+through `hs.application.launchOrFocusByBundleID`; it does not request a new
+window or select a tab. It uses the shared `constants.hyperKeyMods` object
+so native Hyper routing works. Verify with `scripts/test-work-hotkeys.lua`.
 Option+Shift+W opens `paths.downloadsFolder` on work and Raycast's Downloads
 Manager on personal.
 The shared Chromium hotkeys (Cmd+\ sidebar, Cmd+D, Cmd+Shift+D DevTools,
@@ -203,7 +207,9 @@ Run `scripts/test-ghostty-command-click.lua` through the hs CLI.
 3. **Profile-specific**: Same pattern in `profiles/<name>/globalHotkeys.lua` or `profiles/<name>/appBasedHotkeys.lua`, using that profile's `constants` for profile-only bundle IDs
 4. **New bundle ID**: Add to `constants.appBundleIds` (shared) or `profiles/<name>/constants.appBundleIds` (profile-only)
 
-**Whenever a hotkey is added, changed, or removed here, mirror it in the Notion Hotkeys DB** (data_source_id `1bb03953-a8af-801d-8436-000b25e00006` - see the `notion` skill). That DB is the documentation of every binding; an edit to the Lua config isn't done until the corresponding Notion entry is created/updated/archived too.
+**Whenever a hotkey is added, changed, or removed here, mirror it in the
+life-data `hotkeys` table** (see the `life` skill). That table documents every
+binding; update its corresponding row along with the Lua configuration.
 
 ### Hyper Key
 

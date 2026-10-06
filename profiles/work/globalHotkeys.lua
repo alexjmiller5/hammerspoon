@@ -1,10 +1,12 @@
 local constants = require("profiles.work.constants")
+local baseConstants = require("constants")
 local browser = require("profiles.work.browser")
 local helpers = require("helperFunctions")
 
 local M = {}
 
 local actions = {
+  focusBrowser = function() hs.application.launchOrFocusByBundleID(constants.appBundleIds.browser) end,
   -- Tab-group jumps (browser tabs, not PWAs — see browser.lua)
   focusGemini   = function() browser.focusTab(constants.tabs.gemini) end,
   focusYouTube  = function() browser.focusTab(constants.tabs.youtube) end,
@@ -27,6 +29,7 @@ local actions = {
 
 -- Option+Y overrides the shared YouTube PWA launcher (profile bindings win).
 M.definitions = {
+  { mods = baseConstants.hyperKeyMods, key = "b", action = actions.focusBrowser },
   { mods = { "alt" },          key = "g", action = actions.focusGemini },
   { mods = { "alt" },          key = "y", action = actions.focusYouTube },
   { mods = { "alt" },          key = "m", action = actions.focusGmail },

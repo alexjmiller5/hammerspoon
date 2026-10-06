@@ -68,6 +68,35 @@ end)
 check("the work browser is Island", function()
   assert(constants.appBundleIds.browser == island)
 end)
+check("Hyper+B focuses Island without creating a window or selecting a tab", function()
+  assert(bindings["alt+cmd+ctrl+shift:b"], "missing work Hyper+B")()
+  assert(calls.launch == island)
+  assert(not calls.task and not calls.script and not calls.window and not calls.tab)
+end)
+check("Hyper+B respects the configured work browser", function()
+  local original = constants.appBundleIds.browser
+  constants.appBundleIds.browser = "org.example.WorkBrowser"
+  local ok, err = pcall(function()
+    bindings["alt+cmd+ctrl+shift:b"]()
+    assert(calls.launch == "org.example.WorkBrowser")
+  end)
+  constants.appBundleIds.browser = original
+  assert(ok, err)
+end)
+check("work Hyper+B uses the shared Hyper modifier object without collisions", function()
+  local base = env.require("constants")
+  local count = 0
+  for _, module in ipairs({ "globalHotkeys", "profiles.work.globalHotkeys" }) do
+    for _, def in ipairs(env.require(module).definitions) do
+      local mods = { table.unpack(def.mods) }; table.sort(mods)
+      if def.key == "b" and table.concat(mods, "+") == "alt+cmd+ctrl+shift" then
+        count = count + 1
+        assert(def.mods == base.hyperKeyMods, "native Hyper routing requires the shared object")
+      end
+    end
+  end
+  assert(count == 1, "expected exactly one work Hyper+B binding")
+end)
 check("Option+B opens a new Island window on work", function()
   assert(bindings["alt:b"], "missing Option+B")()
   assert(calls.task and calls.task.path == "/Apps/" .. island .. ".app/Contents/MacOS/exe-" .. island)
