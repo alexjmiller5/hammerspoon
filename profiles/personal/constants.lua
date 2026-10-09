@@ -13,6 +13,7 @@ M.appBundleIds = {
   legcord        = "app.legcord.Legcord",
   mail           = "com.apple.mail",
   messages       = "com.apple.MobileSMS",
+  iris           = "com.alexmiller.iris",
   notion         = "notion.id",
   notionCalendar = "com.cron.electron",
   photos         = "com.apple.Photos",
