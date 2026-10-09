@@ -101,9 +101,12 @@ send()
 assert(calls.task and calls.task.path == "/usr/bin/open" and calls.task.args[1] == "-g")
 assert(calls.task.args[2] == "receptor://recept?text=https%3A%2F%2Fexample.com%2F%3Fa%3D1%26b%3D2&source=hammerspoon-chrome-url",
   "hotkey captures go through the receptor:// deep link, percent-encoded: " .. tostring(calls.task.args[2]))
-assert(not calls.alert, "URL handoff must stay silent")
-if calls.task.callback then calls.task.callback(0) end
-assert(not calls.alert, "successful Receptor captures must not show an alert")
+assert(not calls.alert, "success must wait for the open task to finish")
+calls.task.callback(0)
+assert(calls.alert == "Queued in Receptor", "successful Receptor captures show the confirmation overlay")
+calls.alert = nil
+assert(calls.task.callback(1) ~= true, "failed launches keep runTask's error report")
+assert(not calls.alert, "failed launches must not show the confirmation")
 calls, appleOK = {}, false
 send()
 assert(calls.error and not calls.task, "failed URL lookup must not send stale input")
