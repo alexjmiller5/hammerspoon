@@ -9,12 +9,6 @@ local tailscale = require("profiles.personal.tailscale")
 
 local M = {}
 
--- Run a macOS Shortcut asynchronously so a long-running shortcut
--- doesn't block Hammerspoon's main thread (and every other hotkey)
-local function runShortcut(name)
-  helpers.runTask("/usr/bin/shortcuts", { "run", name })
-end
-
 local actions = {
   focusChrome = function()
     local space = hs.spaces.focusedSpace()
@@ -94,7 +88,8 @@ local actions = {
   pasteLatestMailOtp = otpMail.pasteLatest,
 
   -- Shortcuts
-  shazamToSpotify = function() runShortcut("Shazam → Spotify") end,
+  -- Cochlea's Capture song in the background; the result arrives as its notification
+  captureSongWithCochlea = function() helpers.runTask("/usr/bin/open", { "-g", "cochlea://capture" }) end,
   -- Receptor's capture panel; source names the hotkey, logged on the Synapse execution
   receptor = function(key)
     return function()
@@ -136,7 +131,7 @@ M.definitions = {
   { mods = { "alt", "shift" },        key = "o",  action = actions.pasteLatestMailOtp },
 
   -- Shortcuts
-  { mods = constants.hyperKeyMods,    key = "s",  action = actions.shazamToSpotify },
+  { mods = constants.hyperKeyMods,    key = "s",  action = actions.captureSongWithCochlea },
   { mods = constants.hyperKeyMods,    key = "r",  action = actions.receptor("r") },
   { mods = constants.hyperKeyMods,    key = "q",  action = actions.receptor("q") },
 

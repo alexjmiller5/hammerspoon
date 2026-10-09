@@ -146,9 +146,10 @@ for _, def in ipairs(definitions) do
 end
 assert(table.concat(playback, " ") == "next playpause previous", "media keys must target Spotify directly")
 action("cmd+alt+ctrl+shift", "s")()
-local shortcut = processes[#processes]
-assert(shortcut.path == "/usr/bin/shortcuts" and shortcut.args[1] == "run", "Shortcut launch must remain asynchronous")
+local capture = processes[#processes]
+assert(capture.path == "/usr/bin/open" and table.concat(capture.args, " ") == "-g cochlea://capture",
+  "Hyper+S must start a Cochlea capture asynchronously without taking focus")
 local priorErrors = #errors
 complete(1)
-assert(#errors == priorErrors + 1, "Shortcut failures must use the shared error-reporting runner")
+assert(#errors == priorErrors + 1, "capture launch failures must use the shared error-reporting runner")
 print("personal-controls: all checks passed")
