@@ -191,13 +191,14 @@ end
 
 function M.findChromeSidebarButton(element, depth)
   if depth > 10 then return nil end
-  local targetTitles = { ["expand tabs"] = true, ["collapse tabs"] = true }
   local role = element:attributeValue("AXRole")
   if role == "AXButton" then
-    local title = (element:attributeValue("AXTitle") or ""):lower()
-    local desc = (element:attributeValue("AXDescription") or ""):lower()
-    if targetTitles[title] or targetTitles[desc] then
-      return element
+    -- Prefix match: Chrome 155 appends the shortcut ("Collapse Tabs (⇧⌘L)").
+    for _, attribute in ipairs({ "AXTitle", "AXDescription" }) do
+      local label = (element:attributeValue(attribute) or ""):lower()
+      if label:find("^expand tabs") or label:find("^collapse tabs") then
+        return element
+      end
     end
   end
   for _, child in ipairs(element:attributeValue("AXChildren") or {}) do

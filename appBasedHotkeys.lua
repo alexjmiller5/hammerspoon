@@ -39,8 +39,8 @@ local actions = {
   chromeToggleDevTools = function()
     helperFunctions.tryMenuItem({ "View", "Developer", "Developer Tools" })
   end,
-  -- No keyboard shortcut exists for the tab-strip sidebar, so press its AX
-  -- button in the focused browser window.
+  -- Press the tab-strip sidebar's AX button in the focused browser window, so
+  -- it works whatever shortcut (if any) a Chromium build assigns.
   chromeToggleSidebar = function()
     local app = hs.application.frontmostApplication()
     local win = app and app:focusedWindow()
