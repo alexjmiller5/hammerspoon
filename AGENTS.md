@@ -124,9 +124,9 @@ window or select a tab. It uses the shared `constants.hyperKeyMods` object
 so native Hyper routing works. Verify with `scripts/test-work-hotkeys.lua`.
 Option+Shift+W opens `paths.downloadsFolder` in Finder on both profiles.
 The shared Chromium hotkeys (Cmd+\ sidebar, Cmd+D, Cmd+Shift+D DevTools,
-Cmd+Alt+Shift+[) are scoped to both Chrome and Island. Cmd+\ presses the
-tab strip's Expand/Collapse Tabs AX button, matched by title prefix because
-Chrome 155 appends the shortcut to it; `scripts/test-chrome-sidebar-button.lua`.
+Cmd+Alt+Shift+[) are scoped to both Chrome and Island. Cmd+\ picks View >
+Collapse/Expand Vertical Tabs from the menu bar (menu items over AX buttons:
+names are stable and the call needs no window); `scripts/test-chrome-vertical-tabs.lua`.
 
 **Work web hotkeys**: Cmd+Shift+\ toggles the active site's panel in Docs,
 Confluence, or Slack. Slack's web button owns its toggle; sending Cmd+Shift+D

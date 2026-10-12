@@ -39,16 +39,7 @@ local actions = {
   chromeToggleDevTools = function()
     helperFunctions.tryMenuItem({ "View", "Developer", "Developer Tools" })
   end,
-  -- Press the tab-strip sidebar's AX button in the focused browser window, so
-  -- it works whatever shortcut (if any) a Chromium build assigns.
-  chromeToggleSidebar = function()
-    local app = hs.application.frontmostApplication()
-    local win = app and app:focusedWindow()
-    if not win then return end
-    local ax = require("hs.axuielement")
-    local button = helperFunctions.findChromeSidebarButton(ax.windowElement(win), 0)
-    if button then button:performAction("AXPress") end
-  end,
+  chromeToggleSidebar = helperFunctions.toggleVerticalTabs,
 
   previewToggleSidebar = function()
     if PreviewSidebarVisible then

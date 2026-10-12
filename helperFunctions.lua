@@ -189,23 +189,13 @@ function M.registerAppBasedHotkeys(targetRegistry, sourceDefinitions)
     end
 end
 
-function M.findChromeSidebarButton(element, depth)
-  if depth > 10 then return nil end
-  local role = element:attributeValue("AXRole")
-  if role == "AXButton" then
-    -- Prefix match: Chrome 155 appends the shortcut ("Collapse Tabs (⇧⌘L)").
-    for _, attribute in ipairs({ "AXTitle", "AXDescription" }) do
-      local label = (element:attributeValue(attribute) or ""):lower()
-      if label:find("^expand tabs") or label:find("^collapse tabs") then
-        return element
-      end
-    end
+-- Chromium's vertical tab strip, through its View menu item (the title names
+-- the next state). Neither item means vertical tabs are off or renamed.
+function M.toggleVerticalTabs()
+  if not (M.tryMenuItem({ "View", "Collapse Vertical Tabs" })
+      or M.tryMenuItem({ "View", "Expand Vertical Tabs" })) then
+    M.reportError("No Collapse/Expand Vertical Tabs item in the View menu")
   end
-  for _, child in ipairs(element:attributeValue("AXChildren") or {}) do
-    local found = M.findChromeSidebarButton(child, depth + 1)
-    if found then return found end
-  end
-  return nil
 end
 
 return M

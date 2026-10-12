@@ -74,13 +74,8 @@ local actions = {
       -- Google Tasks side panel (clicking its rail tab toggles open/closed)
       browser.js(jsClick .. [[clk(document.querySelector('[aria-label="Tasks"]'));]])
     else
-      -- Fall back to the base-config behavior: the browser's tab-strip sidebar
-      local ax = require("hs.axuielement")
-      local app = hs.application.get(browserBundleId)
-      local win = app and app:focusedWindow()
-      if not win then return end
-      local button = helpers.findChromeSidebarButton(ax.windowElement(win), 0)
-      if button then button:performAction("AXPress") end
+      -- Fall back to the base-config behavior: the browser's vertical tab strip
+      helpers.toggleVerticalTabs()
     end
   end,
 
