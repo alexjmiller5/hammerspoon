@@ -120,8 +120,7 @@ Work Hyper+B launches or focuses `appBundleIds.browser` (Island by default)
 through `hs.application.launchOrFocusByBundleID`; it does not request a new
 window or select a tab. It uses the shared `constants.hyperKeyMods` object
 so native Hyper routing works. Verify with `scripts/test-work-hotkeys.lua`.
-Option+Shift+W opens `paths.downloadsFolder` on work and Raycast's Downloads
-Manager on personal.
+Option+Shift+W opens `paths.downloadsFolder` in Finder on both profiles.
 The shared Chromium hotkeys (Cmd+\ sidebar, Cmd+D, Cmd+Shift+D DevTools,
 Cmd+Alt+Shift+[) are scoped to both Chrome and Island.
 

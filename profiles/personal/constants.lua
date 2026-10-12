@@ -27,6 +27,7 @@ M.appBundleIds = {
 M.paths = {
   desktopFolder          = home .. "/Desktop",
   documentsFolder        = home .. "/Documents",
+  downloadsFolder        = home .. "/Downloads",
   applicationsFolder     = "/Applications",
   marioWaowAudioFilePath = hs.configdir .. "/assets/mario-waow.mp3"
 }

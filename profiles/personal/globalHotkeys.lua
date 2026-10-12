@@ -77,9 +77,7 @@ local actions = {
   end,
   searchFiles = function() hs.urlevent.openURL("raycast://extensions/raycast/file-search/search-files") end,
   listRepos = function() hs.urlevent.openURL("raycast://extensions/moored/git-repos/list") end,
-  manageDownloads = function()
-    hs.urlevent.openURL("raycast://extensions/thomas/downloads-manager/manage-downloads")
-  end,
+  openDownloadsFolder = function() helpers.openFolder(profileConstants.paths.downloadsFolder) end,
   -- macOS built-in dictation; the menu item is only enabled with a text field focused
   dictate = function() helpers.tryMenuItem({ "Edit", "Start Dictation" }) end,
   -- Types the latest incoming 2FA code from Messages + Return (see otp.lua)
@@ -124,7 +122,7 @@ M.definitions = {
   { mods = { "cmd", "shift" },        key = "e",  action = actions.searchEmojisAndSymbols },
   { mods = { "cmd", "shift" },        key = "f",  action = actions.searchFiles },
   { mods = { "cmd", "shift" },        key = "l",  action = actions.listRepos },
-  { mods = { "alt", "shift" },        key = "w",  action = actions.manageDownloads },
+  { mods = { "alt", "shift" },        key = "w",  action = actions.openDownloadsFolder },
   { mods = constants.hyperKeyMods,    key = "d",  action = actions.dictate },
   { mods = constants.hyperKeyMods,    key = "t",  action = actions.toggleTailscale },
   { mods = { "cmd", "shift" },        key = "o",  action = actions.pasteLatestOtp },

@@ -23,7 +23,6 @@ local actions = {
   end,
 
   openPasswords = function() browser.openWindow("chrome://password-manager/passwords") end,
-  -- Personal binds alt+shift+W to Raycast's Downloads Manager instead
   openDownloadsFolder = function() helpers.openFolder(constants.paths.downloadsFolder) end,
 }
 
