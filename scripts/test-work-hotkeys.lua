@@ -201,6 +201,17 @@ check("personal Option+Shift+W opens the Downloads folder in Finder", function()
   assert(calls.task and calls.task.path == "/usr/bin/open" and not calls.url, "still opens Raycast")
   assert(#calls.task.args == 1 and calls.task.args[1] == os.getenv("HOME") .. "/Downloads")
 end)
+check("personal Hyper+C sends Ctrl+Option+C to Chrome only (Verdict comment mode)", function()
+  frontmost = { bundleID = function() return "com.google.Chrome" end }
+  assert(bindings["alt+cmd+ctrl+shift:c"], "missing Hyper+C")()
+  assert(calls.stroke and calls.stroke.key == "c" and calls.stroke.app == frontmost, "no keystroke to Chrome")
+  local mods = { table.unpack(calls.stroke.mods) }; table.sort(mods)
+  assert(table.concat(mods, "+") == "alt+ctrl", "wrong modifiers")
+  calls = {}
+  frontmost = { bundleID = function() return "com.apple.Notes" end }
+  bindings["alt+cmd+ctrl+shift:c"]()
+  assert(not calls.stroke, "Hyper+C typed into a non-Chrome app")
+end)
 check("personal Option+G is unbound", function()
   assert(not bindings["alt:g"], "personal Option+G still launches Gemini")
 end)

@@ -84,7 +84,8 @@ uses the current system output. Clipboard search passes literal text over stdin
 and preserves Unicode and complete URLs. Optional local configuration can be
 absent, while invalid existing configuration is reported.
 
-On the personal profile, Hyper+T toggles the existing Tailscale connection
+On the personal profile, Hyper+C in Chrome sends Ctrl+Option+C, which toggles
+comment mode on Verdict review pages. Hyper+T toggles the existing Tailscale connection
 without changing its settings. A 30-second deadline bounds the whole toggle,
 including the initial status query. Sign in to the native app first on each machine;
 `HAMMERSPOON_TAILSCALE_BIN` can override the executable location. Cmd+F7/F8/F9

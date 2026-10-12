@@ -82,7 +82,9 @@ with no windows. It focuses a Chrome window on the current Space, or creates
 one when none exists. Cmd+Shift+S queues its current tab URL in
 Receptor through its background deep link and shows a brief centered
 "Queued in Receptor" alert once the handoff succeeds; failed URL reads and
-process launches report errors instead. Hyper+T toggles an already enrolled
+process launches report errors instead. Hyper+C in Chrome sends Ctrl+Option+C
+(Verdict pages toggle comment mode on it; a page never sees Hyper, which is
+a Hammerspoon modal). Hyper+T toggles an already enrolled
 Tailscale connection. Cmd+F7/F8/F9 control Spotify directly. The personal
 profile's `ProfileSpotifyMediaKeyWatcher` also handles Cmd with the
 physical previous/play/next media keys, so Fn is unnecessary in media-key

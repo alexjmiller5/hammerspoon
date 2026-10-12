@@ -97,6 +97,15 @@ local actions = {
 
   toggleTailscale = tailscale.toggle,
 
+  -- Verdict review pages toggle comment mode on Ctrl+Option+C (its verdict.js);
+  -- a page cannot see Hyper itself, so Hyper+C sends that combo to Chrome.
+  toggleVerdictComments = function()
+    local app = hs.application.frontmostApplication()
+    if app and app:bundleID() == constants.appBundleIds.chrome then
+      hs.eventtap.keyStroke({ "ctrl", "alt" }, "c", 0, app)
+    end
+  end,
+
   -- Control Spotify directly, regardless of which app has focus.
   spotifyNext = function() hs.spotify.next() end,
   spotifyPlayPause = function() hs.spotify.playpause() end,
@@ -125,6 +134,7 @@ M.definitions = {
   { mods = { "alt", "shift" },        key = "w",  action = actions.openDownloadsFolder },
   { mods = constants.hyperKeyMods,    key = "d",  action = actions.dictate },
   { mods = constants.hyperKeyMods,    key = "t",  action = actions.toggleTailscale },
+  { mods = constants.hyperKeyMods,    key = "c",  action = actions.toggleVerdictComments },
   { mods = { "cmd", "shift" },        key = "o",  action = actions.pasteLatestOtp },
   { mods = { "alt", "shift" },        key = "o",  action = actions.pasteLatestMailOtp },
 
