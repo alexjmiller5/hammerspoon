@@ -8,7 +8,7 @@
 local M = {}
 local log = hs.logger.new("opUnlock", "info")
 M.host = "mac-mini-tailscale"
-M.hours = 6
+M.hours = 24
 
 local function trim(s) return (tostring(s or ""):gsub("%s+$", "")) end
 
