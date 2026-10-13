@@ -34,7 +34,9 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
 ├── scripts/             # Shell scripts invoked by hotkeys
 ├── Spoons/              # Vendored spoons, ALL committed (installed software
 │                        # lives in the repo)
-├── opUnlock.lua         # Secure prompt that unlocks 1Password on the mini (called over ssh by op-unlock request)
+├── opUnlock.lua         # Secure prompt that unlocks 1Password on the mini (the mini's op-unlock request
+│                        # drops a file it watches); one prompt at a time - test scripts/test-op-unlock.lua
+│                        # runs under plain lua or hs
 ├── activeProfile.lua    # Reads ~/.config/hammerspoon-profile, resolves the active profile
 └── profiles/            # Machine-role profiles (selected at runtime, default: personal)
     ├── personal/        # init.lua, constants.lua, globalHotkeys.lua,

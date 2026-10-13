@@ -23,8 +23,16 @@ function M.sshWithInput(args, input, callback)
   return task
 end
 
+-- One prompt at a time: requests that arrive while it is open, or while the
+-- mini signs in, are covered by that unlock. A mini that never answers stops
+-- blocking after `signinTimeout` seconds (its own sign-in gives up at 60).
+M.signinTimeout = 90
+local function now() return hs.timer.secondsSinceEpoch() end
+
 local function unlock(password)
+  M.busyUntil = now() + M.signinTimeout
   M.sshWithInput({ "op-unlock", "--stdin", tostring(M.hours) }, password .. "\n", function(code, out, err)
+    M.busyUntil = nil
     if code == 0 then
       hs.alert.show("mini " .. trim(out))
     else
@@ -35,14 +43,19 @@ local function unlock(password)
 end
 
 function M.request(reason)
-  -- Deferred so the `hs -c` caller returns before the dialog blocks.
+  if M.busyUntil and now() < M.busyUntil then
+    log.i("unlock already in progress; dropped request: " .. tostring(reason))
+    return "busy"
+  end
+  M.busyUntil = math.huge -- until the prompt is answered
+  -- Deferred so the watcher callback returns before the dialog blocks.
   hs.timer.doAfter(0, function()
     hs.application.launchOrFocus("Hammerspoon")
     local button, password = hs.dialog.textPrompt(
       "Unlock 1Password on the mini",
       (reason or "an agent asked") .. "\n\nAccount password; memory only, " .. M.hours .. "h window.",
       "", "Unlock", "Cancel", true)
-    if button == "Unlock" and password ~= "" then unlock(password) end
+    if button == "Unlock" and password ~= "" then unlock(password) else M.busyUntil = nil end
   end)
   return "queued"
 end

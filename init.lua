@@ -4,7 +4,8 @@ local log = hs.logger.new("Init", "debug")
 
 require("hs.ipc")
 
--- Global on purpose: the mini calls it as `hs -c 'opUnlock.request("...")'`.
+-- Global so the console can call opUnlock.request; the mini asks through the
+-- file opUnlock.lua watches.
 opUnlock = require("opUnlock")
 
 -- hs.hotkey logs every enable/disable at info level. The app-based hotkey
