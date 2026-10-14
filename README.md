@@ -96,3 +96,28 @@ keys retain their normal system behavior.
 Regression checks run through `hs -c` using `scripts/test-*.lua`; they substitute
 UI and process effects so they do not operate on your current app. Run the
 clipboard CLI tests with `python3 scripts/test-search-clipboard.py`.
+
+## Screen Sharing placement (personal profile)
+
+An optional rule pins one Screen Sharing session eight points below its current
+display's usable top edge. Width, height, horizontal position, and focus are
+preserved. Fullscreen, hidden windows, dialogs, and other sessions are excluded.
+
+Select the session through Hammerspoon's installed interface: focus its window,
+then run:
+
+```sh
+hs -c 'local w = hs.window.focusedWindow(); assert(w and w:application():bundleID() == "com.apple.ScreenSharing" and w:isStandard(), "Focus a Screen Sharing session first"); hs.settings.set("screenSharingPlacement.title", (w:title():gsub(" – .*", ""))); hs.reload()'
+```
+
+The setting belongs to Hammerspoon's local preferences, never the repo. The
+rule is disabled when no title is configured. Disable it with
+`hs -c 'hs.settings.clear("screenSharingPlacement.title"); hs.reload()'`.
+On a replacement machine, grant Hammerspoon Accessibility, select the session
+again, and reload. If the remote computer is renamed, reselect its session.
+
+Direct Accessibility move/resize notifications trigger a 100 ms one-shot
+debounce. During a mouse drag, correction waits for release. A window filter
+discovers sessions; a display watcher handles monitor changes. No repeating
+polling timer is used. A window too tall to clear the local Dock still needs
+to be resized manually. Verify with `scripts/test-screen-sharing-placement.lua`.

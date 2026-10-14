@@ -252,6 +252,25 @@ adds Shift to WhatsApp Cmd+U. It preserves optional modifiers, ignores its
 own generated Escape, and passes unrelated typing through. Verify with
 `scripts/test-app-input-remaps.lua`.
 
+### Screen Sharing Placement
+
+The personal profile starts `ProfileScreenSharingPlacement` from
+`profiles/personal/screenSharingPlacement.lua` when the local Hammerspoon
+setting `screenSharingPlacement.title` names a session. Select or clear it
+through the hs CLI as documented in README.md; titles are user state, never
+source literals. Exact titles and status suffixes introduced by ` – ` match.
+
+A window filter discovers visible, standard session windows on the current
+Space. Per-window Accessibility watchers handle raw move/resize notifications
+because window-filter movement events have a built-in 500 ms debounce.
+Corrections use a 100 ms one-shot timer, defer while the left mouse button is
+held, and use a temporary mouse-up tap that passes the event through. Position
+only is changed to the current usable screen top plus eight points.
+Destroyed/rejected windows release observers and timers; `:stop()` stops
+the controller. Actual placement results suppress loops if an app clamps or
+refuses a move. Fullscreen, hidden windows, dialogs and other sessions stay
+untouched. Check `scripts/test-screen-sharing-placement.lua` through hs.
+
 ### Window Management
 
 `windowManagement.lua` owns window controls for both profiles. Placement tries
