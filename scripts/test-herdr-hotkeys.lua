@@ -12,6 +12,7 @@ local strokes, hotkeys, subscriptions, stored = {}, {}, {}, { 4242 }
 local focused, existing = nil, { [4242] = true }
 local pendingMtime, removed, pendingMode, removalFails = nil, nil, "file", false
 local errors = {}
+local reconnectCalls, appleScripts = {}, {}
 
 local fakeHs = {
   logger = { new = function() return { i = function() end, w = function(message) errors[#errors + 1] = message end } end },
@@ -60,14 +61,31 @@ local fakeOs = setmetatable({
     pendingMtime = nil; return true
   end,
 }, { __index = os })
-local env = setmetatable({ hs = fakeHs, os = fakeOs }, { __index = _G })
+fakeHs.json = hs.json
+fakeHs.osascript = { applescript = function(script)
+  appleScripts[#appleScripts + 1] = script
+  return true
+end }
+local function fakeRequire(name)
+  if name == "helperFunctions" then
+    return {
+      runTask = function(path, args, callback)
+        reconnectCalls[#reconnectCalls + 1] = { path = path, args = args, callback = callback }
+        return {}
+      end,
+      reportError = function(message) errors[#errors + 1] = message end,
+    }
+  end
+  return require(name)
+end
+local env = setmetatable({ hs = fakeHs, os = fakeOs, require = fakeRequire }, { __index = _G })
 local M = assert(loadfile(hs.configdir .. "/herdrHotkeys.lua", "t", env))()
 
 -- One hotkey per binding, and nothing is live before a herdr window is focused
 assert(#hotkeys == #M._bindings, "every binding must produce a hotkey")
 local mine = {}                      -- later module loads append to `hotkeys`
 for i, hk in ipairs(hotkeys) do mine[i] = hk end
-assert(#M._bindings == 27, "expected 18 shortcuts plus cmd+1..9, got " .. #M._bindings)
+assert(#M._bindings == 28, "expected 19 shortcuts plus cmd+1..9, got " .. #M._bindings)
 for _, hk in ipairs(mine) do assert(not hk.enabled, "hotkeys must start disabled") end
 
 -- The id restored from settings survives; an id whose window is gone is pruned
@@ -183,4 +201,22 @@ findAction({ "cmd" }, "k").fn()
 assert(#strokes == 1 and strokes[1].key == "l" and strokes[1].mods[1] == "ctrl",
   "clear must be a bare ctrl+l with no prefix")
 
+-- Reconnect runs locally, even while the remote pane cannot accept input.
+strokes = {}
+findAction({ "cmd", "shift" }, "r").fn()
+assert(#strokes == 0, "reconnect must not type into a remote pane")
+local call = reconnectCalls[#reconnectCalls]
+assert(call and call.path == "/bin/zsh" and call.args[1] == "-lc",
+  "reconnect must discover saved machines through the local login shell")
+assert(call.args[2] == "herdr machine list --json", "must read the installed Herdr catalog")
+call.callback(0, '[{"id":"other","enabled":true},{"id":"chosen-id","enabled":true,"selected":true}]', "")
+assert(#appleScripts == 1 and appleScripts[1]:find("chosen%-id") and not appleScripts[1]:find("other"),
+  "must open a local reconnect terminal for the selected machine only")
+assert(appleScripts[1]:find("herdr machine reconnect", 1, true), "must use native reconnect")
+assert(appleScripts[1]:find("new window", 1, true), "must preserve the existing Herdr window")
+local before = #errors
+call.callback(0, '[]', "")
+call.callback(0, 'invalid json', "")
+call.callback(1, "", "failed")
+assert(#errors == before + 3 and #appleScripts == 1, "catalog failures must report and never guess a machine")
 print("herdr-hotkeys: all checks passed")

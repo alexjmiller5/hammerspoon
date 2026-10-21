@@ -1,11 +1,12 @@
 local log = hs.logger.new("Herdr Hotkeys", "debug")
 
 local constants = require("constants")
+local helpers = require("helperFunctions")
 
 -- macOS-style shortcuts for Herdr, active only in the Ghostty windows that
 -- `hdr`/`herdr` opened. Ghostty's key table did this before, but an active key
 -- table paints a permanent indicator pill; Ghostty has no option to hide it.
--- Each hotkey types Herdr's ctrl+b prefix followed by its key, so Ghostty's own
+-- Navigation hotkeys type Herdr's ctrl+b prefix followed by their key, so Ghostty's own
 -- Cmd shortcuts keep working in every ordinary window.
 --
 -- herdr-window drops a sentinel file just before it opens a window; the first
@@ -20,9 +21,50 @@ local PENDING = (os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/s
   .. "/herdr-window/pending"
 local PENDING_MAX_AGE = 30 -- seconds; older means herdr-window failed, ignore it
 
+-- Recovery must run on the client machine, outside the disconnected pane.
+local function reconnect()
+  M.reconnectTask = helpers.runTask("/bin/zsh", { "-lc", "herdr machine list --json" }, function(code, out)
+    M.reconnectTask = nil
+    local ok, machines = pcall(hs.json.decode, out)
+    if code ~= 0 or not ok or type(machines) ~= "table" then
+      helpers.reportError("Cannot read Herdr saved machines")
+      return true
+    end
+    local selected
+    for _, machine in ipairs(machines) do
+      if machine.selected and machine.enabled and type(machine.id) == "string" then
+        if selected then
+          helpers.reportError("More than one Herdr machine is selected")
+          return true
+        end
+        selected = machine.id
+      end
+    end
+    if not selected then
+      helpers.reportError("Select a saved SSH machine in Herdr before reconnecting")
+      return true
+    end
+    local quotedId = "'" .. selected:gsub("'", "'\"'\"'") .. "'"
+    local recovery = "herdr machine reconnect " .. quotedId
+      .. "; result=$?; if [ $result -ne 0 ]; then echo 'Reconnect failed. Press Return to close.'; read -r reply; fi; exit $result"
+    local command = "/bin/zsh -lc '" .. recovery:gsub("'", "'\"'\"'") .. "'"
+    local opened = hs.osascript.applescript(string.format([[
+      tell application "Ghostty"
+        set surfaceConfig to new surface configuration
+        set command of surfaceConfig to %s
+        set recoveryWindow to new window with configuration surfaceConfig
+        activate window recoveryWindow
+      end tell
+    ]], '"' .. command:gsub('\\', '\\\\'):gsub('"', '\\"') .. '"'))
+    if not opened then helpers.reportError("Cannot open Herdr reconnect terminal") end
+    return true
+  end)
+end
+
 -- key = literal text to type after the prefix, or { mods, key } for a keystroke;
--- a fourth `true` sends the keystroke directly, without the prefix
+-- a function runs locally; a fourth `true` sends the keystroke directly, without the prefix
 local bindings = {
+  { { "cmd", "shift" }, "r", reconnect },               -- reconnect selected SSH machine
   { { "cmd" }, "t", "c" },                             -- new tab
   { { "cmd", "shift" }, "t", "t" },                    -- reopen closed tab
   { { "cmd", "shift" }, "[", "p" },                    -- previous tab
@@ -62,7 +104,7 @@ end
 
 local hotkeys = {}
 for _, def in ipairs(bindings) do
-  table.insert(hotkeys, hs.hotkey.new(def[1], def[2], sendPrefixed(def[3], def[4])))
+  table.insert(hotkeys, hs.hotkey.new(def[1], def[2], type(def[3]) == "function" and def[3] or sendPrefixed(def[3], def[4])))
 end
 
 -- Marked window ids, loaded from settings and pruned of windows that are gone.

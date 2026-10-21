@@ -306,3 +306,11 @@ Spotify hides itself whenever it loses application focus, using the native
 Hide action so playback continues. Option+S launches or brings it back.
 `SpotifyAutoHideWatcher` runs in both profiles; verify its event handling with
 `scripts/test-spotify-auto-hide.lua` through the hs CLI.
+
+### Herdr Recovery
+
+`herdrHotkeys.lua` binds Cmd+Shift+R only in marked Herdr windows. Recovery
+reads the local installed Herdr catalog and opens a separate local Ghostty
+terminal for native `machine reconnect` against its selected enabled machine.
+Never send recovery into a remote pane or restart a server. No machine IDs or
+SSH targets belong in source. Check with `scripts/test-herdr-hotkeys.lua`.
