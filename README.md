@@ -121,3 +121,8 @@ debounce. During a mouse drag, correction waits for release. A window filter
 discovers sessions; a display watcher handles monitor changes. No repeating
 polling timer is used. A window too tall to clear the local Dock still needs
 to be resized manually. Verify with `scripts/test-screen-sharing-placement.lua`.
+
+Spotify hides itself whenever it loses application focus, using the native
+Hide action so playback continues. Option+S launches or brings it back.
+`SpotifyAutoHideWatcher` runs in both profiles; verify its event handling with
+`scripts/test-spotify-auto-hide.lua` through the hs CLI.

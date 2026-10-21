@@ -15,6 +15,15 @@ function M.createAppBasedHotkeyWatcher(registry)
   end)
 end
 
+function M.createSpotifyAutoHideWatcher()
+  return hs.application.watcher.new(function(_, event, app)
+    if event == hs.application.watcher.deactivated and app
+      and app:bundleID() == constants.appBundleIds.spotify then
+      app:hide()
+    end
+  end)
+end
+
 function M.createCopyConfirmationWatcher()
   local badge, dismiss
   return hs.pasteboard.watcher.new(function(text)

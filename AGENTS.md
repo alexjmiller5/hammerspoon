@@ -301,3 +301,8 @@ launches it. Verify with `scripts/test-contacts-hotkey.lua`.
 - **Chrome** (personal) / **Island** (work): each profile's `appBundleIds.browser`; the personal profile also uses Chrome PWAs (identified by `com.google.Chrome.app.*` bundle IDs)
 - **"Allow JavaScript from Apple Events"** (work profile only): the work profile's in-page JS hotkeys (`browser.js`) require the work browser's View > Developer > "Allow JavaScript from Apple Events"; no external binaries needed
 - **hs CLI**: Enabled via `require("hs.ipc")` for terminal commands like `hs -c "..."`
+
+Spotify hides itself whenever it loses application focus, using the native
+Hide action so playback continues. Option+S launches or brings it back.
+`SpotifyAutoHideWatcher` runs in both profiles; verify its event handling with
+`scripts/test-spotify-auto-hide.lua` through the hs CLI.
