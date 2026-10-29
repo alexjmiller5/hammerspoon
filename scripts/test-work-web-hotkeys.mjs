@@ -1,8 +1,8 @@
 // Run: bun scripts/test-work-web-hotkeys.mjs <disposable-page-CDP-WebSocket-URL>
 // The tab's contents are replaced. Use a blank test tab, never an inbox.
 import { execFileSync } from 'node:child_process';
-const output = execFileSync('hs', ['-c', `local ok, code, slack = pcall(dofile, hs.configdir .. "/scripts/test-work-hotkeys.lua"); print("UNDO_CODE:" .. hs.json.encode({ok=ok, code=code, slack=slack}))`], { encoding: 'utf8' });
-const { ok, code, slack } = JSON.parse(output.split('\n').find(line => line.startsWith('UNDO_CODE:')).slice(10));
+const output = execFileSync('hs', ['-c', `local ok, code, slack, refresh = pcall(dofile, hs.configdir .. "/scripts/test-work-hotkeys.lua"); print("UNDO_CODE:" .. hs.json.encode({ok=ok, code=code, slack=slack, refresh=refresh}))`], { encoding: 'utf8' });
+const { ok, code, slack, refresh } = JSON.parse(output.split('\n').find(line => line.startsWith('UNDO_CODE:')).slice(10));
 if (!ok) throw new Error(code);
 const ws = new WebSocket(process.argv[2]);
 await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
@@ -19,7 +19,7 @@ function call(method, params) {
     ws.send(JSON.stringify({ id, method, params }));
   });
 }
-const expression = `(${function (code, slack) {
+const expression = `(${function (code, slack, refresh) {
   if (location.href !== 'about:blank') throw new Error('Use a disposable about:blank tab');
   const run = new Function('location', 'return ' + code);
   const cases = [
@@ -50,6 +50,25 @@ const expression = `(${function (code, slack) {
     document.hasFocus = hasFocus;
     if (consumed !== want || clicks !== Number(want)) failures.push(name);
   }
+  const reloadMail = new Function('location', 'return ' + refresh);
+  const refreshCases = [
+    ['Gmail div button', '<div role="button" aria-label="Refresh" tabindex="0"></div>', 'mail.google.com', true],
+    ['native Refresh button', '<button aria-label="Refresh"></button>', 'mail.google.com', true],
+    ['hidden Refresh', '<div role="button" aria-label="Refresh" hidden></div>', 'mail.google.com', false],
+    ['hidden duplicate before visible Refresh', '<div role="button" aria-label="Refresh" hidden></div><div role="button" aria-label="Refresh"></div>', 'mail.google.com', true],
+    ['invisible Refresh', '<div role="button" aria-label="Refresh" style="visibility:hidden"></div>', 'mail.google.com', false],
+    ['disabled Refresh', '<button aria-label="Refresh" disabled></button>', 'mail.google.com', false],
+    ['ARIA disabled Refresh', '<div role="button" aria-label="Refresh" aria-disabled="true"></div>', 'mail.google.com', false],
+    ['missing Refresh', '<main>No refresh control</main>', 'mail.google.com', false],
+    ['message link named Refresh', '<a aria-label="Refresh">Refresh</a>', 'mail.google.com', false],
+    ['Refresh on another website', '<button aria-label="Refresh"></button>', 'example.com', false],
+  ];
+  for (const [name, html, hostname, want] of refreshCases) {
+    document.body.innerHTML = html;
+    let clicks = 0;
+    document.body.onclick = () => clicks++;
+    if (reloadMail({hostname}) !== want || clicks !== Number(want)) failures.push(name);
+  }
   const toggle = new Function('location', 'return ' + slack);
   document.body.innerHTML = '<button data-qa="floating_sidebars_toggle_button" aria-label="Hide sidebars">Toggle</button>';
   const button = document.querySelector('button');
@@ -64,8 +83,8 @@ const expression = `(${function (code, slack) {
   if (toggle({hostname:'app.slack.com'})) failures.push('missing Slack control');
   document.body.replaceChildren();
   document.body.onclick = null;
-  return { checks: cases.length + 5, failures };
-}.toString()})(${JSON.stringify(code)}, ${JSON.stringify(slack)})`;
+  return { checks: cases.length + refreshCases.length + 5, failures };
+}.toString()})(${JSON.stringify(code)}, ${JSON.stringify(slack)}, ${JSON.stringify(refresh)})`;
 try {
   await call('Emulation.setFocusEmulationEnabled', { enabled: true });
   const result = (await call('Runtime.evaluate', { expression, returnByValue: true })).result.value;

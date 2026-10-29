@@ -130,6 +130,10 @@ Cmd+Alt+Shift+[) are scoped to both Chrome and Island. Cmd+\ picks View >
 Collapse/Expand Vertical Tabs from the menu bar (menu items over AX buttons:
 names are stable and the call needs no window); `scripts/test-chrome-vertical-tabs.lua`.
 
+Work Cmd+Shift+R clicks Gmail's visible, enabled Refresh control to fetch
+mail without reloading the page. Other sites retain the browser shortcut.
+If Gmail's control is unavailable, an alert appears instead of reloading.
+
 **Work web hotkeys**: Cmd+Shift+\ toggles the active site's panel in Docs,
 Confluence, or Slack. Slack's web button owns its toggle; sending Cmd+Shift+D
 would collide with browser hotkeys. Unmodified U clicks Gmail's visible Undo

@@ -101,6 +101,27 @@ local actions = {
     end
   end,
 
+  -- Fetch new mail through Gmail's UI without a full browser reload.
+  refreshGmail = function()
+    if not browser.frontTitle():find("Gmail", 1, true) then
+      passThrough({ "cmd", "shift" }, "r")
+      return
+    end
+    local refreshed = browser.js([[(function() {
+      if (location.hostname !== 'mail.google.com') return false;
+      var refresh = [...document.querySelectorAll(
+        '[role="button"][aria-label="Refresh"],button[aria-label="Refresh"]')]
+        .find(function(e) {
+          return e.getClientRects().length && getComputedStyle(e).visibility === 'visible' &&
+            !e.disabled && e.getAttribute('aria-disabled') !== 'true';
+        });
+      if (!refresh) return false;
+      refresh.click();
+      return true;
+    })()]])
+    if refreshed ~= true then hs.alert.show("Gmail Refresh control unavailable") end
+  end,
+
   -- u: click Gmail's visible Undo notification, without stealing text input
   -- from an editor, search box, the address bar, or another website.
   undoGmail = function()
@@ -166,6 +187,7 @@ M.definitions = {
   { mods = { "cmd", "shift" }, key = "\\",     action = actions.toggleSitePanel,          only = browserOnly },
   { mods = { "cmd" },          key = "k",      action = actions.searchCurrentSite,        only = browserOnly },
   { mods = {},                 key = "escape", action = actions.escapeOrClearGmailSearch, only = browserOnly },
+  { mods = { "cmd", "shift" }, key = "r",      action = actions.refreshGmail,             only = browserOnly },
   { mods = {},                 key = "u",      action = actions.undoGmail,                only = browserOnly },
   { mods = { "cmd", "shift" }, key = "delete", action = actions.deleteCurrentGoogleDoc,   only = browserOnly },
   { mods = { "cmd" },          key = "\\",     action = actions.slackToggleSidebar,      only = slackOnly },

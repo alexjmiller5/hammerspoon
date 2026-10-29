@@ -39,6 +39,10 @@ Option+G and Option+Y jump to the Gemini and YouTube tabs; personal leaves
 Option+G unbound. Option+Shift+W opens the Downloads folder in Finder on both.
 Cmd+\, Cmd+D and Cmd+Shift+D work in both Chrome and Island.
 
+Work Cmd+Shift+R clicks Gmail's visible, enabled Refresh control to fetch
+mail without reloading the page. Other sites retain the browser shortcut.
+If Gmail's control is unavailable, an alert appears instead of reloading.
+
 The work profile uses Cmd+Shift+\ for site panels in Docs, Confluence, and
 Slack. In Gmail, U clicks a visible Undo notification; it types normally in
 text fields, when the page lacks focus, or when no Undo is available.

@@ -1,6 +1,6 @@
 -- Run: hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-work-hotkeys.lua"))'
 -- Load the real definitions in isolation; fake only macOS side effects.
-local calls, bindings, title, jsResult, undoCode, slackCode = {}, {}, "", nil, nil, nil
+local calls, bindings, title, jsResult, undoCode, slackCode, refreshCode = {}, {}, "", nil, nil, nil, nil
 local island = "io.island.Island"
 local browserApp = {}
 local frontmost = browserApp
@@ -152,6 +152,29 @@ check("Confluence sidebar keeps its existing shortcut", function()
   action("cmd+shift", "\\")()
   assert(calls.stroke and calls.stroke.key == "[")
 end)
+check("Gmail Cmd+Shift+R consumes a successful in-page refresh", function()
+  title, jsResult = "Inbox - Gmail", true
+  action("cmd+shift", "r")()
+  assert(calls.js and not calls.stroke)
+  refreshCode = calls.js
+end)
+check("Gmail Cmd+Shift+R never reloads the page when refresh is unavailable", function()
+  title = "Inbox - Gmail"
+  for _, result in ipairs({ false, "" }) do
+    calls, jsResult = {}, result
+    action("cmd+shift", "r")()
+    assert(calls.js and not calls.stroke)
+  end
+  calls, jsResult = {}, nil
+  action("cmd+shift", "r")()
+  assert(calls.js and not calls.stroke)
+end)
+check("Cmd+Shift+R on other websites passes through without injecting JS", function()
+  title = "Example"
+  action("cmd+shift", "r")()
+  assert(not calls.js and calls.stroke and calls.stroke.key == "r")
+  assert(table.concat(calls.stroke.mods, "+") == "cmd+shift")
+end)
 check("Gmail U consumes only a successful Undo click", function()
   title, jsResult = "Inbox - Gmail", true
   action("", "u")()
@@ -225,4 +248,4 @@ check("personal app hotkeys have no Gemini target or empty app scope", function(
 end)
 assert(failed == 0, failed .. " work hotkey checks failed")
 print("work-hotkeys: all checks passed")
-return undoCode, slackCode
+return undoCode, slackCode, refreshCode
