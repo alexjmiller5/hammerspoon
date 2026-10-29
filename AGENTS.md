@@ -201,9 +201,10 @@ an active key table paints an indicator pill Ghostty has no option to hide.
 Run its behavior check with
 `hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-herdr-hotkeys.lua"))'`.
 
-**Ghostty links**: `GhosttyCommandClickWatcher` adds Shift to Command-only
-left-click and hover events in Ghostty so native link opening bypasses Herdr's
-mouse capture. Keyboard events and other modifier combinations pass through.
+**Ghostty links**: `GhosttyCommandClickWatcher` translates Command-only left-click and hover
+events to Control in marked Herdr windows, where Herdr owns labeled links.
+Other Ghostty windows add Shift for native link opening. Keyboard events
+and other modifier combinations pass through.
 Run `scripts/test-ghostty-command-click.lua` through the hs CLI.
 
 ### Adding New Hotkeys

@@ -54,8 +54,12 @@ function M.createGhosttyCommandClickWatcher()
     if flags.cmd and not flags.alt and not flags.ctrl and not flags.shift then
       local app = hs.application.frontmostApplication()
       if app and app:bundleID() == constants.appBundleIds.ghostty then
-        -- Shift lets Ghostty open links even when Herdr captures the mouse.
-        flags.shift = true
+        if require("herdrHotkeys")._isHerdrWindow(hs.window.focusedWindow()) then
+          -- Herdr owns labeled links; translate the gesture before Ghostty drops Command.
+          flags.cmd, flags.ctrl = nil, true
+        else
+          flags.shift = true
+        end
         event:setFlags(flags)
       end
     end
