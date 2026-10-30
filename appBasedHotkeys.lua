@@ -7,6 +7,12 @@ local windows = require("windowManagement")
 local M = {}
 
 local actions = {
+  herdrNextSession = function()
+    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-navigate next" })
+  end,
+  herdrPreviousSession = function()
+    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-navigate previous" })
+  end,
   windowMakeLarger = function() windows.resize(0.05) end,
   windowMakeSmaller = function() windows.resize(-0.05) end,
   contactsEdit = function()
@@ -66,6 +72,7 @@ local actions = {
 -- app (e.g. the Chromium browsers, used 4×) isn't spelled out on every definition. These lists
 -- are only read (never mutated), so sharing one table across definitions is safe.
 local apps = {
+  herdr      = { constants.appBundleIds.herdr },
   finder      = { constants.appBundleIds.finder },
   contacts    = { constants.appBundleIds.contacts },
   claude      = { constants.appBundleIds.claude },
@@ -79,6 +86,11 @@ local apps = {
 }
 
 M.definitions = {
+  -- Traverse every open tab across machines/spaces, independent of layout.
+  { mods = { "cmd", "shift" }, key = "]", action = actions.herdrNextSession,
+    only = apps.herdr },
+  { mods = { "cmd", "shift" }, key = "[", action = actions.herdrPreviousSession,
+    only = apps.herdr },
   -- Finder owns Cmd+Plus/Minus for icon sizing (Plus is Shift+Equals on U.S.).
   { mods = { "cmd", "shift" }, key = "=", action = actions.windowMakeLarger,
     except = apps.finder },

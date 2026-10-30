@@ -182,6 +182,13 @@ Hammerspoon are explicitly exempt. It quits with `app:kill()` (Quit AppleEvent,
 save prompts intact). Run its behavior check with
 `hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-windowless-app-reaper.lua"))'`.
 
+**Native Herdr navigation**: Cmd+Shift+[/] runs the Nix-installed
+`herdr-navigate previous/next`, only while `dev.herdr.app` is frontmost.
+It traverses every open tab, including shells, in machine/space/tab order,
+wraps at the ends, and skips settled tabs. It uses app IDs from `herdr-app ls`
+and does not depend on a layout's agent order. Check with
+`scripts/test-herdr-navigation.lua`.
+
 **Herdr shortcuts**: `herdrHotkeys.lua` gives Herdr the macOS shortcuts
 (Cmd+T, Cmd+Shift+[/], Cmd+1..9, splits, sidebar, detach, ...) by typing its
 ctrl+b prefix plus the matching key. Ghostty's own key table could do this, but
