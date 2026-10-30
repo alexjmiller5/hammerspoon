@@ -282,7 +282,8 @@ untouched. Check `scripts/test-screen-sharing-placement.lua` through hs.
 
 `windowManagement.lua` owns window controls for both profiles. Placement tries
 native Window menu items, then uses Hammerspoon geometry for halves, quarters,
-and maximize. Resize changes both dimensions in 5% screen increments, centered
+and maximize. Geometry placement and resizing use Hammerspoon's default
+animation, matching Cmd+Shift+/ centering. Resize changes both dimensions in 5% screen increments, centered
 and bounded by the usable screen. Native Control-arrow handles adjacent Spaces;
 generated arrow events include the Function flag, matching macOS defaults.
 Nix's exported `macos-window-management` module declares those native shortcuts.

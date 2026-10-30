@@ -4,10 +4,10 @@ local screen = { x = 100, y = 50, w = 1200, h = 800 }
 local frame = { x = 400, y = 250, w = 600, h = 400 }
 local window = {
   centerOnScreen = function() calls.center = true end,
-  moveToUnit = function(_, rect) calls.unit = rect end,
+  moveToUnit = function(_, rect, duration) calls.unit = rect; calls.duration = duration end,
   screen = function() return { frame = function() return screen end } end,
   frame = function() return { x = frame.x, y = frame.y, w = frame.w, h = frame.h } end,
-  setFrame = function(_, rect) calls.frame = rect end,
+  setFrame = function(_, rect, duration) calls.frame = rect; calls.duration = duration end,
 }
 local env = setmetatable({
   hs = {
@@ -33,6 +33,7 @@ for name, expected in pairs({
 }) do
   calls = {}; wm.place(name)
   local rect = assert(calls.unit, "missing geometry fallback for " .. name)
+  assert(calls.duration == nil, "fallback placement must use the default animation like centering")
   assert(rect.x == expected[1] and rect.y == expected[2] and rect.w == expected[3] and rect.h == expected[4], name)
   menuWorks = true; calls = {}; wm.place(name)
   assert(calls.menu and not calls.unit, "native menu must take priority")
@@ -40,6 +41,7 @@ for name, expected in pairs({
 end
 calls = {}; wm.center(); assert(calls.center)
 calls = {}; wm.resize(0.05)
+assert(calls.duration == nil, "incremental resizing must use the default animation like centering")
 assert(calls.frame.x == 370 and calls.frame.y == 230 and calls.frame.w == 660 and calls.frame.h == 440,
   "grow around the center by five percent of usable screen size")
 calls = {}; wm.resize(-0.05)

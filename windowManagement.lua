@@ -19,7 +19,7 @@ function M.place(name)
   local menu = name == "maximize" and { "Window", "Fill" }
     or { "Window", "Move & Resize", layout[1] }
   if not helpers.tryMenuItem(menu) then
-    win:moveToUnit({ x = layout[2], y = layout[3], w = layout[4], h = layout[5] }, 0)
+    win:moveToUnit({ x = layout[2], y = layout[3], w = layout[4], h = layout[5] })
   end
 end
 
@@ -39,7 +39,7 @@ function M.resize(delta)
   frame.x = math.max(screen.x, math.min(frame.x + (frame.w - width) / 2, screen.x + screen.w - width))
   frame.y = math.max(screen.y, math.min(frame.y + (frame.h - height) / 2, screen.y + screen.h - height))
   frame.w, frame.h = width, height
-  win:setFrame(frame, 0)
+  win:setFrame(frame)
 end
 
 function M.desktop(direction)
