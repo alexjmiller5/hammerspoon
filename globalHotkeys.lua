@@ -23,6 +23,9 @@ end
 
 local actions = {
   -- App Launchers
+  launchHerdr = function()
+    hs.application.launchOrFocusByBundleID(constants.appBundleIds.herdr)
+  end,
   launchGhostty = function()
     hs.application.launchOrFocusByBundleID(constants.appBundleIds.ghostty)
   end,
@@ -109,6 +112,7 @@ local actions = {
 -- Hotkey Definitions Table
 M.definitions = {
   -- App Launchers
+  { mods = { "alt" }, key = "h", action = actions.launchHerdr },
   {
     mods = { "alt" },
     key = "t",

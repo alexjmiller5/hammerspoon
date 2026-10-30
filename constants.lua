@@ -4,6 +4,7 @@ M.hyperKeyMods = { "cmd", "alt", "ctrl", "shift" }
 
 -- Application Bundle IDs
 M.appBundleIds = {
+  herdr          = "dev.herdr.app",
   ghostty        = "com.mitchellh.ghostty",
   notes          = "com.apple.Notes",
   contacts       = "com.apple.AddressBook",

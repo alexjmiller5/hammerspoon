@@ -114,7 +114,9 @@ and releases to prevent a second system action. Check with
 
 **Profile System**: `profiles/<name>/` dirs extend the base config; the active one is chosen at runtime by `activeProfile.lua`, which reads `~/.config/hammerspoon-profile` (one line: `personal` or `work` - written per machine by nix-config; defaults to `personal` if absent). The selected `profiles/<name>/init.lua` loads after the main init and adds hotkeys to the same global `AppBasedHotkeyRegistry`, via `pcall` so a broken profile doesn't crash the config. Main-config modules that need the active profile's constants use `require("activeProfile").require("constants")`. Everything the main `init.lua` starts before the profile loads - the app-based hotkey watcher, the "Text Copied" badge, Ghostty Command-click, the windowless app reaper, Herdr shortcuts and Hyper - runs in every profile; a profile only adds to it.
 
-**Shared launchers**: Option+A opens Apple Notes. Option+B (new window),
+**Shared launchers**: Option+H launches or focuses the native Herdr app.
+Option+T retains Ghostty. Check the Herdr binding with
+`scripts/test-herdr-launcher.lua`. Option+A opens Apple Notes. Option+B (new window),
 Option+I (incognito) and Option+Shift+B/I (clipboard search) run the active
 profile's `appBundleIds.browser` - Chrome on personal, Island on work - with
 Chromium's `--new-window`/`--incognito` switches; `helpers.appExecutable`
