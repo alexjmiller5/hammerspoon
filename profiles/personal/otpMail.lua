@@ -1,7 +1,7 @@
 -- Paste Latest OTP Code from Gmail — sibling of otp.lua (Messages).
 --
 -- Runs the gog CLI (1Password-backed wrapper, so expect a Touch ID prompt)
--- to search the last hour of mail for a 2FA-looking message, picks the code
+-- to search the last minute of mail for a 2FA-looking message, picks the code
 -- with otp.pickOtp from the subject (or the body when the subject has none),
 -- types it into the focused field and presses Return. Two shots at most,
 -- retryDelay apart (the mail usually lands on the second): every extra
@@ -12,7 +12,7 @@ local helpers = require("helperFunctions")
 local M = {}
 
 M.gogPath = "/etc/profiles/per-user/" .. os.getenv("USER") .. "/bin/gog"
-M.query   = "newer_than:1h (code OR passcode OR verification OR OTP)"
+M.query   = "(code OR passcode OR verification OR OTP)"
 M.maxThreads = 5
 M.retryDelay = 3
 
@@ -43,7 +43,7 @@ local function scan(threads, i, cb)
     helpers.reportError("Mail command returned a thread without an ID")
     return cb(nil, "Invalid mail response")
   end
-  -- A thread's id is its first message's id, which is the OTP mail itself.
+  -- Fetch the matching message, never the first message of an older thread.
   gog({ "gmail", "get", t.id, "-j", "--results-only", "--sanitize-content", "--no-input" }, function(msg, err)
     if err then return cb(nil, err) end
     if msg.snippet ~= nil and type(msg.snippet) ~= "string" then
@@ -57,7 +57,8 @@ local function scan(threads, i, cb)
 end
 
 function M.findRecentCode(cb)
-  gog({ "gmail", "search", M.query, "--max", tostring(M.maxThreads), "-j", "--results-only", "--no-input" },
+  local query = "after:" .. tostring(os.time() - otp.lookbackSeconds) .. " " .. M.query
+  gog({ "gmail", "messages", "search", query, "--max", tostring(M.maxThreads), "-j", "--results-only", "--no-input" },
     function(threads, err)
       if err then return cb(nil, err) end
       if next(threads) ~= nil and threads[1] == nil then
@@ -73,6 +74,7 @@ function M.pasteLatest(attempt)
   M.findRecentCode(function(code, err)
     if err then return end
     if code then
+      hs.pasteboard.setContents(code)
       hs.eventtap.keyStrokes(code)
       hs.eventtap.keyStroke({}, "return")
     elseif attempt == 1 then
