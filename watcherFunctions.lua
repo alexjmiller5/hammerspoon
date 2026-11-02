@@ -11,6 +11,9 @@ function M.createAppBasedHotkeyWatcher(registry)
   return hs.application.watcher.new(function(appName, eventType, appObject)
     if eventType == hs.application.watcher.activated then
       previousBundleID = helperFunctions.updateActiveAppHotkeys(appObject, registry, previousBundleID)
+      if appObject and appObject:bundleID() == constants.appBundleIds.herdr then
+        helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native titles" })
+      end
     end
   end)
 end

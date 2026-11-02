@@ -7,6 +7,30 @@ local windows = require("windowManagement")
 local M = {}
 
 local actions = {
+  herdrCloseSession = function()
+    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native close" }, function(code, _, err)
+      if code ~= 0 then helperFunctions.reportError(err ~= "" and err or "Could not save the session; tab left open") end
+      return true
+    end)
+  end,
+  herdrReopenSession = function()
+    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native reopen" }, function(code, _, err)
+      if code ~= 0 then helperFunctions.reportError(err ~= "" and err or "Could not resume the saved session") end
+      return true
+    end)
+  end,
+  herdrNextPane = function()
+    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native pane-next" })
+  end,
+  herdrPreviousPane = function()
+    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native pane-previous" })
+  end,
+  herdrReconnect = function()
+    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native reconnect" }, function(code, _, err)
+      if code ~= 0 then helperFunctions.reportError(err ~= "" and err or "Could not reconnect the selected machine") end
+      return true
+    end)
+  end,
   herdrNextSession = function()
     helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-navigate next" })
   end,
@@ -86,6 +110,13 @@ local apps = {
 }
 
 M.definitions = {
+  { mods = { "cmd" }, key = "]", action = actions.herdrNextPane, only = apps.herdr },
+  { mods = { "cmd" }, key = "[", action = actions.herdrPreviousPane, only = apps.herdr },
+  { mods = { "cmd", "shift" }, key = "r", action = actions.herdrReconnect, only = apps.herdr },
+  { mods = { "cmd" }, key = "w", action = actions.herdrCloseSession,
+    only = apps.herdr },
+  { mods = { "cmd", "shift" }, key = "t", action = actions.herdrReopenSession,
+    only = apps.herdr },
   -- Traverse every open tab across machines/spaces, independent of layout.
   { mods = { "cmd", "shift" }, key = "]", action = actions.herdrNextSession,
     only = apps.herdr },

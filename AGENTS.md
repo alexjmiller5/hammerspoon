@@ -182,6 +182,12 @@ Hammerspoon are explicitly exempt. It quits with `app:kill()` (Quit AppleEvent,
 save prompts intact). Run its behavior check with
 `hs -c 'print(pcall(dofile, hs.configdir .. "/scripts/test-windowless-app-reaper.lua"))'`.
 
+**Native Herdr close/restore**: Cmd+W snapshots exact registered agent
+identities and split topology before ending a native tab. Cmd+Shift+T restores
+it through `herdr-native reopen`. Unknown identities leave the tab open;
+errors appear as alerts. Automatic titles refresh on core events and app
+activation, preserve manual labels, and do not depend on the layout.
+
 **Native Herdr navigation**: Cmd+Shift+[/] runs the Nix-installed
 `herdr-navigate previous/next`, only while `dev.herdr.app` is frontmost.
 It traverses every open tab, including shells, in machine/space/tab order,
@@ -329,3 +335,5 @@ reads the local installed Herdr catalog and opens a separate local Ghostty
 terminal for native `machine reconnect` against its selected enabled machine.
 Never send recovery into a remote pane or restart a server. No machine IDs or
 SSH targets belong in source. Check with `scripts/test-herdr-hotkeys.lua`.
+
+Native Herdr Cmd+[/] cycles panes across split directions; Cmd+Shift+R reconnects the selected remote machine through herdr-native.
