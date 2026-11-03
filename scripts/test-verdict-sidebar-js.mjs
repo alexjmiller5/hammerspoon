@@ -58,4 +58,4 @@ const mutations=[
 for(const [name,code,expected] of mutations) {
  if(code===result.code || !suite(code).failures.includes(expected)) throw new Error('Surviving mutation: '+name);
 }
-console.log('verdict-sidebar-js: '+baseline.checks+' controlled-page cases passed; 3 mutations killed; real browser verification pending');
+console.log('verdict-sidebar-js: '+baseline.checks+' controlled-page cases passed; 3 mutations killed; real browser acceptance is separate');
