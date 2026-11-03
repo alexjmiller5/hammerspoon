@@ -138,7 +138,9 @@ If Gmail's control is unavailable, an alert appears instead of reloading.
 
 **Verdict sidebar**: Cmd+Shift+\ uses the shared in-process JavaScript helper
 to click button#vd-pane-toggle[data-action="toggle-review-controls"] on a
-Verdict review page. Personal Chrome/Island and the configured work browser
+Verdict review page. Older installed pages use only their original header
+button.vd-pane-toggle with no ID/action, type=button, matching controlled body
+and exact Collapse/Expand review controls label; ambiguous targets stay untouched. Personal Chrome/Island and the configured work browser
 share the method; the work dispatcher retains its existing site actions.
 Inputs, an unfocused page, hidden/disabled/missing controls and non-Verdict
 pages never click a review control. No answers, comments or submission are

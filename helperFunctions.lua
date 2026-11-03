@@ -219,17 +219,25 @@ function M.toggleVerdictSidebar(bundleID)
     var focused = document.activeElement;
     if (!document.hasFocus() || (focused && (focused.isContentEditable ||
         focused.closest('input,textarea,select,[role="textbox"]')))) return true;
+    var controlled = document.getElementById('vd-pane-body');
+    if (!controlled) return true;
     var buttons = [...document.querySelectorAll(
-      'button#vd-pane-toggle[data-action="toggle-review-controls"][aria-controls="vd-pane-body"]')]
-      .filter(function(e) {
+      'button#vd-pane-toggle[data-action="toggle-review-controls"][aria-controls="vd-pane-body"]')];
+    if (!buttons.length) buttons = [...document.querySelectorAll(
+      'aside.vd-bar > .vd-pane-head > button.vd-pane-toggle[type="button"][aria-controls="vd-pane-body"]:not([id]):not([data-action])')];
+    buttons = buttons.filter(function(e) {
         var rect = e.getBoundingClientRect();
-        return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 &&
+        var panel = e.closest('aside.vd-bar');
+        var expanded = e.getAttribute('aria-expanded');
+        return panel && panel.contains(controlled) &&
+          e.getAttribute('aria-label') === (expanded === 'true' ? 'Collapse review controls' : 'Expand review controls') &&
+          rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 &&
           rect.top < innerHeight && rect.left < innerWidth &&
           getComputedStyle(e).visibility === 'visible' && !e.disabled &&
           e.getAttribute('aria-disabled') !== 'true' &&
           ['true', 'false'].includes(e.getAttribute('aria-expanded'));
       });
-    if (buttons.length === 1 && document.getElementById('vd-pane-body')) buttons[0].click();
+    if (buttons.length === 1) buttons[0].click();
     return true;
   })()]]) == true
 end
