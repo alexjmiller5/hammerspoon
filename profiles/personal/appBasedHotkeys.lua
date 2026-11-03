@@ -7,6 +7,13 @@ local constants        = require("constants")
 local M                = {}
 
 local actions          = {
+  verdictToggleSidebar = function()
+    local app = hs.application.frontmostApplication()
+    local id = app and app:bundleID()
+    if id == constants.appBundleIds.chrome or id == constants.appBundleIds.island then
+      helperFunctions.toggleVerdictSidebar(id)
+    end
+  end,
   -- PWA
   pwaDevTools = function()
     hs.eventtap.keyStroke({ "cmd", "alt" }, "i")
@@ -88,6 +95,8 @@ local apps = {
 }
 
 M.definitions          = {
+  { mods = { "cmd", "shift" }, key = "\\", action = actions.verdictToggleSidebar,
+    only = { constants.appBundleIds.chrome, constants.appBundleIds.island } },
   -- Google Maps PWA
   {
     mods = { "cmd", "shift" },

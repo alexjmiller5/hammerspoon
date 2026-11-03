@@ -198,4 +198,40 @@ function M.toggleVerticalTabs()
   end
 end
 
+
+-- Same in-process Chromium JavaScript path used by the work browser helpers.
+function M.browserJS(bundleID, code)
+  local function quote(value)
+    return '"' .. value:gsub('\\', '\\\\'):gsub('"', '\\"') .. '"'
+  end
+  local ok, result = hs.osascript.applescript('tell application id ' .. quote(bundleID)
+    .. ' to execute active tab of front window javascript ' .. quote(code))
+  return ok and result or nil
+end
+
+-- true consumes the shortcut on a Verdict page, even while a control is unavailable.
+function M.toggleVerdictSidebar(bundleID)
+  local front = hs.application.frontmostApplication()
+  if not front or front:bundleID() ~= bundleID then return false end
+  return M.browserJS(bundleID, [[(function() {
+    if (!/^\/r\/[^/]+\/?$/.test(location.pathname) ||
+        !document.body.classList.contains('vd-review')) return false;
+    var focused = document.activeElement;
+    if (!document.hasFocus() || (focused && (focused.isContentEditable ||
+        focused.closest('input,textarea,select,[role="textbox"]')))) return true;
+    var buttons = [...document.querySelectorAll(
+      'button#vd-pane-toggle[data-action="toggle-review-controls"][aria-controls="vd-pane-body"]')]
+      .filter(function(e) {
+        var rect = e.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 &&
+          rect.top < innerHeight && rect.left < innerWidth &&
+          getComputedStyle(e).visibility === 'visible' && !e.disabled &&
+          e.getAttribute('aria-disabled') !== 'true' &&
+          ['true', 'false'].includes(e.getAttribute('aria-expanded'));
+      });
+    if (buttons.length === 1 && document.getElementById('vd-pane-body')) buttons[0].click();
+    return true;
+  })()]]) == true
+end
+
 return M

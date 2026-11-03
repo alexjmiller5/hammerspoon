@@ -38,6 +38,7 @@ local actions = {
   -- cmd+shift+\ — site-specific panel toggle (cmd+\ stays the general
   -- browser tab-strip sidebar everywhere)
   toggleSitePanel = function()
+    if helpers.toggleVerdictSidebar(browserBundleId) then return end
     local title = browser.frontTitle()
     if title:find("Google Docs", 1, true) then
       -- Prefix match + getClientRects: in multi-tab docs the closed-state

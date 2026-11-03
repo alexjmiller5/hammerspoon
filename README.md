@@ -47,6 +47,10 @@ The work profile uses Cmd+Shift+\ for site panels in Docs, Confluence, and
 Slack. In Gmail, U clicks a visible Undo notification; it types normally in
 text fields, when the page lacks focus, or when no Undo is available.
 
+Cmd+Shift+\ toggles Verdict review controls through their supported button
+in personal Chrome/Island and the configured work browser. It leaves inputs
+and unrelated pages alone. The browser needs Allow JavaScript from Apple Events.
+
 ## Optional dependencies
 
 File-backed actions report missing dependencies or execution failures:

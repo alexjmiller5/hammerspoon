@@ -30,9 +30,7 @@ end
 
 -- Run JS in the active tab of the front browser window.
 function M.js(code)
-  local ok, result = hs.osascript.applescript(
-    tellBrowser() .. " to execute active tab of front window javascript " .. asQuote(code))
-  return ok and result or nil
+  return require("helperFunctions").browserJS(bundleID(), code)
 end
 
 -- Open a URL in a new browser window and bring it forward.

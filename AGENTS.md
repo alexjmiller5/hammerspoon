@@ -136,6 +136,16 @@ Work Cmd+Shift+R clicks Gmail's visible, enabled Refresh control to fetch
 mail without reloading the page. Other sites retain the browser shortcut.
 If Gmail's control is unavailable, an alert appears instead of reloading.
 
+**Verdict sidebar**: Cmd+Shift+\ uses the shared in-process JavaScript helper
+to click button#vd-pane-toggle[data-action="toggle-review-controls"] on a
+Verdict review page. Personal Chrome/Island and the configured work browser
+share the method; the work dispatcher retains its existing site actions.
+Inputs, an unfocused page, hidden/disabled/missing controls and non-Verdict
+pages never click a review control. No answers, comments or submission are
+changed. The browser needs Allow JavaScript from Apple Events. Check with
+scripts/test-verdict-sidebar.lua and bun scripts/test-verdict-sidebar-js.mjs;
+real browser/key round-trip acceptance is separate from those isolated tests.
+
 **Work web hotkeys**: Cmd+Shift+\ toggles the active site's panel in Docs,
 Confluence, or Slack. Slack's web button owns its toggle; sending Cmd+Shift+D
 would collide with browser hotkeys. Unmodified U clicks Gmail's visible Undo
