@@ -41,4 +41,7 @@ callback("another copy")
 assert(#shown == 2 and shown[1].deleted and timers[1].stopped, "rapid copies must replace the previous badge")
 timers[2].fire()
 assert(shown[2].deleted, "badge must disappear after the timeout")
+frontmost = { bundleID = function() return "dev.herdr.app" end }
+callback("native Herdr copy")
+assert(#shown == 3, "native Herdr copies must get the same independent confirmation")
 print("copy-confirmation: all checks passed")

@@ -31,7 +31,7 @@ function M.createCopyConfirmationWatcher()
   local badge, dismiss
   return hs.pasteboard.watcher.new(function(text)
     local app = hs.application.frontmostApplication()
-    if not text or text == "" or not app or app:bundleID() ~= constants.appBundleIds.ghostty then
+    if not text or text == "" or not app or (app:bundleID() ~= constants.appBundleIds.ghostty and app:bundleID() ~= constants.appBundleIds.herdr) then
       return
     end
     if dismiss then dismiss:stop() end
