@@ -61,6 +61,12 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
                          # (see profiles/work/constants.lua for its shape)
 ```
 
+Native Herdr hotkeys dispatch installed binaries directly from the per-user Nix
+profile, without login shells. The custom compact bar handles global next/previous
+and close commands in process; other layouts fall back to the native CLI helpers.
+Close failures remain visible and restore uses the durable native archive.
+`scripts/test-herdr-navigation.lua` verifies dispatch and fallback without focus changes.
+
 ### Key Patterns
 
 **Charger sound**: The personal profile plays `assets/mario-waow.mp3` when
