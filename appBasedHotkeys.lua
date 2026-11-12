@@ -6,36 +6,43 @@ local windows = require("windowManagement")
 
 local M = {}
 
+local nativeBin = "/etc/profiles/per-user/" .. os.getenv("USER") .. "/bin/"
+local function nativeTask(name, args, message)
+  return helperFunctions.runTask(nativeBin .. name, args, function(code, _, err)
+    if code ~= 0 then helperFunctions.reportError(err ~= "" and err or message) end
+    return true
+  end)
+end
+
+local function fastHerdr(command, fallback, args, message)
+  return helperFunctions.runTask(nativeBin .. "herdr-app", { "do", "compact-terminals-bar." .. command }, function(code)
+    -- Other layouts retain the existing cross-space navigation and undo helper.
+    if code ~= 0 then nativeTask(fallback, args, message) end
+    return true
+  end)
+end
+
 local actions = {
   herdrCloseSession = function()
-    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native close" }, function(code, _, err)
-      if code ~= 0 then helperFunctions.reportError(err ~= "" and err or "Could not save the session; tab left open") end
-      return true
-    end)
+    fastHerdr("close", "herdr-native", { "close" }, "Could not save the session; tab left open")
   end,
   herdrReopenSession = function()
-    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native reopen" }, function(code, _, err)
-      if code ~= 0 then helperFunctions.reportError(err ~= "" and err or "Could not resume the saved session") end
-      return true
-    end)
+    nativeTask("herdr-native", { "reopen" }, "Could not resume the saved session")
   end,
   herdrNextPane = function()
-    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native pane-next" })
+    nativeTask("herdr-native", { "pane-next" }, "Could not select the next pane")
   end,
   herdrPreviousPane = function()
-    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native pane-previous" })
+    nativeTask("herdr-native", { "pane-previous" }, "Could not select the previous pane")
   end,
   herdrReconnect = function()
-    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-native reconnect" }, function(code, _, err)
-      if code ~= 0 then helperFunctions.reportError(err ~= "" and err or "Could not reconnect the selected machine") end
-      return true
-    end)
+    nativeTask("herdr-native", { "reconnect" }, "Could not reconnect the selected machine")
   end,
   herdrNextSession = function()
-    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-navigate next" })
+    fastHerdr("next", "herdr-navigate", { "next" }, "Could not select the next session")
   end,
   herdrPreviousSession = function()
-    helperFunctions.runTask("/bin/zsh", { "-lc", "herdr-navigate previous" })
+    fastHerdr("previous", "herdr-navigate", { "previous" }, "Could not select the previous session")
   end,
   windowMakeLarger = function() windows.resize(0.05) end,
   windowMakeSmaller = function() windows.resize(-0.05) end,
