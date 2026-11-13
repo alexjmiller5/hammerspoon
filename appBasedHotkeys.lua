@@ -3,6 +3,7 @@ local log = hs.logger.new("App Based Hotkeys", "debug")
 local constants = require("constants")
 local helperFunctions = require("helperFunctions")
 local windows = require("windowManagement")
+local connection = require("herdrConnection")
 
 local M = {}
 
@@ -23,17 +24,34 @@ local function fastHerdr(command, fallback, args, message)
 end
 
 local actions = {
+  herdrNewSession = function()
+    connection.run("new", function() nativeTask("herdr-app", { "do", "tab.new" }, "Could not open a tab") end)
+  end,
+  herdrSplitRight = function()
+    connection.run("split-right", function() nativeTask("herdr-app", { "do", "pane.split", "--direction", "right" }, "Could not split the pane") end)
+  end,
+  herdrSplitDown = function()
+    connection.run("split-down", function() nativeTask("herdr-app", { "do", "pane.split", "--direction", "down" }, "Could not split the pane") end)
+  end,
   herdrCloseSession = function()
-    fastHerdr("close", "herdr-native", { "close" }, "Could not save the session; tab left open")
+    connection.run("close", function()
+      fastHerdr("close", "herdr-native", { "close" }, "Could not save the session; tab left open")
+    end)
   end,
   herdrReopenSession = function()
-    nativeTask("herdr-native", { "reopen" }, "Could not resume the saved session")
+    connection.run("reopen", function()
+      nativeTask("herdr-native", { "reopen" }, "Could not resume the saved session")
+    end)
   end,
   herdrNextPane = function()
-    nativeTask("herdr-native", { "pane-next" }, "Could not select the next pane")
+    connection.run("pane-next", function()
+      nativeTask("herdr-native", { "pane-next" }, "Could not select the next pane")
+    end)
   end,
   herdrPreviousPane = function()
-    nativeTask("herdr-native", { "pane-previous" }, "Could not select the previous pane")
+    connection.run("pane-previous", function()
+      nativeTask("herdr-native", { "pane-previous" }, "Could not select the previous pane")
+    end)
   end,
   herdrReconnect = function()
     nativeTask("herdr-native", { "reconnect" }, "Could not reconnect the selected machine")
@@ -117,6 +135,9 @@ local apps = {
 }
 
 M.definitions = {
+  { mods = { "cmd" }, key = "t", action = actions.herdrNewSession, only = apps.herdr },
+  { mods = { "cmd" }, key = "d", action = actions.herdrSplitRight, only = apps.herdr },
+  { mods = { "cmd", "shift" }, key = "d", action = actions.herdrSplitDown, only = apps.herdr },
   { mods = { "cmd" }, key = "]", action = actions.herdrNextPane, only = apps.herdr },
   { mods = { "cmd" }, key = "[", action = actions.herdrPreviousPane, only = apps.herdr },
   { mods = { "cmd", "shift" }, key = "r", action = actions.herdrReconnect, only = apps.herdr },

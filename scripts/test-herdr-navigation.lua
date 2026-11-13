@@ -7,6 +7,7 @@ local helpers = setmetatable({ runTask = function(path, args, callback)
 end }, { __index = require("helperFunctions") })
 local env = setmetatable({ require = function(name)
   if name == "helperFunctions" then return helpers end
+  if name == "herdrConnection" then return {run=function(_,callback) callback() end} end
   return require(name)
 end }, { __index = _G })
 local definitions = assert(loadfile(hs.configdir .. "/appBasedHotkeys.lua", "t", env))().definitions
@@ -49,3 +50,15 @@ for _, def in ipairs(definitions) do
 end
 for _, call in ipairs(calls) do assert(call.path ~= "/bin/zsh", "Hotkeys must not launch login shells") end
 print("Native fast dispatch and other-layout fallback passed")
+
+for _, expected in ipairs({{"t","cmd","tab.new"},{"d","cmd","pane.split"},{"d","cmd+shift","pane.split"}}) do
+  local matched=0
+  for _, def in ipairs(definitions) do
+    if def.key==expected[1] and table.concat(def.mods,"+")==expected[2] and def.only and def.only[1]=="dev.herdr.app" then
+      matched=matched+1;def.action()
+      assert(calls[#calls].args[1]=="do" and calls[#calls].args[2]==expected[3])
+    end
+  end
+  assert(matched==1,"Native create/split hotkey missing")
+end
+print("Guarded create and split bindings passed")

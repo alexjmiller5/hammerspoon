@@ -61,6 +61,12 @@ init.lua                 # Entry point - loads modules, binds hotkeys, starts wa
                          # (see profiles/work/constants.lua for its shape)
 ```
 
+Remote create, close, restore, split and pane shortcuts run through
+`herdrConnection.lua`: read-only native preflight, 1.5-second outer deadline,
+one check at a time, no queued action or late-response replay. Failed checks
+show a short alert. Local tab navigation and reconnect bypass the guard.
+`scripts/test-herdr-connection.lua` covers offline, timeout and late callbacks.
+
 Native Herdr hotkeys dispatch installed binaries directly from the per-user Nix
 profile, without login shells. The custom compact bar handles global next/previous
 and close commands in process; other layouts fall back to the native CLI helpers.
