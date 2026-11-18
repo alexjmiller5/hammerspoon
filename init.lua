@@ -48,6 +48,8 @@ MainAppWatcher:start()
 -- Herdr's macOS-style shortcuts, live only in windows opened by hdr/herdr
 HerdrWindowFilter = herdrHotkeys.start()
 
+SpotifyMediaKeyWatcher = watcherFunctions.createSpotifyMediaKeyWatcher():start()
+
 SpotifyAutoHideWatcher = watcherFunctions.createSpotifyAutoHideWatcher():start()
 
 CopyConfirmationWatcher = watcherFunctions.createCopyConfirmationWatcher()

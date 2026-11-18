@@ -18,7 +18,7 @@ local fakeHs = {
   },
 }
 local env = setmetatable({ hs = fakeHs }, { __index = _G })
-local watchers = assert(loadfile(hs.configdir .. "/profiles/personal/watcherFunctions.lua", "t", env))()
+local watchers = assert(loadfile(hs.configdir .. "/watcherFunctions.lua", "t", env))()
 assert(type(watchers.createSpotifyMediaKeyWatcher) == "function",
   "Cmd media events have no Spotify handler")
 watchers.createSpotifyMediaKeyWatcher()

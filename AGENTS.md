@@ -99,8 +99,8 @@ Receptor through its background deep link and shows a brief centered
 process launches report errors instead. Hyper+C in Chrome sends Ctrl+Option+C
 (Verdict pages toggle comment mode on it; a page never sees Hyper, which is
 a Hammerspoon modal). Hyper+T toggles an already enrolled
-Tailscale connection. Cmd+F7/F8/F9 control Spotify directly. The personal
-profile's `ProfileSpotifyMediaKeyWatcher` also handles Cmd with the
+Tailscale connection. Cmd+F7/F8/F9 control Spotify directly in both profiles. The shared
+`SpotifyMediaKeyWatcher` also handles Cmd with the
 physical previous/play/next media keys, so Fn is unnecessary in media-key
 mode. Plain media keys pass through. Claimed presses consume their repeats
 and releases to prevent a second system action. Check with
@@ -361,3 +361,8 @@ Never send recovery into a remote pane or restart a server. No machine IDs or
 SSH targets belong in source. Check with `scripts/test-herdr-hotkeys.lua`.
 
 Native Herdr Cmd+[/] cycles panes across split directions; Cmd+Shift+R reconnects the selected remote machine through herdr-native.
+
+Work Notes Cmd+\ selects View > Show Folders or Hide Folders through the shared
+menu helper. It is scoped only to Notes; unavailable menus report an error.
+`scripts/test-shared-spotify-notes.lua <config-dir>` runs under plain Lua and
+checks both profile initializers, single media dispatch and Notes menu routing.

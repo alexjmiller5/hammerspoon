@@ -104,11 +104,6 @@ local actions = {
       hs.eventtap.keyStroke({ "ctrl", "alt" }, "c", 0, app)
     end
   end,
-
-  -- Control Spotify directly, regardless of which app has focus.
-  spotifyNext = function() hs.spotify.next() end,
-  spotifyPlayPause = function() hs.spotify.playpause() end,
-  spotifyPrev = function() hs.spotify.previous() end,
 }
 
 -- Hotkey Definitions Table
@@ -140,12 +135,6 @@ M.definitions = {
   { mods = constants.hyperKeyMods,    key = "s",  action = actions.captureSongWithCochlea },
   { mods = constants.hyperKeyMods,    key = "r",  action = actions.receptor("r") },
   { mods = constants.hyperKeyMods,    key = "q",  action = actions.receptor("q") },
-
-  -- Media Remaps
-  { mods = { "cmd" },                 key = "f9", action = actions.spotifyNext },
-  { mods = { "cmd" },                 key = "f8", action = actions.spotifyPlayPause },
-  { mods = { "cmd" },                 key = "f7", action = actions.spotifyPrev },
-
 }
 
 return M

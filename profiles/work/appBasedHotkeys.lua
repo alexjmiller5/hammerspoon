@@ -35,6 +35,12 @@ local jsClick = [[var clk=function(e){if(!e)return;
 ]]
 
 local actions = {
+  notesToggleSidebar = function()
+    if not helpers.tryMenuItem({ "View", "Show Folders" })
+        and not helpers.tryMenuItem({ "View", "Hide Folders" }) then
+      helpers.reportError("Notes folders menu is unavailable.")
+    end
+  end,
   -- cmd+shift+\ — site-specific panel toggle (cmd+\ stays the general
   -- browser tab-strip sidebar everywhere)
   toggleSitePanel = function()
@@ -184,6 +190,8 @@ local browserOnly = { browserBundleId }
 local slackOnly = { baseConstants.appBundleIds.slack }
 
 M.definitions = {
+  { mods = { "cmd" }, key = "\\", action = actions.notesToggleSidebar,
+    only = { baseConstants.appBundleIds.notes } },
   { mods = { "cmd" },          key = "\\",     action = actions.toggleContextSidebar,     only = browserOnly },
   { mods = { "cmd", "shift" }, key = "\\",     action = actions.toggleSitePanel,          only = browserOnly },
   { mods = { "cmd" },          key = "k",      action = actions.searchCurrentSite,        only = browserOnly },

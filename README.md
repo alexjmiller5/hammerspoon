@@ -36,7 +36,8 @@ dictionary works; override it in the machine-local file). Option+B opens a
 new window in it and Option+I an incognito one; Option+Shift+B/I search the
 clipboard there. Both profiles use Option+A for Apple Notes. On work,
 Option+G and Option+Y jump to the Gemini and YouTube tabs; personal leaves
-Option+G unbound. Option+Shift+W opens the Downloads folder in Finder on both.
+Option+G unbound. Work Cmd+\ toggles Notes folders through its native View menu.
+Option+Shift+W opens the Downloads folder in Finder on both.
 Cmd+\, Cmd+D and Cmd+Shift+D work in both Chrome and Island.
 
 Work Cmd+Shift+R clicks Gmail's visible, enabled Refresh control to fetch
@@ -96,7 +97,9 @@ On the personal profile, Hyper+C in Chrome sends Ctrl+Option+C, which toggles
 comment mode on Verdict review pages. Hyper+T toggles the existing Tailscale connection
 without changing its settings. A 30-second deadline bounds the whole toggle,
 including the initial status query. Sign in to the native app first on each machine;
-`HAMMERSPOON_TAILSCALE_BIN` can override the executable location. Cmd+F7/F8/F9
+`HAMMERSPOON_TAILSCALE_BIN` can override the executable location.
+
+In both profiles, Cmd+F7/F8/F9
 control Spotify through its native AppleScript interface. Cmd with the
 top-row previous/play/next media keys also works without Fn/Globe. Plain media
 keys retain their normal system behavior.

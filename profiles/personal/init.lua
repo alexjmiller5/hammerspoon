@@ -18,7 +18,6 @@ helperFunctions.registerAppBasedHotkeys(AppBasedHotkeyRegistry, profileAppBasedH
 
 ProfileScreenSharingPlacement = require("profiles.personal.screenSharingPlacement").start()
 
-ProfileSpotifyMediaKeyWatcher = profileWatcherFunctions.createSpotifyMediaKeyWatcher():start()
 ProfileAppInputRemapWatcher = profileWatcherFunctions.createAppInputRemapWatcher():start()
 
 ProfilePowerWatcher = profileWatcherFunctions.createWatcherOnPowerConnect(function()
