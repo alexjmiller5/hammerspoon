@@ -26,4 +26,6 @@ local spoonOk, spoonError = pcall(function()
 end)
 if not spoonOk then log.e("TextClipboardHistory could not start: " .. tostring(spoonError)) end
 
+ProfileTransientTabs = require("profiles.work.transientTabs").start()
+
 log.i(profileConstants.profileName .. " profile Loaded")

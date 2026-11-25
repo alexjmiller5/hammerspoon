@@ -366,3 +366,41 @@ Work Notes Cmd+\ selects View > Show Folders or Hide Folders through the shared
 menu helper. It is scoped only to Notes; unavailable menus report an error.
 `scripts/test-shared-spotify-notes.lua <config-dir>` runs under plain Lua and
 checks both profile initializers, single media dispatch and Notes menu routing.
+
+### Transient authentication tab observation
+
+The work profile starts `profiles/work/transientTabs.lua`. This is observation
+only: it has no operation to close, navigate or activate a tab. With no configured
+rules it does not inspect the browser. It polls the configured work browser every
+10 seconds when rules exist; it never launches that browser. Each scan has a
+two-second AppleEvent timeout. JavaScript permission failures and browser error
+pages remain unclassified. A screenshot of a refused localhost connection is
+not proof of authentication success.
+
+Rules are user state in `hs.settings`, outside the repo. Configure them through
+the installed Hammerspoon CLI on the work machine (example values only):
+
+```sh
+hs -c 'require("profiles.work.transientTabs").configure({{id="example-cli",host="localhost",pathPrefix="/",contains={"Signed in to Example CLI", "You can close this window"}}})'
+hs -c 'print(hs.inspect(require("profiles.work.transientTabs").observations))'
+hs -c 'print(require("profiles.work.transientTabs").unavailableTabs)'
+hs -c 'require("profiles.work.transientTabs").configure({})'
+```
+
+`host` is an exact lowercase hostname; ports and query values are ignored.
+`pathPrefix` matches the URL pathname. Every literal phrase in `contains` must
+appear in rendered body text after loading finishes for a `success` observation.
+An empty phrase list or a missing phrase yields only `candidate`, never success.
+There are no built-in site rules. Store company-specific rules through this
+interface, never in source, fixtures or screenshots committed to the repository.
+Only window ID, tab ID, rule ID and status leave the classifier. Logs suppress
+unchanged observations and exclude URLs, callback tokens and body text.
+
+Run `bun scripts/test-transient-tabs.mjs` for the classifier and
+`scripts/test-transient-tabs.lua <config-dir>` under plain Lua or Hammerspoon
+for settings/lifecycle/redaction. `scripts/test-shared-spotify-notes.lua` checks
+work-only startup. Pass `--compile` as the second argument to the Lua test
+on a Mac with Chrome installed to compile the actual AppleScript envelope
+without executing it. Actual Island automation/JavaScript permissions and live
+work-host observation need verification on that host before any closing feature
+is considered.

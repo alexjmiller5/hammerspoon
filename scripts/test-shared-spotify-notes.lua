@@ -40,7 +40,7 @@ local function context(profile)
     reportError = function(message) errors[#errors+1]=message end,
   }
   local env = setmetatable({ hs = fake, require = false }, { __index = _G })
-  local cache = { helperFunctions = helpers, windowManagement = {}, opUnlock = {},
+  local cache = { ["profiles.work.transientTabs"] = { start = function() starts.transient = (starts.transient or 0)+1; return inert end }, helperFunctions = helpers, windowManagement = {}, opUnlock = {},
     ["hs.ipc"] = {}, herdrHotkeys = { start = function() return inert end },
     hyperKey = { start = function() return inert end },
     ["profiles.work.browser"] = {},
@@ -68,6 +68,7 @@ local function context(profile)
   cache["profiles.personal.otp"] = {}; cache["profiles.personal.otpMail"] = {}
   load(root.."/init.lua", env)()
   assert(starts.media == 1, profile..": shared media watcher must start exactly once")
+  assert((starts.transient or 0) == (profile == "work" and 1 or 0), "transient observer must start only in work")
   for _, spec in ipairs({{"f7", "previous"}, {"f8", "playpause"}, {"f9", "next"}}) do
     local count = 0
     for _, def in ipairs(definitions) do
